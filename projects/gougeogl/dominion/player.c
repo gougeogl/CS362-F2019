@@ -153,17 +153,21 @@ int main(int argc, char* argv[]) {
         } else if(COMPARE(command, help) == 0) {
             printHelp();
         } else if(COMPARE(command, init) == 0) {
+	    if(arg0 < 2 || arg0 > 4 || arg0 <= arg1) {
+	    printf("Invalid number of players. Please try again.\n");
+	    continue;
+	    }
             int numHuman = arg0 - arg1;
             for(playerNum = numHuman; playerNum < arg0; playerNum++) {
-                isBot[playerNum] = TRUE;
+               	isBot[playerNum] = TRUE;
             }
             //		selectKingdomCards(randomSeed, kCards);  //Comment this out to use the default card set defined in playDom.
             outcome = initializeGame(arg0, kCards, randomSeed, game);
             printf("\n");
             if(outcome == SUCCESS) {
-                gameStarted = TRUE;
-                currentPlayer = whoseTurn(game);
-                printf("Player %d's turn number %d\n\n", currentPlayer, turnNum);
+               	gameStarted = TRUE;
+               	currentPlayer = whoseTurn(game);
+               	printf("Player %d's turn number %d\n\n", currentPlayer, turnNum);
             }
 
         } else if(COMPARE(command, numH) == 0) {
@@ -184,7 +188,7 @@ int main(int argc, char* argv[]) {
             printScores(game);
             break;
         } else if(COMPARE(command, show) == 0) {
-            if(gameStarted == FALSE) continue;
+            if(gameStarted == FALSE)continue;
             printHand(currentPlayer, game);
             printPlayed(currentPlayer, game);
             //printDiscard(currentPlayer, game);
