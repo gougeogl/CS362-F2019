@@ -1,3 +1,12 @@
+/* *************************************************
+* editor: Glen Gougeon 
+* class: CS362 400
+* last mod: 10-12-2019
+* assignment: Assignment 2
+* documentation: SEE separate .pdf for  explanation
+
+****************************************************/
+
 #include "dominion.h"
 #include "dominion_helpers.h"
 #include "interface.h"
@@ -349,8 +358,7 @@ int whoseTurn(struct gameState *state) {
     return state->whoseTurn;
 }
 
-/* *******************************************************  <---------------------------------------------------------------- NEW HELPER FUNCTION 
-	Author: Glen Gougeon. New Getter Function. 
+/* *******************************************************  <---------------------------------------------------------------- NEW  FUNCTION 
 	Determines who the next player is from whoseTurn member
 	of gameState and adding 1. If after adding 1, that is
 	greater than the numPlayers, we start over at player 0.
@@ -743,9 +751,9 @@ int baronCard(int choice1, struct gameState *state)
 	}
 
 	else {
-		if (supplyCount(estate, state) >= 0) { /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 2: >= wrong, > correct
-											                                         this will try to gain a card 
-																					 from an empty supply */
+		if (supplyCount(estate, state) >= 0) { /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 2: >= wrong, > correct
+											                                          this will try to gain a card 
+																					  from an empty supply */
 			gainCard(estate, state, 0, currentPlayer);//Gain an estate
 
 			state->supplyCount[estate]--;//Decrement Estates
@@ -776,7 +784,7 @@ int minionCard(int choice1, int choice2, struct gameState *state, int handPos)
 	{
 		state->coins = state->coins + 2;
 	}
-	/* ^^^^^^^^^^^^^^^^^^<<<<<<<<<<<<<<<<<< BUG 4: else if = correct, if = WRONG. Doing this..so long as choice2 is a positive enum value it
+	/* vvvvvvvvvvvvvvvvv <<<<<<<<<<<<<<<<<< BUG 4: else if = correct, if = WRONG. Doing this..so long as choice2 is a positive enum value it
 	                                        will pass meaning.. you get +2 coin AND you get to discard ...but BUG 3 below will only allow you
 											to gain 3 cards instead of 4 */
 
@@ -1385,7 +1393,21 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
     return -1;
 }
 
-/* Operates if there is more than 1 card in currentPlayer's hand */
+/************************************************************************* <---------------------------------------------------------------- NEW  FUNCTION 
+*
+* Function: shiftCards()
+* Params:
+*		handPos: integer corresponds to position in gameState hand array
+*		currentPlayer: integer of player shifting cards
+*		state: struct gameState pointer object that stores specifics
+*				of game play for current player's turn
+* Description:
+*		Shifts cards in currentPlayer's hand over to the left. Used by
+*		discardCard() and/or trashCard(). Will not iterate if only 1 card.
+* Returns:
+*		SUCCESS flag (zero), only if handCount of player > 1
+*
+**************************************************************************/
 int shiftCards(int handPos, int currentPlayer, struct gameState *state)
 {
 	int result = FAILURE;
@@ -1406,7 +1428,31 @@ int shiftCards(int handPos, int currentPlayer, struct gameState *state)
 	return result;
 }
 
-/* Discards a specific card from the player's hand. "handPos" */
+
+/************************************************************************* <---------------------------------------------------------------- NEW  FUNCTION 
+*
+* Function: discardCard()
+* Params:
+*		1. handPos: integer corresponds to position in gameState hand array
+*		2. currentPlayer: integer of player shifting cards
+*		2. state: struct gameState pointer object that stores specifics
+*				of game play for current player's turn
+*		4. trashFlag: 1 = TRASH, 0 = DISCARD (MACROS available)
+*
+* Description:
+*		1. Discards a SINGLE card to the currentPlayer's discard pile
+*		held by the gameState pointer "state." 
+*		2. increments discardCount of currentPlayer
+*		3. sets position of hand to UNUSED (-1)
+*		4. decrements hand count
+*		5. calls shiftCard() function. SEE shiftCard specs.
+*
+* Returns:
+*		if more than 1 card, and shiftCard() executes a FAILURE
+*		FAILURE returned by discardCard()
+*
+**************************************************************************/
+
 int discardCard(int handPos, int currentPlayer, struct gameState *state, int trashFlag)
 {
 	int action_success = FAILURE;
@@ -1433,7 +1479,29 @@ int discardCard(int handPos, int currentPlayer, struct gameState *state, int tra
     return action_success;
 }
 
-/* Discards a specific card from the player's hand. "handPos" */
+/************************************************************************* <---------------------------------------------------------------- NEW  FUNCTION 
+*
+* Function: trashCard()
+* Params:
+*		1. handPos: integer corresponds to position in gameState hand array
+*		2. currentPlayer: integer of player shifting cards
+*		2. state: struct gameState pointer object that stores specifics
+*				of game play for current player's turn
+*		4. trashFlag: 1 = TRASH, 0 = DISCARD (MACROS available)
+*
+* Description:
+*		1. Trashes a SINGLE card to the gameState trashPile
+*		held by the gameState pointer "state."
+*		2. increments int trashCount
+*		3. sets position of hand to UNUSED (-1)
+*		4. decrements hand count
+*		5. calls shiftCard() function. SEE shiftCard specs.
+*
+* Returns:
+*		if more than 1 card, and shiftCard() executes a FAILURE
+*		FAILURE returned by trashCard()
+*
+**************************************************************************/
 int trashCard(int handPos, int currentPlayer, struct gameState *state, int trashFlag)
 {
 	int action_success = FAILURE;
