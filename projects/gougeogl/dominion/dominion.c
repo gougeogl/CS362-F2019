@@ -718,7 +718,7 @@ int baronCard(int choice1, struct gameState *state)
 				}
 
 				/* Exit the loop */
-				estate_not_found = FALSE; 
+				estate_not_found = TRUE; /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 1 Infinite Loop */
 			}
 			else if (p > state->handCount[currentPlayer]) {
 				if (DEBUG) {
@@ -743,7 +743,9 @@ int baronCard(int choice1, struct gameState *state)
 	}
 
 	else {
-		if (supplyCount(estate, state) > 0) {
+		if (supplyCount(estate, state) >= 0) { /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 2: >= wrong, > correct
+											                                         this will try to gain a card 
+																					 from an empty supply */
 			gainCard(estate, state, 0, currentPlayer);//Gain an estate
 
 			state->supplyCount[estate]--;//Decrement Estates
@@ -774,7 +776,11 @@ int minionCard(int choice1, int choice2, struct gameState *state, int handPos)
 	{
 		state->coins = state->coins + 2;
 	}
-	else if (choice2)		//discard hand, redraw 4, other players with 5+ cards discard hand and draw 4
+	/* ^^^^^^^^^^^^^^^^^^<<<<<<<<<<<<<<<<<< BUG 4: else if = correct, if = WRONG. Doing this..so long as choice2 is a positive enum value it
+	                                        will pass meaning.. you get +2 coin AND you get to discard ...but BUG 3 below will only allow you
+											to gain 3 cards instead of 4 */
+
+	if (choice2)		//discard hand, redraw 4, other players with 5+ cards discard hand and draw 4
 	{
 		//discard hand
 		while (numHandCards(state) > 0)
@@ -783,7 +789,8 @@ int minionCard(int choice1, int choice2, struct gameState *state, int handPos)
 		}
 
 		//draw 4
-		for (i = 0; i < 4; i++)
+		for (i = 0; i < 3; i++) /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 3: Player only draws 3 cards, so everyone
+								                                                 else playing will get 4 cards. Oops. */
 		{
 			drawCard(currentPlayer, state);
 		}
@@ -828,7 +835,7 @@ int ambassadorCard(int choice1, int choice2, struct gameState *state, int handPo
 		return -1;
 	}
 
-	if (choice1 == handPos)
+	if (choice1 = handPos) /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 5: Assignment vs. equality choice1 == handPos correct */
 	{
 		return -1;
 	}
@@ -863,7 +870,7 @@ int ambassadorCard(int choice1, int choice2, struct gameState *state, int handPo
 	}
 
 	//discard played card from hand
-	discardCard(handPos, currentPlayer, state, 0);
+	discardCard(handPos, currentPlayer, state, TRASH); /* <<<<<<<<<<<<<<<<<<<<<<< BUG 6: Incorrect flag given. fail to execute function */
 
 	//trash copies of cards returned to supply
 	for (j = 0; j < choice2; j++)
@@ -891,7 +898,13 @@ int tributeCard(struct gameState *state)
 
 	int tributeRevealedCards[2] = { -1, -1 };
 
-	if ((state->discardCount[nextPlayer] + state->deckCount[nextPlayer]) <= 1) {
+	if ((state->discardCount[nextPlayer] + state->deckCount[nextPlayer]) < 1) { /* <<<<<<<<<<<<<<<< BUG 7: should be <= 1 NOT < 1
+																				                     If this is < 1, the nested branches below it
+																									 will never be true. You cannot have > 0 and < 0
+																									 unless you are at 0, which means the lower
+																									 condition will always execute, and the nextPlayer
+																									 will always have their deck reshuffled. This can
+																									 affect game play*/
 		if (state->deckCount[nextPlayer] > 0) {
 			tributeRevealedCards[0] = state->deck[nextPlayer][state->deckCount[nextPlayer] - 1];
 			state->deckCount[nextPlayer]--;
@@ -912,7 +925,13 @@ int tributeCard(struct gameState *state)
 		if (state->deckCount[nextPlayer] == 0) {
 			for (i = 0; i < state->discardCount[nextPlayer]; i++) {
 				state->deck[nextPlayer][i] = state->discard[nextPlayer][i];//Move to deck
-				state->deckCount[nextPlayer]++;
+				/* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 8: forgot to increment player's deckCount.
+				                                                                                Not incrementing it in this case while their
+																								discard increases, but combined with BUG 7, means
+																								they would always have 0 (ZERO) cards in their hand,
+																								but it would also mean the positions of the cards in
+																								the deck would be off */
+				//state->deckCount[nextPlayer]++; 
 				state->discard[nextPlayer][i] = -1;
 				state->discardCount[nextPlayer]--;
 			}
@@ -966,7 +985,8 @@ int mineCard(int choice1, int choice2, struct gameState *state, int handPos)
 
 	if (choice2 > treasure_map || choice2 < curse)
 	{
-		return -1;
+		return 1; /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 9: forgot the -1. Good = -1, Bad = 1. This means it will 
+				                                                      return true if the choice is "off the map" or not in the deck */
 	}
 
 	if ((getCost(state->hand[currentPlayer][choice1]) + 3) >= getCost(choice2))
@@ -980,7 +1000,12 @@ int mineCard(int choice1, int choice2, struct gameState *state, int handPos)
 	discardCard(handPos, currentPlayer, state, DISCARD);
 
 	//discard trashed card
-	for (i = 0; i < state->handCount[currentPlayer]; i++)
+	for (i = 0; j < state->handCount[currentPlayer]; i++) /* <<<<<<<<<<<<< BUG 10: Good = i < state->handCount[currentPlayer];
+														                           BAD = j < state->handCount[currentPlayer];
+																				   if j happens to be an enum of a card larger
+																				   than the handCount of the current player then
+																				   the player ends up keeping the treasure that
+																				   they were supposed to trash. Unfair advantage */
 	{
 		if (state->hand[currentPlayer][i] == j)
 		{
