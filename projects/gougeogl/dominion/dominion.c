@@ -1376,10 +1376,7 @@ int shiftCards(int handPos, int currentPlayer, struct gameState *state)
 			state->hand[currentPlayer][i] = state->hand[currentPlayer][i + 1];
 		}
 		/* last place in hand is garbage. Mark unused (= -1 ) */
-		state->handCount[currentPlayer] = UNUSED;
-
-		/* reduce # cards in hand */
-		state->handCount[currentPlayer]--;
+		state->hand[currentPlayer][i] = UNUSED;
 
 		result = SUCCESS;
 	}
@@ -1396,8 +1393,11 @@ int discardCard(int handPos, int currentPlayer, struct gameState *state, int tra
 	if (trashFlag == DISCARD)
 	{
 		state->discard[currentPlayer][(state->discardCount[currentPlayer])] = state->hand[currentPlayer][handPos];
-		state->hand[currentPlayer][handPos] = UNUSED;
 		state->discardCount[currentPlayer]++;
+
+		/* adjust what's in hand */
+		state->hand[currentPlayer][handPos] = UNUSED;
+		state->handCount[currentPlayer]--;
 
 		/* if there is more than 1 card in hand, and shiftCards fails, then discard fails */
 		if (shiftCards(handPos, currentPlayer, state) == FAILURE && state->handCount[currentPlayer] > 1)
@@ -1420,8 +1420,11 @@ int trashCard(int handPos, int currentPlayer, struct gameState *state, int trash
 	if (trashFlag == TRASH)
 	{
 		state->trashPile[state->trashCount] = state->hand[currentPlayer][handPos];
-		state->hand[currentPlayer][handPos] = UNUSED;
 		state->trashCount++;
+
+		/* adjust what's in hand */
+		state->hand[currentPlayer][handPos] = UNUSED;
+		state->handCount[currentPlayer]--;
 
 		/* if there is more than 1 card in hand, and shiftCards fails, then discard fails */
 		if (shiftCards(handPos, currentPlayer, state) == FAILURE && state->handCount[currentPlayer] > 1)
