@@ -699,7 +699,6 @@ int getCost(int cardNumber)
 int baronCard(int choice1, struct gameState *state)
 {
 	int currentPlayer = whoseTurn(state);
-	int nextPlayer = whoseNext(state);
 
 	state->numBuys++;//Increase buys by 1!
 	if (choice1 > 0) { //Boolean true or going to discard an estate
@@ -761,7 +760,6 @@ int minionCard(int choice1, int choice2, struct gameState *state, int handPos)
 	int j;
 
 	int currentPlayer = whoseTurn(state);
-	int nextPlayer = whoseNext(state);
 
 	//+1 action
 	state->numActions++;
@@ -819,7 +817,6 @@ int ambassadorCard(int choice1, int choice2, struct gameState *state, int handPo
 	int i;
 	int j;
 	int currentPlayer = whoseTurn(state);
-	int nextPlayer = whoseNext(state);
 
 	j = 0;		//used to check if player has enough cards to discard
 
@@ -957,9 +954,7 @@ int mineCard(int choice1, int choice2, struct gameState *state, int handPos)
 {
 	int i;
 	int j;
-	int index;
 	int currentPlayer = whoseTurn(state);
-	int nextPlayer = whoseNext(state);
 
 	j = state->hand[currentPlayer][choice1];  //store card we will trash
 
@@ -1013,7 +1008,6 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
     if (nextPlayer > (state->numPlayers - 1)) {
         nextPlayer = 0;
     }
-
 
     //uses switch to select card and perform actions
     switch( card )
@@ -1364,7 +1358,6 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 
 int discardCard(int handPos, int currentPlayer, struct gameState *state, int trashFlag)
 {
-
     //if card is not trashed, added to Played pile
     if (trashFlag < 1)
     {
