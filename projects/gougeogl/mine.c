@@ -4,11 +4,7 @@ int mineCard(int choice1, int choice2, struct gameState *state, int handPos)
 	int j;
 	int index;
 	int currentPlayer = whoseTurn(state);
-	int nextPlayer = currentPlayer + 1;
-
-	if (nextPlayer > (state->numPlayers - 1)) {
-		nextPlayer = 0;
-	}
+	int nextPlayer = whoseNext(state);
 
 	j = state->hand[currentPlayer][choice1];  //store card we will trash
 
@@ -37,7 +33,7 @@ int mineCard(int choice1, int choice2, struct gameState *state, int handPos)
 	{
 		if (state->hand[currentPlayer][i] == j)
 		{
-			discardCard(i, currentPlayer, state, 0);
+			discardCard(i, currentPlayer, state, 1);
 			break;
 		}
 	}

@@ -1,11 +1,7 @@
 int baronCard(int choice1, struct gameState *state)
 {
 	int currentPlayer = whoseTurn(state);
-	int nextPlayer = currentPlayer + 1;
-
-	if (nextPlayer > (state->numPlayers - 1)) {
-		nextPlayer = 0;
-	}
+	int nextPlayer = whoseNext(state);
 
 	state->numBuys++;//Increase buys by 1!
 	if (choice1 > 0) { //Boolean true or going to discard an estate
@@ -56,5 +52,6 @@ int baronCard(int choice1, struct gameState *state)
 		}
 	}
 
+	/* discardCard(handPos, currentPlayer, state, 0); ??? */
 	return 0;
 }

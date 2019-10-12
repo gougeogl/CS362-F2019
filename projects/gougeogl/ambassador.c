@@ -3,11 +3,7 @@ int ambassadorCard( int choice1, int choice2, struct gameState *state, int handP
 	int i;
 	int j;
 	int currentPlayer = whoseTurn(state);
-	int nextPlayer = currentPlayer + 1;
-
-	if (nextPlayer > (state->numPlayers - 1)) {
-		nextPlayer = 0;
-	}
+	int nextPlayer = whoseNext(state);
 
 	j = 0;		//used to check if player has enough cards to discard
 

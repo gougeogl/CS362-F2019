@@ -349,6 +349,20 @@ int whoseTurn(struct gameState *state) {
     return state->whoseTurn;
 }
 
+/* *******************************************************  <---------------------------------------------------------------- NEW HELPER FUNCTION 
+	Author: Glen Gougeon. New Helper Function. 
+	Determines who the next player is from whoseTurn member
+	of gameState and adding 1. If after adding 1, that is
+	greater than the numPlayers, we start over at player 0.
+** ********************************************************/
+int whoseNext(struct gameState *state) {
+	int nextPlayer = state->whoseTurn + 1;
+	if (nextPlayer > (state->numPlayers - 1)) {
+		nextPlayer = 0;
+	}
+	return nextPlayer;
+}
+
 int endTurn(struct gameState *state) {
     int k;
     int i;
@@ -685,11 +699,7 @@ int getCost(int cardNumber)
 int baronCard(int choice1, struct gameState *state)
 {
 	int currentPlayer = whoseTurn(state);
-	int nextPlayer = currentPlayer + 1;
-
-	if (nextPlayer > (state->numPlayers - 1)) {
-		nextPlayer = 0;
-	}
+	int nextPlayer = whoseNext(state);
 
 	state->numBuys++;//Increase buys by 1!
 	if (choice1 > 0) { //Boolean true or going to discard an estate
@@ -740,6 +750,7 @@ int baronCard(int choice1, struct gameState *state)
 		}
 	}
 
+	/* discardCard(handPos, currentPlayer, state, 0); ??? */
 	return 0;
 }
 
@@ -748,12 +759,9 @@ int minionCard(int choice1, int choice2, struct gameState *state, int handPos)
 {
 	int i;
 	int j;
-	int currentPlayer = whoseTurn(state);
-	int nextPlayer = currentPlayer + 1;
 
-	if (nextPlayer > (state->numPlayers - 1)) {
-		nextPlayer = 0;
-	}
+	int currentPlayer = whoseTurn(state);
+	int nextPlayer = whoseNext(state);
 
 	//+1 action
 	state->numActions++;
@@ -811,11 +819,7 @@ int ambassadorCard(int choice1, int choice2, struct gameState *state, int handPo
 	int i;
 	int j;
 	int currentPlayer = whoseTurn(state);
-	int nextPlayer = currentPlayer + 1;
-
-	if (nextPlayer > (state->numPlayers - 1)) {
-		nextPlayer = 0;
-	}
+	int nextPlayer = whoseNext(state);
 
 	j = 0;		//used to check if player has enough cards to discard
 
@@ -883,13 +887,9 @@ int tributeCard(struct gameState *state)
 {
 	int i;
 	int currentPlayer = whoseTurn(state);
-	int nextPlayer = currentPlayer + 1;
+	int nextPlayer = whoseNext(state);
 
 	int tributeRevealedCards[2] = { -1, -1 };
-
-	if (nextPlayer > (state->numPlayers - 1)) {
-		nextPlayer = 0;
-	}
 
 	if ((state->discardCount[nextPlayer] + state->deckCount[nextPlayer]) <= 1) {
 		if (state->deckCount[nextPlayer] > 0) {
@@ -946,22 +946,20 @@ int tributeCard(struct gameState *state)
 		}
 	}
 
+	/* discardCard(handPos, currentPlayer, state, 0); ??? */
+
 	return 0;
 
 }
-
 
 /* MINE */ /* <------------------------------------------------------------------------------------- NEW MINE FUNCTION HERE */
 int mineCard(int choice1, int choice2, struct gameState *state, int handPos)
 {
 	int i;
 	int j;
+	int index;
 	int currentPlayer = whoseTurn(state);
-	int nextPlayer = currentPlayer + 1;
-
-	if (nextPlayer > (state->numPlayers - 1)) {
-		nextPlayer = 0;
-	}
+	int nextPlayer = whoseNext(state);
 
 	j = state->hand[currentPlayer][choice1];  //store card we will trash
 
@@ -990,7 +988,7 @@ int mineCard(int choice1, int choice2, struct gameState *state, int handPos)
 	{
 		if (state->hand[currentPlayer][i] == j)
 		{
-			discardCard(i, currentPlayer, state, 0);
+			discardCard(i, currentPlayer, state, 1);
 			break;
 		}
 	}
@@ -1147,7 +1145,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
         {
             if (state->hand[currentPlayer][i] == j)
             {
-                discardCard(i, currentPlayer, state, 0);
+                discardCard(i, currentPlayer, state, 1);
                 break;
             }
         }

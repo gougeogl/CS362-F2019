@@ -2,12 +2,9 @@ int minionCard(int choice1, int choice2, struct gameState *state, int handPos)
 {
 	int i;
 	int j;
-	int currentPlayer = whoseTurn(state);
-	int nextPlayer = currentPlayer + 1;
 
-	if (nextPlayer > (state->numPlayers - 1)) {
-		nextPlayer = 0;
-	}
+	int currentPlayer = whoseTurn(state);
+	int nextPlayer = whoseNext(state);
 
 	//+1 action
 	state->numActions++;

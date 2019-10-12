@@ -153,10 +153,12 @@ int main(int argc, char* argv[]) {
         } else if(COMPARE(command, help) == 0) {
             printHelp();
         } else if(COMPARE(command, init) == 0) {
-	    if(arg0 < 2 || arg0 > 4 || arg0 <= arg1) {
-	    printf("Invalid number of players. Please try again.\n");
-	    continue;
-	    }
+	    
+			if(arg0 < 2 || arg0 > 4 || arg0 <= arg1) {
+			printf("Invalid number of players. Please try again.\n");
+			continue;
+			}
+
             int numHuman = arg0 - arg1;
             for(playerNum = numHuman; playerNum < arg0; playerNum++) {
                	isBot[playerNum] = TRUE;

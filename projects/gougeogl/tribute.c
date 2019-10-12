@@ -2,13 +2,9 @@ int tributeCard(struct gameState *state )
 {
 	int i;
 	int currentPlayer = whoseTurn(state);
-	int nextPlayer = currentPlayer + 1;
+	int nextPlayer = whoseNext(state);
 
 	int tributeRevealedCards[2] = { -1, -1 };
-
-	if (nextPlayer > (state->numPlayers - 1)) {
-		nextPlayer = 0;
-	}
 
 	if ((state->discardCount[nextPlayer] + state->deckCount[nextPlayer]) <= 1) {
 		if (state->deckCount[nextPlayer] > 0) {
@@ -64,6 +60,8 @@ int tributeCard(struct gameState *state )
 			state->numActions = state->numActions + 2;
 		}
 	}
+
+	/* discardCard(handPos, currentPlayer, state, 0); ??? */
 
 	return 0;
 
