@@ -8,7 +8,7 @@
 
 #define MAX_PLAYERS 4
 
-#define DEBUG 0
+#define DEBUG 1
 
 /* http://dominion.diehrstraits.com has card texts */
 /* http://dominion.isotropic.org has other stuff */
@@ -63,14 +63,16 @@ struct gameState {
     int numActions; /* Starts at 1 each turn */
     int coins; /* Use as you see fit! */
     int numBuys; /* Starts at 1 each turn */
-    int hand[MAX_PLAYERS][MAX_HAND];
+    int hand[MAX_PLAYERS][MAX_HAND]; /* The cards in a player's hand ?*/
     int handCount[MAX_PLAYERS];
     int deck[MAX_PLAYERS][MAX_DECK];
     int deckCount[MAX_PLAYERS];
-    int discard[MAX_PLAYERS][MAX_DECK];
+    int discard[MAX_PLAYERS][MAX_DECK]; /* The discard stack for a player ? */
     int discardCount[MAX_PLAYERS];
     int playedCards[MAX_DECK];
     int playedCardCount;
+	int trashPile[MAX_DECK]; /* ADDED A TRASH PILE !!! */
+	int trashCount;
 };
 
 /* All functions return -1 on failure, and DO NOT CHANGE GAME STATE;

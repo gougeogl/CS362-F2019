@@ -4,12 +4,8 @@
 	1/26/2010
 */
 
-
-
 #ifndef _INTERFACE_H
 #define _INTERFACE_H
-
-
 
 #include "dominion.h"
 
@@ -40,6 +36,10 @@
 #define MATCH 0
 #define WINNER 1
 #define NOT_WINNER 0
+
+//Trash or Discard
+#define DISCARD 0
+#define TRASH 1
 
 //The Game Phases
 #define ACTION_PHASE 0
