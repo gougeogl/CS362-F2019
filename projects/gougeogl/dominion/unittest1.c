@@ -31,19 +31,18 @@ int main()
 
 	check = test1();
 	if (check == -1)
-	{
-		printf("Test 1 failed.\n");
-	}
-	else { overall_stat = 0 }
+	{ printf("Test 1 failed.\n"); }
+	else { overall_stat = 0; }
 
+	check = test2();
 	if (check == -1)
-	{
-		printf("Test 2 failed.\n");
-	}
-	else { overall_stat = 0 }
+	{ printf("Test 2 failed.\n"); }
+	else { overall_stat = 0; }
 
+	if( overall_stat == -1 )
+	{ printf("ALL Baron Tests Failed!!\n"); }
 
-	return overall_stat;
+	return 0;
 }
 
 /* returns 0 if pass, -1 if fail */
@@ -52,7 +51,7 @@ int test1()
 	int test_1_stat = -1;
 
 	if(test_1_stat != -1)
-	{ test_1_stat = 0 }
+	{ test_1_stat = 0; }
 
 	return test_1_stat;
 }
@@ -63,9 +62,7 @@ int test2()
 	int test_2_stat = -1;
 
 	if (test_2_stat != -1)
-	{
-		test_2_stat = 0
-	}
+	{ test_2_stat = 0; }
 
 	return test_2_stat;
 }
