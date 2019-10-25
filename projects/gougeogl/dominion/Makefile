@@ -1,4 +1,4 @@
-CFLAGS= -Wall -fpic -coverage -lm -std=c99 
+CFLAGS= -Wall -fpic -coverage -lm 
 #cFLAGS += -fprofile-arcs -ftest-coverage
 #LFLAGS += -coverage
 #LFLAGS += -lgcov

@@ -8,7 +8,7 @@
 
 #define MAX_PLAYERS 4
 
-#define DEBUG 1
+#define DEBUG 0
 
 /* http://dominion.diehrstraits.com has card texts */
 /* http://dominion.isotropic.org has other stuff */

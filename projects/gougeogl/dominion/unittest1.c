@@ -16,14 +16,14 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "dominion.h"
 #include "dominion_helpers.h"
 #include "interface.h"
 #include "rngs.h"
 
-int initTestGame(struct gameState* game, int* kDeck, int* mySeed);
-int cleanTestGame(struct gameState* game);
+void initTestGame(struct gameState* game, int* kDeck, int seed );
 
 int test1();
 int test2();
@@ -32,24 +32,20 @@ int main( int argc, char* argv[] )
 {
 	int overall_stat = -1;
 	int check = -1; 
-	int init_was_good = -1;
 
-	int kingdomCards[10] = { adventurer, ambassador, baron, feast, tribute, minion, mine,  gardens, remodel, smithy }
+	int kingdomCards[10] = { adventurer, ambassador, baron, feast, tribute, minion, mine,  gardens, remodel, smithy };
 
 	// Set up Game State 
-	struct gameState game;
+	struct gameState G;
 
-	// 1. declare 
-	struct gameState *G = &game; // set pointer 
-
+	//int seed = atoi(argv[1]);
+	int seed = 1; 
 
 	//int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState *state, int handPos, int *bonus)
 
 	//int baronCard(int choice1, struct gameState *state)
 
-	init_was_good = initTestGame(G, kingdomCards, seed);
-	if(init_was_good == -1)
-	{ printf("Bad game initialization.\n"); }
+	initTestGame(&G, kingdomCards, seed);
 
 	check = test1();
 	if (check == -1)
@@ -64,34 +60,18 @@ int main( int argc, char* argv[] )
 	if( overall_stat == -1 )
 	{ printf("ALL Baron Tests Failed!!\n"); }
 
-	cleanTestGame(G);
-
 	return 0;
 }
 
-int initTestGame(struct gameState* game, int* kDeck, int* mySeed)
+void initTestGame(struct gameState* game, int* kDeck, int mySeed)
 {
-	int result = -1;
+	memset(game, '\0', sizeof(struct gameState));   // clear mem of 
+	
+	int checkInit = initializeGame(2, kDeck, mySeed, game); // initialize 2 player game 
+	
+	if(checkInit == -1)
+	{ printf("Bad game initialization.\n"); }
 
-	memset(game, 23, sizeof(struct gameState));   // clear mem of 
-	int seed = mySeed;
-	checkInit = initializeGame(2, kDeck, mySeed, game); // initialize 2 player game 
-	if(checkInit != -1)
-	{ result = 0 }
-
-	return result;
-}
-
-int cleanTestGame(struct gameState* game)
-{
-	int result = -1;
-
-	free(game);
-	game = NULL;
-	if(game == NULL)
-	{ result = 0;}
-
-	return result;
 }
 
 /* returns 0 if pass, -1 if fail */
