@@ -1,4 +1,4 @@
-CFLAGS= -Wall -fpic -coverage -lm 
+CFLAGS= -Wall -fpic -coverage -lm  
 #cFLAGS += -fprofile-arcs -ftest-coverage
 #LFLAGS += -coverage
 #LFLAGS += -lgcov
@@ -27,10 +27,10 @@ runtests: testDrawCard
 unittest1: unittest1.c dominion.o rngs.o 
 	gcc -o unittest1 unittest1.c -g dominion.o rngs.o $(CFLAGS)
 
-unittestresults: unittest1
-	./unittest1 &> unittestresult.out
-	gcov -b -f unittest1.c >> unittestresult.out
-	cat unittest1.c.gcov >> unittestresult.out
+unittestresults: unittest1 
+	./unittest1 &> unittestresults.out
+	gcov -b -f unittest1.c >> unittestresults.out
+	cat unittest1.c.gcov >> unittestresults.out
 
 player: player.c interface.o
 	gcc -o player player.c -g  dominion.o rngs.o interface.o $(CFLAGS)

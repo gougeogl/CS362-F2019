@@ -726,7 +726,7 @@ int baronCard(int choice1, struct gameState *state)
 				}
 
 				/* Exit the loop */
-				estate_not_found = TRUE; /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 1 Infinite Loop */
+				estate_not_found = TRUE;  /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 1 Infinite Loop */
 			}
 			else if (p > state->handCount[currentPlayer]) {
 				if (DEBUG) {

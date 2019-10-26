@@ -28,10 +28,14 @@ int testBaron(int choice, struct gameState* state, int shouldDump, int handCount
 
 void initTestGame(struct gameState* game, int* kDeck, int mySeed);
 
+/* ESTATE CARD RELATED */
+void removeEstatesDeck(struct gameState *gameS);
 void setEstateSupply(struct gameState *state, int qtyEstates);
+void removeEstatesDiscard(struct gameState *st);
 
+/* HAND RELATED */
 void resetHand(struct gameState* dState);
-void setHandCount(struct gameState* state, int newHandSize)
+void setHandCount(struct gameState* state, int newHandSize);
 void setHandPos(struct gameState* state, int card, int handPos);
 
 void get_stats_before_call(struct gameState* my_game, int my_arr[], int card);
@@ -51,7 +55,7 @@ int main( int argc, char* argv[] )
 
 	//int baronCard(int choice1, struct gameState *state)
 
-	int stats[13] = { 0 };
+	int stats[13];
 
 	// test execution for every position in hand, with an estate in that position
 	int i;
@@ -90,7 +94,7 @@ int testBaron(int choice, struct gameState* state, int shouldDump, int handCount
 	/* SEE resetHand() : runs if shouldDump flag == 1 */
 	if (shouldDump == 1)
 	{
-		resetHand(state, 5); /* <-- make hand size 5 */
+		resetHand(state); /* <-- make hand size 5 */
 	}
 
 	// use 5 cards for size of hand
@@ -117,14 +121,16 @@ void initTestGame(struct gameState* game, int* kDeck, int mySeed )
 }
 
 // set player to remove all estates from current player's deck  
-void removeEstatesDeck(struct gameState *gameS)  
-{   
+void removeEstatesDeck(struct gameState* gameS)  
+{  
+	int currentPlayer = whoseTurn(gameS);
+ 
 	int i = 0;   
-	while(i < gameS->deckCount[whoseTurn(gameS)])   
+	while(i < gameS->deckCount[currentPlayer])   
 	{    
-		if(gameS->deck[whoseTurn(gameS)][i] == estate)    
+		if(gameS->deck[currentPlayer][i] == estate)    
 		{     
-			gameS->deck[whoseTurn(gameS)][i] = -1;     
+			gameS->deck[currentPlayer][i] = -1;     
 			i++;    
 		}   
 	}  
@@ -139,18 +145,18 @@ void removeEstatesDiscard(struct gameState *st)
 	while(k < st->discardCount[currentPlayer])   
 	{    
 		// search for an estate in discard of current player    
-		if(st->discard[currentPlayer][ st->discardCount[currentPlayer] ] == estate)    
+		if(st->discard[currentPlayer][k] == estate)    
 		{     
 			// if found, wipe out, set to -1     
-			st->discard[currentPlayer][ st->discardCount[currentPlayer] ] = -1;    
+			st->discard[currentPlayer][k] = -1;    
 		}   
 	}  
 } 
 
-// set new default estate supplyCount for testing  
+/* set new default estate supplyCount for testing */ 
 void setEstateSupply(struct gameState *state, int qtyEstates)  
 {    
-	state->supplyCount[estate] = qtyEstates  
+	state->supplyCount[estate] = qtyEstates;  
 }
 
 /* Sets current player's handCount to newHandSize, then
@@ -166,13 +172,13 @@ void resetHand(struct gameState* dState)
 	}
 }
 
-void setHandCount(struct gameState* state, int newHandSize)
+void setHandCount(struct gameState* state, int newHandSize )
 {
 	int currentPlayer = whoseTurn(state);
 	state->handCount[currentPlayer] = newHandSize;
 }
 
-// adds indicated card in current player's hand at handPos
+/* adds indicated card in current player's hand at handPos */
 void setHandPos(struct gameState* state, int card, int handPos)
 {
 	int currentPlayer = whoseTurn(state);
@@ -184,7 +190,7 @@ void get_stats_before_call(struct gameState* my_game, int my_arr[], int card)
 	int currentPlayer = whoseTurn(my_game);
 
 	my_arr[0] = my_game->supplyCount[card]; /* how many of card left in supply */
-	my_arr[1] = my_game->playedCards[playedCardCount]; /* # cards played */
+	my_arr[1] = my_game->playedCards[my_game->playedCardCount]; /* # cards played */
 	my_arr[2] = my_game->playedCardCount; /* how many cards played */
 
 	my_arr[3] = my_game->numBuys; /* buys */
@@ -195,10 +201,10 @@ void get_stats_before_call(struct gameState* my_game, int my_arr[], int card)
 	my_arr[6] = my_game->trashPile[my_game->trashCount]; /* top of trash */
 	my_arr[7] = my_game->trashCount; /* trash size */
 
-	my_arr[8] = my_game->discard[currentPlayer][discardCount[currentPlayer]; /* top of discard */
+	my_arr[8] = my_game->discard[currentPlayer][my_game->discardCount[currentPlayer] ];  /* top of discard */
 	my_arr[9] = my_game->discardCount[currentPlayer]; /* discard count */
 
-	my_arr[10] = my_game->deck[currentPlayer][discardCount[currentPlayer]; /* top of deck */
+	my_arr[10] = my_game->deck[currentPlayer][my_game->discardCount[currentPlayer] ]; /* top of deck */
 	my_arr[11] = my_game->deckCount[currentPlayer]; /* deck count */
 
 	my_arr[12] = my_game->handCount[currentPlayer]; /* hand count */
