@@ -71,8 +71,8 @@ struct gameState {
     int discardCount[MAX_PLAYERS];
     int playedCards[MAX_DECK];
     int playedCardCount;
-	int trashPile[MAX_DECK]; /* ADDED A TRASH PILE !!! */
-	int trashCount;
+    int trashPile[MAX_DECK]; /* ADDED A TRASH PILE !!! */
+    int trashCount;
 };
 
 /* All functions return -1 on failure, and DO NOT CHANGE GAME STATE;
@@ -115,6 +115,10 @@ int fullDeckCount(int player, int card, struct gameState *state);
 /* Here deck = hand + discard + deck */
 
 int whoseTurn(struct gameState *state);
+/* gets current player */
+
+int whoseNext(struct gameState *state); /* <================================ NEW FUNCTION */ 
+/* gets NEXT player (to left) */
 
 int endTurn(struct gameState *state);
 /* Must do phase C and advance to next player; do not advance whose turn
