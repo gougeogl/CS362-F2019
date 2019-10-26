@@ -24,11 +24,17 @@
 #include "rngs.h"
 
 /* PROTO-TYPE DECLARATIONS */
-int testBaron(int choice, struct gameState* state, int shouldDump, int handPos);
+int testBaron(int choice, struct gameState* state, int shouldDump, int handCount, int handPos);
 
 void initTestGame(struct gameState* game, int* kDeck, int mySeed);
-void resetHand(struct gameState* dState, int newHandSize);
+
+void setEstateSupply(struct gameState *state, int qtyEstates);
+
+void resetHand(struct gameState* dState);
+void setHandCount(struct gameState* state, int newHandSize)
 void setHandPos(struct gameState* state, int card, int handPos);
+
+void get_stats_before_call(struct gameState* my_game, int my_arr[], int card);
 
 int main( int argc, char* argv[] )
 {
@@ -45,13 +51,24 @@ int main( int argc, char* argv[] )
 
 	//int baronCard(int choice1, struct gameState *state)
 
+	int stats[13] = { 0 };
+
 	// test execution for every position in hand, with an estate in that position
 	int i;
 	for (i = 0; i < 5; i++)
 	{
+		// checks G is initialized properly.. calls initializeGame() from dominion.h
 		initTestGame(&G, kingdomCards, seed);
+		
+		// for testing purposes..assume there is only 1 card in entire supply
+		removeEstatesDeck(&G);
+		removeEstatesDiscard(&G);
+		setEstateSupply(&G, 1); /* <-- add 1 estate to supply here */
 
-		check = testBaron(1, &G, 1, i); /* choose to use estate, dump current hand, place estate at pos i */
+		// collect all info. of gameState before call
+		get_stats_before_call(&G, stats, estate);
+
+		check = testBaron(1, &G, 1, 5, i); /* choose to use estate, dump current hand, place estate at pos i of 5 */
 		if (check == -1)
 		{
 			printf("Test %d failed.\n", i + 1);
@@ -66,7 +83,7 @@ int main( int argc, char* argv[] )
 }
 
 /* returns 0 if pass, -1 if fail */
-int testBaron(int choice, struct gameState* state, int shouldDump, int handPos)
+int testBaron(int choice, struct gameState* state, int shouldDump, int handCount, int handPos)
 {
 	int test_1_stat = -1; // return flag
 
@@ -75,6 +92,9 @@ int testBaron(int choice, struct gameState* state, int shouldDump, int handPos)
 	{
 		resetHand(state, 5); /* <-- make hand size 5 */
 	}
+
+	// use 5 cards for size of hand
+	setHandCount(state, handCount);
 
 	// place new estate card at position indicated
 	setHandPos(state, estate, handPos);
@@ -96,19 +116,60 @@ void initTestGame(struct gameState* game, int* kDeck, int mySeed )
 
 }
 
+// set player to remove all estates from current player's deck  
+void removeEstatesDeck(struct gameState *gameS)  
+{   
+	int i = 0;   
+	while(i < gameS->deckCount[whoseTurn(gameS)])   
+	{    
+		if(gameS->deck[whoseTurn(gameS)][i] == estate)    
+		{     
+			gameS->deck[whoseTurn(gameS)][i] = -1;     
+			i++;    
+		}   
+	}  
+} 
+
+// eliminate all estates from discard.   
+void removeEstatesDiscard(struct gameState *st)  
+{   
+	int currentPlayer = whoseTurn(st);   
+	
+	int k = 0;   
+	while(k < st->discardCount[currentPlayer])   
+	{    
+		// search for an estate in discard of current player    
+		if(st->discard[currentPlayer][ st->discardCount[currentPlayer] ] == estate)    
+		{     
+			// if found, wipe out, set to -1     
+			st->discard[currentPlayer][ st->discardCount[currentPlayer] ] = -1;    
+		}   
+	}  
+} 
+
+// set new default estate supplyCount for testing  
+void setEstateSupply(struct gameState *state, int qtyEstates)  
+{    
+	state->supplyCount[estate] = qtyEstates  
+}
+
 /* Sets current player's handCount to newHandSize, then
 	overwrites everything in hand with -1 */
-void resetHand(struct gameState* dState, int newHandSize)
+void resetHand(struct gameState* dState)
 {
 	int currentPlayer = whoseTurn(dState);
-	dState->handCount[currentPlayer] = newHandSize;
 
 	int i;
 	for (i = 0; i < dState->handCount[currentPlayer]; i++)
 	{
 		dState->hand[currentPlayer][i] = -1;
 	}
+}
 
+void setHandCount(struct gameState* state, int newHandSize)
+{
+	int currentPlayer = whoseTurn(state);
+	state->handCount[currentPlayer] = newHandSize;
 }
 
 // adds indicated card in current player's hand at handPos
@@ -117,3 +178,30 @@ void setHandPos(struct gameState* state, int card, int handPos)
 	int currentPlayer = whoseTurn(state);
 	state->hand[currentPlayer][handPos] = card;
 }
+
+void get_stats_before_call(struct gameState* my_game, int my_arr[], int card)
+{
+	int currentPlayer = whoseTurn(my_game);
+
+	my_arr[0] = my_game->supplyCount[card]; /* how many of card left in supply */
+	my_arr[1] = my_game->playedCards[playedCardCount]; /* # cards played */
+	my_arr[2] = my_game->playedCardCount; /* how many cards played */
+
+	my_arr[3] = my_game->numBuys; /* buys */
+	my_arr[4] = my_game->numActions; /* actions */
+	my_arr[5] = my_game->coins; /* coins */
+
+
+	my_arr[6] = my_game->trashPile[my_game->trashCount]; /* top of trash */
+	my_arr[7] = my_game->trashCount; /* trash size */
+
+	my_arr[8] = my_game->discard[currentPlayer][discardCount[currentPlayer]; /* top of discard */
+	my_arr[9] = my_game->discardCount[currentPlayer]; /* discard count */
+
+	my_arr[10] = my_game->deck[currentPlayer][discardCount[currentPlayer]; /* top of deck */
+	my_arr[11] = my_game->deckCount[currentPlayer]; /* deck count */
+
+	my_arr[12] = my_game->handCount[currentPlayer]; /* hand count */
+
+}
+
