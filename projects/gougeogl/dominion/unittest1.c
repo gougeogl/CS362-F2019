@@ -94,21 +94,19 @@ void initTestGame(struct gameState* game, int* kDeck, int mySeed )
 	if(checkInit == -1)
 	{ printf("Bad game initialization.\n"); }
 
-	int currentPlayer = whoseTurn(game);
-
 }
 
 /* Sets current player's handCount to newHandSize, then
 	overwrites everything in hand with -1 */
 void resetHand(struct gameState* dState, int newHandSize)
 {
-	int currentPlayer = whoseTurn(dstate);
-	game->handCount[currentPlayer] = newHandSize;
+	int currentPlayer = whoseTurn(dState);
+	dState->handCount[currentPlayer] = newHandSize;
 
 	int i;
-	for (i = 0; i < game->handCount[currentPlayer]; i++)
+	for (i = 0; i < dState->handCount[currentPlayer]; i++)
 	{
-		game->hand[currentPlayer][i] = -1;
+		dState->hand[currentPlayer][i] = -1;
 	}
 
 }
