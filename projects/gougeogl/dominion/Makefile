@@ -22,7 +22,7 @@ GCOV += -f # function info
 rngs.o: rngs.h rngs.c
 	${CC} -c rngs.c -g  $(CFLAGS) 
 
-dominion.o: dominion.h dominion.c rngs.o
+dominion.o: dominion.h dominion_helpers.h dominion.c rngs.o
 	${CC} -c dominion.c -g  $(CFLAGS) 
 
 playdom: dominion.o playdom.c
