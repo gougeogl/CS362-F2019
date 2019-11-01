@@ -5,14 +5,22 @@
 
 char inputChar()
 {
+	int ascii = 103; // g
+	(char)ascii;
     // TODO: rewrite this function
-    return ' ';
+    return ascii;
 }
 
 char *inputString()
 {
+	*s[0] = inputChar();
+	*s[1] = inputChar();
+	*s[2] = inputChar();
+	*s[3] = inputChar();
+	*s[4] = inputChar();
+	*s[5] = '\0';
     // TODO: rewrite this function
-    return "";
+    return s;
 }
 
 void testme()
