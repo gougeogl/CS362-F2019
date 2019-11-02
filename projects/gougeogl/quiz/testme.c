@@ -5,24 +5,105 @@
 
 char inputChar()
 {
-	int ascii = 103; /* g */
-	char output = (char)ascii; 
+	char output = ' ';
+	unsigned ascii;
+	unsigned select;
 
-    return output;
+	/* FORMULA: rand() % ( MAX - MIN +1 ) + MIN */
+	select = rand() % ( 10 - 1 + 1 ) + 1; /* [1..6] */	
+
+	switch(select)
+	{
+		case 1:		ascii = rand() % ( 127 - 32 + 1) + 32; /* [32..127] ALL ascii */
+				break;
+	
+		case 2:		ascii = 114; /* ascii 'r' */
+				break;
+
+		case 3:		ascii = rand() % ( 122 - 97 + 1) + 97; /* [97..122] lower-case */	
+				break;
+
+		case 4:		ascii = 101; /* ascii 'e' */
+				break;	
+	
+		case 5:		ascii = rand() % ( 41 - 40 + 1 ) + 40; /* [40..41] ascii '(' and ')' */  
+				break;
+
+		case 6:		ascii = 115; /* ascii 's' */ 	
+				break;
+
+		case 7:		ascii = rand() % ( 127 - 114 + 1 ) + 114; /* ascii 'r' thru '}' */  
+				break;
+
+		case 8:		ascii = 116; /* ascii 't' */ 
+				break;
+
+		case 9:		ascii = rand() % ( 100 - 90 + 1 ) + 90; /* ascii 'Z' thru 'd' */  
+				break;
+
+		case 10:	ascii = 0; /* ascii NULL */
+				break;
+		
+
+	}
+
+	output = (char)ascii; 
+	return output;
+}
+
+char inputChar2()
+{
+	char output = ' ';
+	unsigned ascii;
+	unsigned select;
+
+	/* FORMULA: rand() % ( MAX - MIN +1 ) + MIN */
+	select = rand() % ( 6 - 1 + 1 ) + 1; /* [1..6] */	
+
+	switch(select)
+	{
+		case 1:	ascii = 114;
+			break;
+
+		case 2: ascii = 101;
+			break;
+
+		case 3: ascii = 115;
+			break;
+
+		case 4: ascii = 101;
+			break;
+
+		case 5: ascii = 116;
+			break;
+
+		case 6: ascii = 0;
+			break; 
+
+		case 7: ascii = 93;
+			break;
+	}
+
+	output = (char)ascii; 
+	return output;
 }
 
 char *inputString( )
 {
-	char str[6] = { 0 };
+	char* output;
+	char str[6]; 
+
+	memset(str, '\0', sizeof(str));
 
 	str[0] = inputChar();
 	str[1] = inputChar();
 	str[2] = inputChar();
 	str[3] = inputChar();
 	str[4] = inputChar();
-	str[5] = '\0';
+	str[5] = inputChar();
 
-    return str;
+	output = str;
+    	return output;
 }
 
 void testme()
@@ -31,10 +112,10 @@ void testme()
   char *s;
   char c;
   int state = 0;
-  while (1)
+  while (tcCount < 2000 )
   {
     tcCount++;
-    c = inputChar();
+    c = inputChar2();
     s = inputString();
     printf("Iteration %d: c = %c, s = %s, state = %d\n", tcCount, c, s, state);
 

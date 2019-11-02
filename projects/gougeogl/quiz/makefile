@@ -10,20 +10,33 @@
 # ***********************************************************
 
 CC = gcc
-CFLAGS = -Wall
+CFLAGS += -Wall
 CFLAGS += -pedantic
-#GCOV = gcov
+CFLAGS += -coverage
+CFLAGS += -fpic
+CFLAGS += -fprofile-arcs
+CFLAGS += -ftest-coverage
+CFLAGS += -lgcov
+
+GCOV = gcov
+GCOV += -f 
+GCOV += -b
 
 SRC = testme.c
 
 testme.o: ${SRC} 
-	${CC} ${CFLAGS} -c ${SRC}
+	${CC} -c ${SRC} -g ${CFLAGS} 
 
-compile: testme.o
-	${CC} ${CFLAGS} testme.o -o testme
+testme: ${SRC} testme.o
+	${CC} -o testme ${SRC} -g ${CFLAGS} 
 
-run: compile 
-	testme 
+results: testme
+	./testme 
+	${GCOV} ${SRC} > testmeresults.out
+	cat testme.c.gcov >> testmeresults.out
 
 clean: 
-	rm -rf *.o testme 
+	rm -rf *.o *.gcov *.gcda *.gcno *.out .so testme testme.exe 
+
+# NOTE: .exe & .so extensions are Windows Executable and 
+# 	Windows DLL Library file related 
