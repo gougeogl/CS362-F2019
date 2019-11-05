@@ -1,3 +1,11 @@
+/******************************************************
+ * FileName: 	testme.c
+ * Editor:	Glen Gougeon
+ * Class:	CS362 Software Engineering II
+ * Date:	11-4-2019
+ * Last Mod:	11-4-2019
+ * Assignment:	Random - Testing - Quiz
+ * ***************************************************/
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
@@ -51,57 +59,20 @@ char inputChar()
 	return output;
 }
 
-char inputChar2()
-{
-	char output = ' ';
-	unsigned ascii;
-	unsigned select;
-
-	/* FORMULA: rand() % ( MAX - MIN +1 ) + MIN */
-	select = rand() % ( 6 - 1 + 1 ) + 1; /* [1..6] */	
-
-	switch(select)
-	{
-		case 1:	ascii = 114;
-			break;
-
-		case 2: ascii = 101;
-			break;
-
-		case 3: ascii = 115;
-			break;
-
-		case 4: ascii = 101;
-			break;
-
-		case 5: ascii = 116;
-			break;
-
-		case 6: ascii = 0;
-			break; 
-
-		case 7: ascii = 93;
-			break;
-	}
-
-	output = (char)ascii; 
-	return output;
-}
-
 char *inputString( )
 {
 	char* output;
 	char str[6]; 
 
 	memset(str, '\0', sizeof(str));
-
+	
 	str[0] = inputChar();
 	str[1] = inputChar();
 	str[2] = inputChar();
 	str[3] = inputChar();
 	str[4] = inputChar();
 	str[5] = inputChar();
-
+	
 	output = str;
     	return output;
 }
@@ -112,10 +83,10 @@ void testme()
   char *s;
   char c;
   int state = 0;
-  while (tcCount < 2000 )
+  while (1)
   {
     tcCount++;
-    c = inputChar2();
+    c = inputChar();
     s = inputString();
     printf("Iteration %d: c = %c, s = %s, state = %d\n", tcCount, c, s, state);
 
