@@ -25,6 +25,8 @@
 	-randomSeed will probably not change ?? 
 **********************************************/
 
+/* void cardNumToName(int card, char *name) */
+
 void initTestGame(struct gameState* game, int* kDeck, int mySeed);
 void get_stats_before_call(struct gameState* my_game, int my_arr[], int card);
 
