@@ -21,7 +21,10 @@
 	return state->supplyCount[card];
 } */
 
-testSupplyCount(int card, struct gameState* state);
+void addToSupply(int card, struct gameState* state, int qty);
+void printResult(int card, struct gameState* state);
+void barrage(struct gameState* state);
+int getRand();
 
 int main()
 {
@@ -31,15 +34,8 @@ int main()
 	struct gameState G;
 	memset(&G, '\0', sizeof(struct gameState));   // clear mem of 
 
-	addToSupply(adventurer, &G, 1);
-
-	int result = supplyCount(adventurer, &G);
-	printf("TEST: supplyCount\n");
-	printf("    : after adding 1 adventurer card..\n");
-	printf("    : G.supplyCount[%d]: %d\n", adventurer, G.supplyCount[adventurer]);
-	fflush(stdout);
-
-	
+	barrage(&G);
+	printSupply(&G);	
 	return 0;
 }
 
@@ -48,6 +44,34 @@ void addToSupply(int card, struct gameState* state, int qty)
 {
 	if (card > curse && card <= treasure_map)
 	{
-		state->supplyCount[card] += gty;
+		state->supplyCount[card] += qty;
 	}
+}
+
+void printResult(int card, struct gameState* state)
+{
+	char name[MAX_STRING_LENGTH]; 
+	memset(name, '\0', sizeof(name));
+	cardNumToName(card, name);
+
+	printf("TEST: supplyCount\n");
+	printf("    : after adding 1 %s card..\n", name);
+	printf("    : card #: %d, name:%s\n", card, name);
+	printf("    : state->supplyCount[%s]: %d\n", name, state->supplyCount[card]);
+	fflush(stdout);
+}
+
+void barrage(struct gameState* state)
+{
+	int i;
+	for(i = curse; i <= treasure_map; i++)
+	{
+		addToSupply(i, state, getRand() );
+	}
+}
+
+int getRand()
+{
+	int num = rand() % ( 26 - 0 + 1 ) + 0;
+	return num;
 }

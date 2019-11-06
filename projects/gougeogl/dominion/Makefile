@@ -60,8 +60,8 @@ testInitGameResults: testInitGame
 	cat dominion.c.gcov >> testinitgameresults.out
 	cat testInitGame.c.gcov >> testinitgameresults.out
 #***************************************************************************
-testSupplyCount: testSupplyCount.c dominion.o rngs.of
-	${CC} -o testSupplyCount testSupplyCount.c -g dominion.o rngs.o ${CFLAGS}
+testSupplyCount: testSupplyCount.c dominion.o rngs.o interface.o
+	${CC} -o testSupplyCount testSupplyCount.c -g dominion.o rngs.o interface.o ${CFLAGS}
 	
 testSupplyCountResults: testSupplyCount
 	./testSupplyCount &> testsupplycountresults.out
@@ -77,4 +77,4 @@ all: playdom player unittest1
 
 clean:
 	rm -f *.o playdom.exe playdom player player.exe unittest1 unittest1.exe  *.gcov *.gcda *.gcno *.so *.out testDrawCard testDrawCard.exe
-	rm -f testInitGame
+	rm -f testInitGame testSupplyCount
