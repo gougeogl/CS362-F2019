@@ -1435,7 +1435,7 @@ int shiftCards(int handPos, int currentPlayer, struct gameState *state)
 * Params:
 *		1. handPos: integer corresponds to position in gameState hand array
 *		2. currentPlayer: integer of player shifting cards
-*		2. state: struct gameState pointer object that stores specifics
+*		3. state: struct gameState pointer object that stores specifics
 *				of game play for current player's turn
 *		4. trashFlag: 1 = TRASH, 0 = DISCARD (MACROS available)
 *
