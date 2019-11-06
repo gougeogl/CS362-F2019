@@ -27,6 +27,7 @@ void resetHand(struct gameState* dState);
 void setHandCount(struct gameState* state, int newHandSize);
 void setHandPos(struct gameState* state, int card, int handPos);
 
+void printStats(int player, struct gameState* state);
 /* int discardCard(int handPos, int currentPlayer, struct gameState *state, int trashFlag) */
 
 int main()
@@ -37,20 +38,16 @@ int main()
 	int seed = 1;
 	struct gameState G;
 	initTestGame(2, kingdomCards, seed, &G);
+	
+	int currentPlayer = whoseTurn(&G);
 
 	printf("TESTING STATS AFTER INITIALIZATION\n");
+	printStats(currentPlayer , &G);	
 
-	int currentPlayer = whoseTurn(&G);
-	printf("SUPPLY CONTENTS:\n");
-	printSupply(&G);
-	printf("Current player: %d\n", currentPlayer);
-	printf("Player %d\'s deck:\n", currentPlayer);
-	printDeck(currentPlayer, &G);
-	printf("Player %d\'s discard:\n", currentPlayer);
-	printDiscard(currentPlayer, &G);
-	printf("Player %d\'s hand:\n", currentPlayer);
-	printHand(currentPlayer, &G);
-
+	printf("TESTING STATS AFTER DISCARD CARD POS 0\n");
+	int check = discardCard(0, currentPlayer, &G);	
+	printf("RETURNED: %d\n", check);
+	printStats(currentPlayer, &G);
 
 
 	return 0;
@@ -95,4 +92,16 @@ void setHandPos(struct gameState* state, int card, int handPos)
 {
 	int currentPlayer = whoseTurn(state);
 	state->hand[currentPlayer][handPos] = card;
+}
+
+void printStats(int player, struct gameState* state)
+{
+	printf("SUPPLY CONTENTS:\n");
+	printSupply(state);
+
+	printf("Current player: %d\n", player);
+	printDeck(player, state);
+	printDiscard(player, state);
+
+	printHand(player, state);
 }

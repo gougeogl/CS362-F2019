@@ -7,7 +7,7 @@ int drawCard(int player, struct gameState *state);
 int updateCoins(int player, struct gameState *state, int bonus);
 
 /* REFACTORED HELPER */
-int discardCard(int handPos, int currentPlayer, struct gameState *state, int trashFlag);
+int discardCard(int handPos, int currentPlayer, struct gameState *state);
 
 /* NEW HELPERS */
 int shiftCards(int handPos, int currentPlayer, struct gameState *state);
