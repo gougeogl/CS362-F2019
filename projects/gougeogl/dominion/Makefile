@@ -16,8 +16,8 @@ CFLAGS += -fprofile-arcs # needed for .gcda files related to gcov
 
 # gcov call and flags
 GCOV = gcov # coverage tool 
-GCOV += -b # branch info
-GCOV += -f # function info
+GCOV += -f # branch info
+GCOV += -b # function info
 
 rngs.o: rngs.h rngs.c
 	${CC} -c rngs.c -g  $(CFLAGS) 
@@ -45,8 +45,21 @@ unittest1: unittest1.c dominion.o rngs.o
 
 unittestresults: unittest1 
 	./unittest1 &> unittestresults.out 
+	${GCOV} dominion.c >> unittestresults.out
 	${GCOV} unittest1.c >> unittestresults.out
-	cat unittest1.c.gcov >> unittestresults.out
+	cat dominion.c.gcov >> unittestresults.out
+
+#***************************************************************************
+testInitGame: testInitGame.c dominion.o rngs.o interface.o
+	${CC} -o testInitGame testInitGame.c -g dominion.o rngs.o interface.o ${CFLAGS}
+
+testInitGameResults: testInitGame
+	./testInitGame &> testinitgameresults.out
+	${GCOV} dominion.c >> testinitgameresults.out
+	${GCOV} testInitGame.c >> testinitgameresults.out
+	cat dominion.c.gcov >> testinitgameresults.out
+	cat testInitGame.c.gcov >> testinitgameresults.out
+#***************************************************************************
 
 player: player.c interface.o
 	${CC} -o player player.c -g  dominion.o rngs.o interface.o $(CFLAGS)
@@ -55,3 +68,4 @@ all: playdom player unittest1
 
 clean:
 	rm -f *.o playdom.exe playdom player player.exe unittest1 unittest1.exe  *.gcov *.gcda *.gcno *.so *.out testDrawCard testDrawCard.exe
+	rm -f testInitGame
