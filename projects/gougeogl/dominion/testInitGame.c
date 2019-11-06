@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
 	struct gameState *state) */
@@ -25,91 +26,93 @@
 	-randomSeed will probably not change ?? 
 **********************************************/
 
-void initTestGame(struct gameState* game, int* kDeck, int mySeed);
-void get_stats_before_call(struct gameState* my_game, int my_arr[], int card);
+void printAll(struct gameState* state);
 
 int main()
 {
-	int overall_stat = -1;
-	int check = -1;
-
-	int kingdomCards[10] = { adventurer, ambassador, baron, estate, tribute, minion, mine,  gardens, remodel, smithy };
+	int kingdomCards[10] = { adventurer, ambassador, baron, estate, tribute, minion, mine, gardens, remodel, smithy };
 
 	// Set up Game State 
 	struct gameState G;
 
 	int seed = 1;
-
-	int stats[13];
+	int check_init_game_return = -1;
 
 	/* CHECK TO ENSURE BAD INIT WITH WRONG # OF PLAYERS */
-	int i, check_init_game_return = -1;
-	for (i = -1, i < 2; i++)
+	int i; 
+	for (i = -1; i < 2; i++)
 	{
-		int check_init_game_return = initializeGame(-1, kingdomCards, seed, &G);
+		memset(&G, '\0', sizeof(struct gameState));   // clear mem of 
+
+		check_init_game_return = initializeGame(-1, kingdomCards, seed, &G);
 		if (check_init_game_return == -1)
 		{
+			printf("check_init_game_return was: %d\n", check_init_game_return);
 			printf("Number of players: %d\n", i);
+			fflush(stdout);
 			fprintf(stderr, "%s\n", "Bad initializeGame()");
 		}
 	}
+
+	memset(&G, '\0', sizeof(struct gameState));   // clear mem of 
 	check_init_game_return = initializeGame(5, kingdomCards, seed, &G);
 	if (check_init_game_return == -1)
 	{
+		printf("check_init_game_return was: %d\n", check_init_game_return);
 		printf("Number of players: 5\n");
+		fflush(stdout);
 		fprintf(stderr, "%s\n", "Bad initializeGame()");
 	}
+	printAll(&G);
 
+	printf("TESTING VALID PLAYER\n");
+	int j;
+	for(j = 2; j <= MAX_PLAYERS; j++)
+	{
+		printf("TEST FOR %d PLAYERS\n\n", j );
+		fflush(stdout);
+		memset(&G, '\0', sizeof(struct gameState));   // clear mem of 
+		check_init_game_return = initializeGame(j, kingdomCards, seed, &G);
+		printf("NUMBER OF PLAYERS: %d\n", G.numPlayers );
 
-	// checks G is initialized properly.. calls initializeGame() from dominion.h
-	//initTestGame(&G, kingdomCards, seed);
+		printAll(&G);
 
-	// collect all info. of gameState before call
-	get_stats_before_call(&G, stats, estate);
+		printf("NEXT SET mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm\n");
+		fflush(stdout);
+	}	
 
 	return 0;
 }
-/* ** TEST SUITE FUNCTIONS *************************************************************/
-void initTestGame(struct gameState* game, int* kDeck, int mySeed)
+
+void printAll(struct gameState* state)
 {
-	memset(game, '\0', sizeof(struct gameState));   // clear mem of 
-
-	int checkInit = initializeGame(2, kDeck, mySeed, game); // initialize 2 player game 
-
-	if (checkInit == -1)
+	int i;
+	for( i = 0; i < state->numPlayers; i++)
 	{
-		printf("Bad game initialization.\n");
+		printf("NEW PLAYER STATS\n\n");
+		printf("SUPPLY NOW:\n");
+		printSupply(state);
+
+		printf("\nplayer's %d hand count : %d\n", i, state->handCount[i] );
+		printf("CURRENT PLAYER'S HAND:\n");
+		printHand(i, state);
+
+		printf("CURRENT PLAYER'S DECK:\n");
+		printDeck(i, state);
+
+		printf("CURRENT PLAYER'S DISCARD:\n");
+		printDiscard(i, state);
+
+		printf("CURRENT PLAYER'S CARDS PLAYED:\n");
+		printPlayed(i, state);
+		printf("played card count : %d\n", state->playedCardCount );
+		printf("outpost played ?? : %d\n\n", state->outpostPlayed );
+
+		printf("GAME STATE NOW:\n");
+		printState(state);
+
+		printf("CURRENT SCORES:\n");
+		printScores(state);
+
 	}
-
-}
-
-void get_stats_before_call(struct gameState* my_game, int my_arr[], int card)
-{
-	int currentPlayer = whoseTurn(my_game);
-
-	my_arr[0] = my_game->supplyCount[card]; /* how many of card left in supply */
-	my_arr[1] = my_game->playedCards[my_game->playedCardCount]; /* # cards played */
-	my_arr[2] = my_game->playedCardCount;  /* how many cards played */
-
-	my_arr[3] = my_game->numBuys; /* buys */
-	my_arr[4] = my_game->numActions; /* actions */
-	my_arr[5] = my_game->coins; /* coins */
-
-
-	my_arr[6] = my_game->trashPile[my_game->trashCount]; /* top of trash */
-	my_arr[7] = my_game->trashCount; /* trash size */
-
-	my_arr[8] = my_game->discard[currentPlayer][my_game->discardCount[currentPlayer]]; /* top of discard */
-	my_arr[9] = my_game->discardCount[currentPlayer]; /* discard count */
-
-	my_arr[10] = my_game->deck[currentPlayer][my_game->discardCount[currentPlayer]]; /* top of deck */
-	my_arr[11] = my_game->deckCount[currentPlayer]; /* deck count */
-
-	my_arr[12] = my_game->handCount[currentPlayer]; /*  hand count */
-
-}
-
-void printStats(struct gameState* state)
-{
-
 }

@@ -707,6 +707,7 @@ int getCost(int cardNumber)
 int baronCard(int choice1, struct gameState *state)
 {
 	int currentPlayer = whoseTurn(state);
+	/* int checkDiscard = 0; */
 
 	state->numBuys++;//Increase buys by 1!
 	if (choice1 > 0) { //Boolean true or going to discard an estate
@@ -717,23 +718,26 @@ int baronCard(int choice1, struct gameState *state)
 				state->coins += 4;//Add 4 coins to the amount of coins
 
 				/* new method to specifically discard - MUST pass DISCARD flag */
-				int checkDiscard = discardCard(p, currentPlayer, state, DISCARD);
+				discardCard(p, currentPlayer, state, DISCARD);
+
+				/*if (checkDiscard == FAILURE && DEBUG)
 				{
-					if (checkDiscard == FAILURE && DEBUG)
-					{
-						printf("TRACE: DISCARD FAILED -- Baron! No Exit Given\n");
-					}
+					printf("TRACE: DISCARD FAILED -- Baron! No Exit Given\n");
 				}
+				*/
 
 				/* Exit the loop */
 				estate_not_found = TRUE;  /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 1 Infinite Loop */
 			}
 			else if (p > state->handCount[currentPlayer]) {
+				/*
 				if (DEBUG) {
 					printf("No estate cards in your hand, invalid choice\n");
 					printf("Must gain an estate if there are any\n");
 				}
-				if (supplyCount(estate, state) > 0) {
+				*/
+				if (supplyCount(estate, state) >= 0) {
+					//printf("TRACE: supplyCount is: %d\n", supplyCount(estate, state) );
 					gainCard(estate, state, 0, currentPlayer);
 
 					state->supplyCount[estate]--; /* Decrement estates */
@@ -743,7 +747,6 @@ int baronCard(int choice1, struct gameState *state)
 				}
 				estate_not_found = FALSE; /* Exit the loop */
 			}
-
 			else {
 				p++; /* Next card */
 			}
@@ -751,9 +754,9 @@ int baronCard(int choice1, struct gameState *state)
 	}
 
 	else {
-		if (supplyCount(estate, state) >= 0) { /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 2: >= wrong, > correct
-											                                          this will try to gain a card 
-																					  from an empty supply */
+		/*  BUG 2: >= wrong, > correct this will try to gain a card from an empty supply */
+		if (supplyCount(estate, state) >= 0) { /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 2 !! */ 
+
 			gainCard(estate, state, 0, currentPlayer);//Gain an estate
 
 			state->supplyCount[estate]--;//Decrement Estates
@@ -1206,13 +1209,9 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
         discardCard(handPos, currentPlayer, state, DISCARD);
         return 0;
 
-    case baron:
-
-		if (baronCard(choice1, state) != 0) /*<----------------------------------------------  CHANGE to FUNCTION "baronCard()" FUNCTION */
-		{
-			fprintf(stderr, "%s\n", "BAD CARD: baron"); /*<---- TRACE for DEBUG ONLY */
-			return -1;
-		}
+    case baron:		
+	baronCard(choice1, state); /*<----------------------------------------------  CHANGED to FUNCTION "baronCard()" FUNCTION */
+	return 0;
 
     case great_hall:
         //+1 Card
