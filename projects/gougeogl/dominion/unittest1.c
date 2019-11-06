@@ -25,8 +25,9 @@
 
 /* PROTO-TYPE DECLARATIONS */
 int testBaron(int choice, struct gameState* state, int shouldDump, int handCount, int handPos);
+int zero_or_one();
 
-void initTestGame(struct gameState* game, int* kDeck, int mySeed);
+void initTestGame(int players, int* kDeck, int mySeed, struct gameState* game );
 
 /* ESTATE CARD RELATED */
 void removeEstatesDeck(struct gameState *gameS);
@@ -56,13 +57,14 @@ int main( int argc, char* argv[] )
 	//int baronCard(int choice1, struct gameState *state)
 
 	int stats[13];
-
+	//initTestGame(2, kingdomCards, seed, &G);
+	//baronCard(1, &G);	
 	// test execution for every position in hand, with an estate in that position
 	int i;
 	for (i = 0; i < 5; i++)
 	{
 		// checks G is initialized properly.. calls initializeGame() from dominion.h
-		initTestGame(&G, kingdomCards, seed);
+		initTestGame(2, kingdomCards, seed, &G);
 		
 		// for testing purposes..assume there is only 1 card in entire supply
 		removeEstatesDeck(&G);
@@ -72,17 +74,18 @@ int main( int argc, char* argv[] )
 		// collect all info. of gameState before call
 		get_stats_before_call(&G, stats, estate);
 
-		check = testBaron(1, &G, 1, 5, i); /* choose to use estate, dump current hand, place estate at pos i of 5 */
+		check = testBaron( zero_or_one() , &G, 1, 5, i); /* choose to use estate, dump current hand, place estate at pos i of 5 */
 		if (check == -1)
 		{
 			printf("Test %d failed.\n", i + 1);
+			overall_stat = check;
 		}
 		else { overall_stat = 0; }
 	}
 
 	if( overall_stat == -1 )
 	{ printf("ALL Baron Tests Failed!!\n"); }
-
+	
 	return 0;
 }
 
@@ -108,8 +111,16 @@ int testBaron(int choice, struct gameState* state, int shouldDump, int handCount
 	return test_stat;
 }
 
+int zero_or_one()
+{
+	int num = rand() % ( 1 - 0 + 1 ) + 0;
+	return num;
+}
+
 /* ** TEST SUITE FUNCTIONS *************************************************************/
-void initTestGame(struct gameState* game, int* kDeck, int mySeed )
+
+/* This function adds memset initialization, and prints error if fail  */
+void initTestGame(int players, int* kDeck, int mySeed, struct gameState* game )
 {
 	memset(game, '\0', sizeof(struct gameState));   // clear mem of 
 	
@@ -131,6 +142,8 @@ void removeEstatesDeck(struct gameState* gameS)
 		if(gameS->deck[currentPlayer][i] == estate)    
 		{     
 			gameS->deck[currentPlayer][i] = -1;     
+			gameS->deckCount[currentPlayer] -= 1;
+
 		}   
 		i++;
 	}  
@@ -141,16 +154,17 @@ void removeEstatesDiscard(struct gameState *st)
 {   
 	int currentPlayer = whoseTurn(st);   
 	
-	int k = 0;   
-	while(k < st->discardCount[currentPlayer])   
+	int i = 0;   
+	while(i < st->discardCount[currentPlayer])   
 	{    
 		// search for an estate in discard of current player    
-		if(st->discard[currentPlayer][k] == estate)    
+		if(st->discard[currentPlayer][i] == estate)    
 		{     
 			// if found, wipe out, set to -1     
-			st->discard[currentPlayer][k] = -1;    
+			st->discard[currentPlayer][i] = -1;    
+			st->discardCount[currentPlayer] -= 1;
 		}   
-		k++;
+		i++;
 	}  
 } 
 
@@ -170,6 +184,7 @@ void resetHand(struct gameState* dState)
 	for (i = 0; i < dState->handCount[currentPlayer]; i++)
 	{
 		dState->hand[currentPlayer][i] = -1;
+		dState->handCount[currentPlayer] -= 1;
 	}
 }
 
@@ -186,6 +201,7 @@ void setHandPos(struct gameState* state, int card, int handPos)
 	state->hand[currentPlayer][handPos] = card;
 }
 
+/**********************************************************************************************/
 void get_stats_before_call(struct gameState* my_game, int my_arr[], int card)
 {
 	int currentPlayer = whoseTurn(my_game);

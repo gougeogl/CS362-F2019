@@ -726,7 +726,7 @@ int baronCard(int choice1, struct gameState *state)
 				}
 
 				/* Exit the loop */
-				estate_not_found = TRUE;  /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 1 Infinite Loop */
+				estate_not_found = FALSE;  /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 1 Infinite Loop */
 			}
 			else if (p > state->handCount[currentPlayer]) {
 				if (DEBUG) {
@@ -751,7 +751,7 @@ int baronCard(int choice1, struct gameState *state)
 	}
 
 	else {
-		if (supplyCount(estate, state) >= 0) { /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 2: >= wrong, > correct
+		if (supplyCount(estate, state) > 0) { /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 2: >= wrong, > correct
 											                                          this will try to gain a card 
 																					  from an empty supply */
 			gainCard(estate, state, 0, currentPlayer);//Gain an estate
