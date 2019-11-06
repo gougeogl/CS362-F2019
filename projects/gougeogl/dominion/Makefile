@@ -60,7 +60,16 @@ testInitGameResults: testInitGame
 	cat dominion.c.gcov >> testinitgameresults.out
 	cat testInitGame.c.gcov >> testinitgameresults.out
 #***************************************************************************
-
+testSupplyCount: testSupplyCount.c dominion.o rngs.of
+	${CC} -o testSupplyCount testSupplyCount.c -g dominion.o rngs.o ${CFLAGS}
+	
+testSupplyCountResults: testSupplyCount
+	./testSupplyCount &> testsupplycountresults.out
+	${GCOV} testSupplyCount.c >> testsupplycountresults.out
+	cat testSupplyCount.c.gcov >> testsupplycountresults.out
+	${GCOV} dominion.c >> testsupplycountresults.out
+	cat dominion.c.gcov >> testsupplycountresults.out
+#***************************************************************************
 player: player.c interface.o
 	${CC} -o player player.c -g  dominion.o rngs.o interface.o $(CFLAGS)
 
