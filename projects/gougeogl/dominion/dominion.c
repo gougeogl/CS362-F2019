@@ -48,7 +48,7 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
                    struct gameState *state) {
     int i;
     int j;
-    int it;
+    /*int it;*/
 
     //set up random number generator
     SelectStream(1);
@@ -152,15 +152,18 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
         state->deckCount[i] = 0;
         for (j = 0; j < 3; j++)
         {
-            state->deck[i][j] = estate;
-            state->deckCount[i]++;
+            //state->deck[i][j] = estate;
+			gainCard(estate, state, DISCARD, i);
+            /*state->deckCount[i]++;*/
         }
         for (j = 3; j < 10; j++)
         {
-            state->deck[i][j] = copper;
-            state->deckCount[i]++;
+            //state->deck[i][j] = copper;
+			gainCard(copper, state, 1, i); // supplyPos, gameState, to Deck, player is 'i'
+            /*state->deckCount[i]++;*/
         }
     }
+	//int gainCard(int supplyPos, struct gameState *state, int toFlag, int player)
 
     //shuffle player decks
     for (i = 0; i < numPlayers; i++)
@@ -178,10 +181,10 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
         state->handCount[i] = 0;
         state->discardCount[i] = 0;
         //draw 5 cards
-        // for (j = 0; j < 5; j++)
-        //	{
-        //	  drawCard(i, state);
-        //	}
+        for (j = 0; j < 5; j++)
+        	{
+        	  drawCard(i, state);
+        	}
     }
 
     //set embargo tokens to 0 for all supply piles
@@ -197,13 +200,7 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
     state->numBuys = 1;
     state->playedCardCount = 0;
     state->whoseTurn = 0;
-    state->handCount[state->whoseTurn] = 0;
-    //int it; move to top
-
-    //Moved draw cards to here, only drawing at the start of a turn
-    for (it = 0; it < 5; it++) {
-        drawCard(state->whoseTurn, state);
-    }
+    //state->handCount[state->whoseTurn] = 0;
 
     updateCoins(state->whoseTurn, state, 0);
 
@@ -280,14 +277,13 @@ int playCard(int handPos, int choice1, int choice2, int choice3, struct gameStat
     return 0;
 }
 
+// doesn't check phase first..who is responsible for checking that??
 int buyCard(int supplyPos, struct gameState *state) {
     int who;
     if (DEBUG) {
         printf("Entering buyCard...\n");
     }
-
-    // I don't know what to do about the phase thing.
-
+		
     who = state->whoseTurn;
 
     if (state->numBuys < 1) {
@@ -304,8 +300,8 @@ int buyCard(int supplyPos, struct gameState *state) {
         return -1;
     } else {
         state->phase=1;
-        //state->supplyCount[supplyPos]--;
-        gainCard(supplyPos, state, 0, who); //card goes in discard, this might be wrong.. (2 means goes into hand, 0 goes into discard)
+        //state->supplyCount[supplyPos]--; <-- don't need this gainCard() handles tally of supplyPos (the card #) in Supply
+        gainCard(supplyPos, state, 0, who); //card goes in discard, this was wrong.. (2 means goes into hand, 0 goes into discard)
 
         state->coins = (state->coins) - (getCost(supplyPos));
         state->numBuys--;
