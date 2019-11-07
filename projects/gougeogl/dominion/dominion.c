@@ -706,49 +706,44 @@ int baronCard(int choice1, struct gameState *state)
 
 	state->numBuys++;//Increase buys by 1!
 	if (choice1 > 0) { //Boolean true or going to discard an estate
-		int p = 0;//Iterator for hand!
+		int p;//Iterator for hand!
 		int estate_not_found = TRUE;//Flag for discard set!
-		while (estate_not_found) {
+
+		for (p = 0; p < state->handCount[currentPlayer]; p++)
+		{
 			if (state->hand[currentPlayer][p] == estate) { //Found an estate card!
 				state->coins += 4;//Add 4 coins to the amount of coins
-
-				/* new method to specifically discard - MUST pass DISCARD flag */
 				discardCard(p, currentPlayer, state);
-				/*
-				int checkDiscard = discardCard(p, currentPlayer, state);
-				{
-					if (checkDiscard == FAILURE && DEBUG)
-					{
-						printf("TRACE: DISCARD FAILED -- Baron! No Exit Given\n");
-					}
-				}
-				*/
-
-				/* Exit the loop */
-				estate_not_found = FALSE;  /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 1 Infinite Loop */
-			}
-			else if (p > state->handCount[currentPlayer]) {
-				/*
-				if (DEBUG) {
-					printf("No estate cards in your hand, invalid choice\n");
-					printf("Must gain an estate if there are any\n");
-				}
-				*/
-				if (supplyCount(estate, state) > 0) {
-					gainCard(estate, state, 0, currentPlayer);
-
-					//state->supplyCount[estate]--; /* Decrement estates */
-					if (supplyCount(estate, state) == 0) {
-						isGameOver(state);
-					}
-				}
-				estate_not_found = FALSE; /* Exit the loop */
-			}
-
-			else {
-				p++; /* Next card */
+				break;
 			}
 		}
+		//while (estate_not_found) {
+		//	if (state->hand[currentPlayer][p] == estate) { //Found an estate card!
+		//		state->coins += 4;//Add 4 coins to the amount of coins
+
+		//		/* new method to specifically discard - MUST pass DISCARD flag */
+		//		discardCard(p, currentPlayer, state);
+	
+		//		/* Exit the loop */
+		//		estate_not_found = FALSE;  /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 1 Infinite Loop */
+		//	}
+		//	else if (p > state->handCount[currentPlayer]) {
+
+		//		if (supplyCount(estate, state) > 0) {
+		//			gainCard(estate, state, 0, currentPlayer);
+
+		//			//state->supplyCount[estate]--; /* Decrement estates */
+		//			if (supplyCount(estate, state) == 0) {
+		//				isGameOver(state);
+		//			}
+		//		}
+		//		estate_not_found = FALSE; /* Exit the loop */
+		//	}
+
+		//	else {
+		//		p++; /* Next card */
+		//	}
+		//}
 	}
 
 	else {
