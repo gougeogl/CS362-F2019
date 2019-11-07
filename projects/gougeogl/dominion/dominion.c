@@ -713,13 +713,17 @@ int baronCard(int choice1, struct gameState *state)
 			if (state->hand[currentPlayer][p] == estate) { //Found an estate card!
 				state->coins += 4;//Add 4 coins to the amount of coins
 				discardCard(p, currentPlayer, state);
-				break;
+				//break; <== NEW BUG # 1 !
+
+				/* Since I had to refactor code so much, I am adding a new bug that DOES NOT stop
+					after finding the first estate..subsequent estates will be discarded as well
+					and +4 coins added. Super-cheating */
 			}
 		}
 	}
 
 	else {
-		if (supplyCount(estate, state) > 0) { /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 2: >= wrong, > correct */
+		if (supplyCount(estate, state) >= 0) { /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 2: >= wrong, > correct */
 			gainCard(estate, state, 0, currentPlayer);//Gain an estate
 
 			//state->supplyCount[estate]--;//Decrement Estates
