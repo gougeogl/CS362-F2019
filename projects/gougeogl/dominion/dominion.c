@@ -153,13 +153,13 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
         for (j = 0; j < 3; j++)
         {
             //state->deck[i][j] = estate;
-			gainCard(estate, state, DISCARD, i);
+		gainCard(estate, state, 1, i);
             /*state->deckCount[i]++;*/
         }
         for (j = 3; j < 10; j++)
         {
             //state->deck[i][j] = copper;
-			gainCard(copper, state, 1, i); // supplyPos, gameState, to Deck, player is 'i'
+		gainCard(copper, state, 1, i); // supplyPos, gameState, to Deck, player is 'i'
             /*state->deckCount[i]++;*/
         }
     }
@@ -601,7 +601,7 @@ int drawCard(int player, struct gameState *state)
             printf("Deck count now: %d\n", state->deckCount[player]);
         }
 
-        state->discardCount[player] = 0;
+        //state->discardCount[player] = 0; <--- BUG ! if you use this..you'll only have coppers !!
 
         //Step 2 Draw Card
         count = state->handCount[player];//Get current player's hand count
@@ -713,6 +713,8 @@ int baronCard(int choice1, struct gameState *state)
 				state->coins += 4;//Add 4 coins to the amount of coins
 
 				/* new method to specifically discard - MUST pass DISCARD flag */
+				discardCard(p, currentPlayer, state);
+				/*
 				int checkDiscard = discardCard(p, currentPlayer, state);
 				{
 					if (checkDiscard == FAILURE && DEBUG)
@@ -720,19 +722,22 @@ int baronCard(int choice1, struct gameState *state)
 						printf("TRACE: DISCARD FAILED -- Baron! No Exit Given\n");
 					}
 				}
+				*/
 
 				/* Exit the loop */
 				estate_not_found = FALSE;  /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 1 Infinite Loop */
 			}
 			else if (p > state->handCount[currentPlayer]) {
+				/*
 				if (DEBUG) {
 					printf("No estate cards in your hand, invalid choice\n");
 					printf("Must gain an estate if there are any\n");
 				}
+				*/
 				if (supplyCount(estate, state) > 0) {
 					gainCard(estate, state, 0, currentPlayer);
 
-					state->supplyCount[estate]--; /* Decrement estates */
+					//state->supplyCount[estate]--; /* Decrement estates */
 					if (supplyCount(estate, state) == 0) {
 						isGameOver(state);
 					}
@@ -752,7 +757,7 @@ int baronCard(int choice1, struct gameState *state)
 																					  from an empty supply */
 			gainCard(estate, state, 0, currentPlayer);//Gain an estate
 
-			state->supplyCount[estate]--;//Decrement Estates
+			//state->supplyCount[estate]--;//Decrement Estates
 			if (supplyCount(estate, state) == 0) {
 				isGameOver(state);
 			}

@@ -69,7 +69,7 @@ int main( int argc, char* argv[] )
 		// for testing purposes..assume there is only 1 card in entire supply
 		removeEstatesDeck(&G);
 		removeEstatesDiscard(&G);
-		setEstateSupply(&G, 1); /* <-- add 1 estate to supply here */
+		setEstateSupply(&G, 2); /* <-- add 1 estate to supply here */
 
 		// collect all info. of gameState before call
 		get_stats_before_call(&G, stats, estate);
@@ -103,8 +103,14 @@ int testBaron(int choice, struct gameState* state, int shouldDump, int handCount
 	// use 5 cards for size of hand
 	setHandCount(state, handCount);
 
-	// place new estate card at position indicated
-	setHandPos(state, estate, handPos);
+	int gets_an_estate = zero_or_one();
+	if( gets_an_estate == 1)
+	{
+		// place new estate card at position indicated
+		setHandPos(state, estate, handPos);
+	}
+	else
+		setHandPos(state, -1, handPos);
 
 	test_stat = baronCard(choice, state); /* <= MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM CALL TO BARON !! */
 

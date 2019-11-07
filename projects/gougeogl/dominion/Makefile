@@ -52,6 +52,7 @@ unittestresults: unittest1
 	cat dominion.c.gcov >> unittestresults.out
 
 #***********************************************************************
+
 testDiscardCard: testDiscardCard.c dominion.o rngs.o interface.o 
 	${CC} -o testDiscardCard testDiscardCard.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
@@ -61,7 +62,21 @@ discardresults: testDiscardCard
 	cat testDiscardCard.c.gcov >> discardresults.out 
 	${GCOV} dominion.c >> discardresults.out 
 	cat dominion.c.gcov >> discardresults.out 
+
 #***********************************************************************
+
+testInitGame: testInitGame.c dominion.o rngs.o interface.o
+	${CC} -o testInitGame testInitGame.c -g dominion.o rngs.o interface.o ${CFLAGS}
+
+testInitGameResults: testInitGame
+	./testInitGame &> testinitgameresults.out
+	${GCOV} dominion.c >> testinitgameresults.out
+	${GCOV} testInitGame.c >> testinitgameresults.out
+	cat dominion.c.gcov >> testinitgameresults.out
+	cat testInitGame.c.gcov >> testinitgameresults.out
+
+#***************************************************************************
+
 player: player.c interface.o
 	${CC} -o player player.c -g  dominion.o rngs.o interface.o $(CFLAGS)
 
@@ -69,4 +84,4 @@ all: playdom player unittest1
 
 clean:
 	rm -f *.o playdom player unittest1 *.gcov *.gcda *.gcno *.so *.out *.exe
-	rm -f testDiscardCard testDrawCard 
+	rm -f testDiscardCard testDrawCard testInitGame 
