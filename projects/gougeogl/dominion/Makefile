@@ -12,7 +12,7 @@ CFLAGS = -Wall # warnings all
 CFLAGS += -fpic 
 CFLAGS += -coverage # needed for gcov 
 CFLAGS += -lm # needed for floor() function in <math.h> 
-CFLAGS += -fprofile-arcs # needed for .gcda files related to gcov 
+#CFLAGS += -fprofile-arcs # needed for .gcda files related to gcov 
 
 # gcov call and flags
 GCOV = gcov # coverage tool 
@@ -41,8 +41,8 @@ runtests: testDrawCard
 	cat dominion.c.gcov >> unittestresult.out
 #***********************************************************************
 
-unittest1: unittest1.c dominion.o rngs.o 
-	${CC} -o unittest1 unittest1.c -g dominion.o rngs.o $(CFLAGS)
+unittest1: unittest1.c dominion.o rngs.o interface.o 
+	${CC} -o unittest1 unittest1.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
 unittestresults: unittest1 
 	./unittest1 &> unittestresults.out 
