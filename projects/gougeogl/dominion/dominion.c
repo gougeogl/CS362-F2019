@@ -604,36 +604,69 @@ int drawCard(int player, struct gameState *state)
 
         //state->discardCount[player] = 0; <--- BUG ! if you use this..you'll only have coppers !!
 
-        //Step 2 Draw Card
-        count = state->handCount[player];//Get current player's hand count
+		//Step 2 Draw Card
+		count = state->handCount[player];//Get current player's hand count
 
-        if (DEBUG) { //Debug statements
-	    printf("GLEN: TRACE: dos.\n");
-            printf("Current hand count: %d\n", count);
-        }
+		if (DEBUG) { //Debug statements
+			printf("GLEN: TRACE: dos.\n");
+			printf("Current hand count: %d\n", count);
+		}
 
-        deckCounter = state->deckCount[player];//Create a holder for the deck count
+		deckCounter = state->deckCount[player];//Create a holder for the deck count
 
-        if (deckCounter == 0)
-            return -1;
+		if (deckCounter == 0)
+			return -1;
 
-        state->hand[player][count] = state->deck[player][deckCounter - 1];//Add card to hand
-        state->deckCount[player]--;
-        state->handCount[player]++;//Increment hand count
-    }
+		if (DEBUG) {
+			printf("IN drawCard() toward end:\n");
+			printf("BEFORE: state->hand[player][count] = %d\n", state->hand[player][count]);
+			printf("BEFORE: state->deckCount[player] = %d\n", state->deckCount[player]);
+			printf("BEFORE: state->handCount[player] = %d\n", state->handCount[player]);
+			printf("BEFORE: deckCounter = %d, deckCounter - 1 = %d\n", deckCounter, deckCounter - 1);
+			printf("BEFORE: state->deck[player][deckCounter - 1] = %d\n", state->deck[player][deckCounter - 1]);
+		}
+		state->hand[player][count] = state->deck[player][deckCounter - 1];//Add card to hand
+		state->deckCount[player]--;
+		state->handCount[player]++;//Increment hand count
 
-    else {
-        count = state->handCount[player];//Get current hand count for player
-        if (DEBUG) { //Debug statements
-	    printf("GLEN: TRACE: tres.\n");
-            printf("Current hand count: %d\n", count);
-        }
+		if (DEBUG) {
+			printf("IN drawCard() toward end:\n");
+			printf("AFTER: state->hand[player][count] = %d\n", state->hand[player][count]);
+			printf("AFTER: state->deckCount[player] = %d\n", state->deckCount[player]);
+			printf("AFTER: state->handCount[player] = %d\n", state->handCount[player]);
+			printf("AFTER: deckCounter = %d, deckCounter - 1 = %d\n", deckCounter, deckCounter - 1);
+			printf("AFTER: state->deck[player][deckCounter - 1] = %d\n", state->deck[player][deckCounter - 1]);
+		}
+	}
+	else {
+		count = state->handCount[player];//Get current hand count for player
+		if (DEBUG) { //Debug statements
+			printf("GLEN: TRACE: tres.\n");
+			printf("Current hand count: %d\n", count);
+		}
 
-        deckCounter = state->deckCount[player];//Create holder for the deck count
-        state->hand[player][count] = state->deck[player][deckCounter - 1];//Add card to the hand
-        state->deckCount[player]--;
-        state->handCount[player]++;//Increment hand count
-    }
+		if (DEBUG) {
+			printf("IN drawCard() toward end:\n");
+			printf("BEFORE: state->hand[player][count] = %d\n", state->hand[player][count]);
+			printf("BEFORE: state->deckCount[player] = %d\n", state->deckCount[player]);
+			printf("BEFORE: state->handCount[player] = %d\n", state->handCount[player]);
+			printf("BEFORE: deckCounter = %d, deckCounter - 1 = %d\n", deckCounter, deckCounter - 1);
+			printf("BEFORE: state->deck[player][deckCounter - 1] = %d\n", state->deck[player][deckCounter - 1]);
+		}
+
+		deckCounter = state->deckCount[player];//Create holder for the deck count
+		state->hand[player][count] = state->deck[player][deckCounter - 1];//Add card to the hand
+		state->deckCount[player]--;
+		state->handCount[player]++;//Increment hand count
+
+		if (DEBUG) {
+			printf("IN drawCard() toward end:\n");
+			printf("AFTER: state->hand[player][count] = %d\n", state->hand[player][count]);
+			printf("AFTER: state->deckCount[player] = %d\n", state->deckCount[player]);
+			printf("AFTER: state->handCount[player] = %d\n", state->handCount[player]);
+			printf("AFTER: deckCounter = %d, deckCounter - 1 = %d\n", deckCounter, deckCounter - 1);
+			printf("AFTER: state->deck[player][deckCounter - 1] = %d\n", state->deck[player][deckCounter - 1]);
+		}
 
     return 0;
 }
