@@ -724,8 +724,12 @@ int baronCard(int choice1, struct gameState *state)
 
 	else {
 		if (supplyCount(estate, state) >= 0) { /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 2: >= wrong, > correct */
-			gainCard(estate, state, 0, currentPlayer);//Gain an estate
-
+			int checker = 0;
+			checker = gainCard(estate, state, 0, currentPlayer);//Gain an estate
+			if(checker != 0)
+			{
+				printf("TRACE: baronCard() call to gainCard failed !");
+			}
 			//state->supplyCount[estate]--;//Decrement Estates
 			if (supplyCount(estate, state) == 0) {
 				isGameOver(state);
@@ -1381,7 +1385,10 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 int shiftCards(int handPos, int currentPlayer, struct gameState *state)
 {
 	int result = FAILURE;
-	
+/*
+	printf("TRACE: IN shiftCards() \n");
+	printf("BEFORE: DISCARD: state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
+*/
 	/* check if at least 1 card in hand */
 	if (state->handCount[currentPlayer] > 1)
 	{
@@ -1395,6 +1402,7 @@ int shiftCards(int handPos, int currentPlayer, struct gameState *state)
 		result = SUCCESS;
 	}
 
+//	printf("BEFORE: DISCARD: state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
 	return result;
 }
 
@@ -1426,10 +1434,24 @@ int shiftCards(int handPos, int currentPlayer, struct gameState *state)
 int discardCard(int handPos, int currentPlayer, struct gameState *state)
 {
 	int action_success = FAILURE;
+	/*
+	printf("TRACE: IN discardCard:\n");
+	printf("BEFORE: handPos = %d\n", handPos);
+	printf("BEFORE: HAND:    state->hand[currentPlayer][handPos] = %d\n", state->hand[currentPlayer][handPos]);
+	printf("BEFORE: DISCARD: state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
+	printf("BEFORE: INCREMENT: discardCount[currentPlayer] = %d\n", state->discardCount[currentPlayer] );
+	*/
 
 	state->discard[currentPlayer][(state->discardCount[currentPlayer])] = state->hand[currentPlayer][handPos];
+
+	//printf("AFTER: HAND:    state->hand[currentPlayer][handPos] = %d\n", state->hand[currentPlayer][handPos]);
+	//printf("AFTER: DISCARD: state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
+
 	state->discardCount[currentPlayer]++;
 
+	//printf("AFTER INCREMENT: discardCount[currentPlayer] = %d\n", state->discardCount[currentPlayer] );
+	//printf("AFTER: INCREMENT: DISCARD: state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
+	
 	/* adjust what's in hand */
 	state->hand[currentPlayer][handPos] = UNUSED;
 	state->handCount[currentPlayer]--;
@@ -1437,6 +1459,9 @@ int discardCard(int handPos, int currentPlayer, struct gameState *state)
 	action_success = shiftCards(handPos, currentPlayer, state); 
 	if( (state->handCount[currentPlayer] > 1) && (action_success != FAILURE) )
 	{ action_success = SUCCESS; }
+
+	//printf("TRACE: END OF discardCard() \n");
+	//printf("AFTER: DISCARD: state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
 
     return action_success;
 }
