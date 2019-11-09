@@ -31,6 +31,16 @@
 // TO PRINT RULES FOR TESTS
 #define RULES 1 /* <========= SET TO 1 TO PRINT RULES FOR TESTS & RELATION TO BUGS I INTRODUCED !! */
 
+enum TEST_FLAGS
+{
+	SAME_HAND = 800,
+	DIFFERENT_HAND,
+	SAME_DECK,
+	DIFFERENT_DECK,
+	SAME_DISCARD,
+	DIFFERENT_DISCARD
+};
+
 // TEST PROTO-TYPES
 void initTestGame(int players, int* kDeck, int mySeed, struct gameState* game);
 void prepMinion(int players, int seed, int* kingdom, struct gameState* state, int handSize, int handPos, int card);
@@ -55,7 +65,7 @@ int minionTest2();
 
 int main()
 {
-	minionTest1();
+	//minionTest1();
 	minionTest2();
 	printf("\n\n");
 	return 0;
@@ -151,7 +161,6 @@ void setHandPos(struct gameState* state, int card, int handPos)
 * if coins is +2 will print nothing.
 * if coins is < +2 previous will print error.
 * if coins is > +2 previous will print that error.
-* S.T. flag of desired comparison SAME_HAND, DIFFERENT_HAND
 *
 ****************************************************************************/
 int compareCoins(int player, struct gameState* before, struct gameState* after )
@@ -181,6 +190,50 @@ int compareCoins(int player, struct gameState* before, struct gameState* after )
 	}
 	
 	return result;
+}
+
+/* *************************************************************************
+* numActions
+* Check is numActions of a player is same before some saved gameState (before) and
+* if numActions is +1 will print nothing.
+* if numActions is same as previous will print error.
+* if numActions is > +1 previous will print other error.
+*
+****************************************************************************/
+int compareNumActions(int player, struct gameState* before, struct gameState* after)
+{
+	int result = 0;
+	int printStats = 0;
+
+	if (before->numActions + 1 == after->numActions)
+	{
+		printf("Player %d\'s numActions is the same as previous !\n", player);
+		fflush(stdout);
+		printStats = 1;
+		result = -1;
+	}
+	else if (before->numActions + 1 < after->numActions)
+	{
+		printf("Player %d\'s numActions is greater than +1 previous !\n", player);
+		fflush(stdout);
+		printStats = 1;
+		result = -1;
+	}
+	else if (after->numActions < before->numActions + 1)
+	{
+		printf("Player %d\'s numActions is less than previous !\n", player);
+		fflush(stdout);
+		printStats = 1;
+		result = -1;
+	}
+
+	if (printStats == 1)
+	{
+		printf("BEFORE: numActions: %d\n", before->numActions);
+		printf("AFTER:  numActions: %d\n", after->numActions);
+		fflush(stdout);
+	}
+
 }
 
 /* *************************************************************************
@@ -360,7 +413,19 @@ int minionTest1()
 		printf("OUTPUT:\n");
 	}
 
-	prepMinion(2, seed, kingdomCards, &G, 0, 5, i, estate);
+	prepMinion(2, seed, kingdomCards, &G, 5, 0, -1);
+	int number = -1;
+
+	int i;
+	for (i = 0; i < 5; i++)
+	{
+		number = _rand_of_kingdomCards();
+		setHandPos(&G, number, i);
+	}
+
+	int otherNumber = rand() % (4 - 0 + 1) + 0;
+	setHandPos(&G, otherNumber, minion); /* <== need a minion in hand to use it right ? */
+
 	memset(&backup, '\0', sizeof(backup));
 	backup = G;
 
@@ -408,8 +473,8 @@ int minionTest2()
 	/* void prepMinion(int players, int seed, int* kingdom, struct gameState* state, int handSize, int handPos, int card) */
 
 	minionCard(1, 1, &G, otherNumber);
-
-	compareCoins(G->whoseTurn, &backup, &G);
+	compareNumActions(G.whoseTurn, &backup, &G);
+	compareCoins(G.whoseTurn, &backup, &G);
 
 	return result;
 }
