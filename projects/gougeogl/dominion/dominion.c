@@ -724,13 +724,8 @@ int baronCard(int choice1, struct gameState *state)
 
 	else {
 		if (supplyCount(estate, state) >= 0) { /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 2: >= wrong, > correct */
-			int checker = 0;
-			checker = gainCard(estate, state, 0, currentPlayer);//Gain an estate
-			if(checker != 0)
-			{
-				printf("TRACE: baronCard() call to gainCard failed !");
-			}
-			//state->supplyCount[estate]--;//Decrement Estates
+			gainCard(estate, state, 0, currentPlayer);//Gain an estate
+
 			if (supplyCount(estate, state) == 0) {
 				isGameOver(state);
 			}
@@ -1520,10 +1515,13 @@ int gainCard(int supplyPos, struct gameState *state, int toFlag, int player)
     //Note: supplyPos is enum of choosen card
 
     //check if supply pile is empty (0) or card is not used in game (-1)
+    
+    /*
     if ( supplyCount(supplyPos, state) < 1 )
     {
         return -1;
     }
+    */	
 
     //added card for [whoseTurn] current player:
     // toFlag = 0 : add to discard

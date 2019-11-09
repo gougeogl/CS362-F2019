@@ -1,15 +1,20 @@
 /***************************************************************
-** FileName: simplifiedUnitTest1.c
+** FileName: unittest1.c
 ** Author: Glen Gougeon
 ** Class : CS362 Software Engineering II
 ** Date : 10 - 25 - 2019
-* * Last Mod : 10 - 25 - 2019
+** Last Mod : 11 - 8 - 2019
 *
 ** Description : Assignment 3 : Unit Testing :
-*Refactored code for Baron, has 2 bugs I introduced.
+*		Refactored code for Baron, has 2 bugs I introduced.
 *		The following test code should catch the errors while
 *		executing 80 % branch and function coverage according
 *		to gcov coverage tool.
+*
+** To Compile:	Use included 'Makefile'
+*		compile command : make unittest1
+*		generate output file: make unittestresults
+*		output: unittestresults.out
 *
 ****************************************************************/
 
@@ -24,11 +29,13 @@
 #include "rngs.h"
 
 // TO PRINT RULES FOR TESTS
-#define RULES 0
+#define RULES 0 /* <========= SET TO 1 TO PRINT RULES FOR TESTS & RELATION TO BUGS I INTRODUCED !! */
 
+// TEST PROTO-TYPES
 void initTestGame(int players, int* kDeck, int mySeed, struct gameState* game);
 void prep(int player, int seed, int* kingdom, struct gameState* state, int numEstates, int handSize, int handPos, int card);
 
+// HELPER PROTOS-TYPES
 void wipeDeck(struct gameState* state);
 void removeEstatesDiscard(struct gameState *st);
 void setEstateSupply(struct gameState *state, int qtyEstates);
@@ -37,12 +44,17 @@ void setHandCount(struct gameState* state, int newHandSize);
 void setHandPos(struct gameState* state, int card, int handPos);
 int getTopDiscard(struct gameState* state);
 
+// TEST PROTO-TYPES
 int baronTest1();
 int baronTest2();
 int baronTest3();
 
 int main()
 {
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printf("NOTE TO GRADER: Rules Available: change RULES MACRO to 1 for Rules used.\n");
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+
 	baronTest1();
 	baronTest2();
 	baronTest3();
@@ -198,6 +210,7 @@ int baronTest1()
 	/* TEST 1 No Estates in Supply, handCount 5, 1 estate in Hand at position 'i' */
 	if(RULES)
 	{
+		printf("unittest1.c bug #1: no break out of loop where estate in hand found !\n");
 		printf("BARON TEST 1: Rules:\n");
 		printf("            : loops 5 times.\n");
 		printf("            : Choice1 for baronCard( ) is always 1 = discard an estate for +4 coins.\n");
@@ -259,6 +272,8 @@ int baronTest2()
 	/* TEST 2 */ 
 	if(RULES)
 	{
+		printf("unittest1.c con't.. because no break out of loop when estate in hand found & you have\n");
+		printf("                    more than 1 estate..you'll keep adding coins and cheat !\n");
 		printf("BARON TEST 2: Rules:\n");
 		printf("	    : Never Loops.\n");
 		printf("            : Choice1 for baronCard( ) is always 1 = discard an estate for +4 coins.\n");
@@ -328,6 +343,10 @@ int baronTest3()
 
 	if(RULES)
 	{
+		printf("unittest1.c con't.. Bug #2 of baronCard() gains an estate when there aren't any from\n");
+		printf("                    the supply. This test locates that error although ONLY by altering\n");
+		printf("                    gainCard() 's first condition. That condition is commented out, to\n");
+		printf("                    demonstrate what would happen in baronCard if that were not there.\n\n");
 		printf("BARON TEST 3: Rules:\n");
 		printf("            : loops 5 times.\n");
 		printf("            : Choice1 for baronCard( ) is always 0 = Gain an estate from supply.\n");
@@ -369,12 +388,14 @@ int baronTest3()
 				cardNumToName(estate, name);
 				printf("Error: There weren't any estates in the supply from before.\n");
 				printf("     : previous supply of card: %s was %d\n", name, backup.supplyCount[estate]);
-				printf("     : current supply of card: %s was %d\n", name, G.supplyCount[estate]);
-				printf("But you have one in your discard !\n");
+				printf("     : current supply of card: %s is %d\n", name, G.supplyCount[estate]);
+				printf("   ~~ But you have one in your discard !\n");
 
 				memset(name, '\0', sizeof(name));
-				int currentPlayer = whoseTurn(&G);
-				cardNumToName(G.discard[currentPlayer][G.discardCount[currentPlayer]], name);
+				//int currentPlayer = whoseTurn(&G);
+				int index = getTopDiscard(&G);
+				//cardNumToName(G.discard[currentPlayer][G.discardCount[currentPlayer]], name);
+				cardNumToName(index, name);
 				printf("Top of discard contains: %s\n", name);
 				result = -1;
 
