@@ -598,6 +598,7 @@ int drawCard(int player, struct gameState *state)
         shuffle(player, state);//Shuffle the deck up and make it so that we can draw
 
         if (DEBUG) { //Debug statements
+	    printf("GLEN: TRACE: uno.\n");
             printf("Deck count now: %d\n", state->deckCount[player]);
         }
 
@@ -607,6 +608,7 @@ int drawCard(int player, struct gameState *state)
         count = state->handCount[player];//Get current player's hand count
 
         if (DEBUG) { //Debug statements
+	    printf("GLEN: TRACE: dos.\n");
             printf("Current hand count: %d\n", count);
         }
 
@@ -621,9 +623,9 @@ int drawCard(int player, struct gameState *state)
     }
 
     else {
-        int count = state->handCount[player];//Get current hand count for player
-        int deckCounter;
+        count = state->handCount[player];//Get current hand count for player
         if (DEBUG) { //Debug statements
+	    printf("GLEN: TRACE: tres.\n");
             printf("Current hand count: %d\n", count);
         }
 
@@ -699,7 +701,7 @@ int getCost(int cardNumber)
     return -1;
 }
 
-/* BARON */ /* <------------------------------------------------------------------------------------- NEW MINE FUNCTION HERE */
+/* BARON */ 
 int baronCard(int choice1, struct gameState *state)
 {
 	int currentPlayer = whoseTurn(state);
@@ -747,7 +749,7 @@ int minionCard(int choice1, int choice2, struct gameState *state, int handPos)
 	state->numActions++;
 
 	//discard card from hand
-	discardCard(handPos, currentPlayer, state);
+	//discardCard(handPos, currentPlayer, state);
 
 	if (choice1)
 	{
@@ -762,7 +764,7 @@ int minionCard(int choice1, int choice2, struct gameState *state, int handPos)
 		//discard hand
 		while (numHandCards(state) > 0)
 		{
-			discardCard(handPos, currentPlayer, state);
+			discardCard(0, currentPlayer, state); /* CHANGED: since shiftCards() goes left..this will work to remove all  */
 		}
 
 		//draw 4
@@ -782,7 +784,7 @@ int minionCard(int choice1, int choice2, struct gameState *state, int handPos)
 					//discard hand
 					while (state->handCount[i] > 0)
 					{
-						discardCard(handPos, i, state);
+						discardCard(0, i, state); /* CHANGED: b/c of shiftCards() can start at 0..all others will SHIFT left  */
 					}
 
 					//draw 4

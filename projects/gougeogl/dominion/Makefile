@@ -44,15 +44,29 @@ runtests: testDrawCard
 unittest1: unittest1.c dominion.o rngs.o interface.o 
 	${CC} -o unittest1 unittest1.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
-unittestresults: unittest1 
-	./unittest1 &> unittestresults.out 
-	${GCOV} unittest1.c >> unittestresults.out
-	cat unittest1.c.gcov >> unittestresults.out
-	${GCOV} dominion.c >> unittestresults.out
-	cat dominion.c.gcov >> unittestresults.out
+unittest2: unittest2.c dominion.o rngs.o interface.o 
+	${CC} -o unittest2 unittest2.c -g dominion.o rngs.o interface.o $(CFLAGS)
+
+#unittestresults: unittest1 
+#	./unittest1 &> unittestresults.out 
+#	${GCOV} unittest1.c >> unittestresults.out
+#	cat unittest1.c.gcov >> unittestresults.out
+#	${GCOV} dominion.c >> unittestresults.out
+#	cat dominion.c.gcov >> unittestresults.out
 
 #***********************************************************************
 
+unittestresults: unittest1 unittest2 
+	./unittest1 &> unittestresults.out 
+	./unittest2 >> unittestresults.out
+	${GCOV} dominion.c >> unittestresults.out
+	${GCOV} unittest1.c >> unittestresults.out
+	${GCOV} unittest2.c >> unittestresults.out
+	cat unittest1.c.gcov >> unittestresults.out
+	cat unittest2.c.gcov >> unittestresults.out
+	cat dominion.c.gcov >> unittestresults.out
+
+#***********************************************************************
 testDiscardCard: testDiscardCard.c dominion.o rngs.o interface.o 
 	${CC} -o testDiscardCard testDiscardCard.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
@@ -84,4 +98,4 @@ all: playdom player unittest1
 
 clean:
 	rm -f *.o playdom player unittest1 *.gcov *.gcda *.gcno *.so *.out *.exe
-	rm -f testDiscardCard testDrawCard testInitGame 
+	rm -f testDiscardCard testDrawCard testInitGame unittest1 unittest2  

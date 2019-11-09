@@ -53,12 +53,14 @@ void resetHand(struct gameState* dState);
 void setHandCount(struct gameState* state, int newHandSize);
 void setHandPos(struct gameState* state, int card, int handPos);
 
-int compareHand(int player, struct gameState* before, struct gameState* after, int flag);
-int compareDeck(int player, struct gameState* before, struct gameState* after, int limit, int flag);
+int compareCoins(int player, struct gameState* before, struct gameState* after );
+int compareNumActions(int player, struct gameState* before, struct gameState* after);
+int compareHand(int player, struct gameState* before, struct gameState* after , int flag );
+int compareDeck(int player, struct gameState* before, struct gameState* after, int limit, int flag );
 int compareDiscard(int player, struct gameState* before, struct gameState* after, int limit, int flag);
 
 /* selects a random card from kingdomCards deck */
-int _rand_of_kingdomCards()
+int _rand_of_kingdomCards();
 
 int minionTest1();
 int minionTest2();
@@ -195,45 +197,22 @@ int compareCoins(int player, struct gameState* before, struct gameState* after )
 /* *************************************************************************
 * numActions
 * Check is numActions of a player is same before some saved gameState (before) and
-* if numActions is +1 will print nothing.
-* if numActions is same as previous will print error.
-* if numActions is > +1 previous will print other error.
+* if numActions is not +1 previous  will print error, nothing otherwise.
 *
 ****************************************************************************/
 int compareNumActions(int player, struct gameState* before, struct gameState* after)
 {
 	int result = 0;
-	int printStats = 0;
 
-	if (before->numActions + 1 == after->numActions)
+	if (before->numActions + 1 != after->numActions)
 	{
-		printf("Player %d\'s numActions is the same as previous !\n", player);
-		fflush(stdout);
-		printStats = 1;
-		result = -1;
-	}
-	else if (before->numActions + 1 < after->numActions)
-	{
-		printf("Player %d\'s numActions is greater than +1 previous !\n", player);
-		fflush(stdout);
-		printStats = 1;
-		result = -1;
-	}
-	else if (after->numActions < before->numActions + 1)
-	{
-		printf("Player %d\'s numActions is less than previous !\n", player);
-		fflush(stdout);
-		printStats = 1;
-		result = -1;
-	}
-
-	if (printStats == 1)
-	{
+		printf("Player %d\'s numActions is not +1 previous !\n", player);
 		printf("BEFORE: numActions: %d\n", before->numActions);
 		printf("AFTER:  numActions: %d\n", after->numActions);
 		fflush(stdout);
+		result = -1;	
 	}
-
+	return result;
 }
 
 /* *************************************************************************
@@ -247,28 +226,44 @@ int compareNumActions(int player, struct gameState* before, struct gameState* af
 int compareHand(int player, struct gameState* before, struct gameState* after , int flag )
 {
 	int result = 0;
+	int printStats = 0; 
 
-	if(flag == SAME_HAND)
 	int i;
 	for (i = 0; i < after->handCount[player]; i++) 
 	{
 		if (flag == SAME_HAND)
 		{
-			if (before->hand[player][i] != after->hand[player][i]) {
+			if (before->hand[player][i] != after->hand[player][i]) 
+			{
 				printf("player %d\'s hand is different\n", player);
-				printf("BEFORE: hand[%d]: %s, AFTER: hand[%d]: %s\n", i, before->hand[player][i], i, after->hand[player][i]);
 				fflush(stdout);
-				result = -1;
+				printStats = 1;
 			}
 		}
 		else if (flag == DIFFERENT_HAND)
 		{
-			if (before->hand[player][i] == after->hand[player][i]) {
+			if (before->hand[player][i] == after->hand[player][i]) 
+			{
+
 				printf("player %d\'s hand is still the same\n", player);
-				printf("BEFORE: hand[%d]: %s, AFTER: hand[%d]: %s\n", i, before->hand[player][i], i, after->hand[player][i]);
 				fflush(stdout);
-				result = -1;
+				printStats = 1;
 			}
+		}
+		
+		if(printStats == 1)
+		{
+			char name[MAX_STRING_LENGTH];
+			memset(name, '\0', sizeof(name));
+			cardNumToName(before->hand[player][i], name);
+
+			char nombre[MAX_STRING_LENGTH];
+			memset(nombre, '\0', sizeof(nombre));
+			cardNumToName(after->hand[player][i], nombre);
+
+			printf("BEFORE: hand[%d]: %s, AFTER: hand[%d]: %s\n", i, name, i, nombre );
+			fflush(stdout);
+			result = -1;
 		}
 	}
 
@@ -288,6 +283,7 @@ int compareHand(int player, struct gameState* before, struct gameState* after , 
 int compareDeck(int player, struct gameState* before, struct gameState* after, int limit, int flag )
 {
 	int result = 0;
+	int printStats = 0;
 
 	int i;
 	for (i = 0; i < limit; i++) 
@@ -296,19 +292,32 @@ int compareDeck(int player, struct gameState* before, struct gameState* after, i
 		{
 			if (before->deck[player][i] != after->deck[player][i]) {
 				printf("player %d\'s deck is different\n", player);
-				printf("BEFORE: deck[%d]: %s, AFTER: deck[%d]: %s\n", i, before->deck[player][i], i, after->deck[player][i]);
 				fflush(stdout);
-				result = -1;
+				printStats = 1;	
 			}
 		}
 		else if (flag == DIFFERENT_DECK)
 		{
 			if (before->deck[player][i] == after->deck[player][i]) {
 				printf("player %d\'s deck is still the same\n", player);
-				printf("BEFORE: deck[%d]: %s, AFTER: deck[%d]: %s\n", i, before->deck[player][i], i, after->deck[player][i]);
 				fflush(stdout);
-				result = -1;
+				printStats = 1;	
 			}
+		}
+		
+		if(printStats == 1)
+		{
+			char name[MAX_STRING_LENGTH];
+			memset(name, '\0', sizeof(name));
+			cardNumToName(before->deck[player][i], name);
+
+			char nombre[MAX_STRING_LENGTH];
+			memset(nombre, '\0', sizeof(nombre));
+			cardNumToName(after->deck[player][i], nombre);
+
+			printf("BEFORE: deck[%d]: %s, AFTER: deck[%d]: %s\n", i, name, i, nombre );
+			fflush(stdout);
+			result = -1;
 		}
 	}
 	return result;
@@ -326,6 +335,7 @@ int compareDeck(int player, struct gameState* before, struct gameState* after, i
 int compareDiscard(int player, struct gameState* before, struct gameState* after, int limit, int flag)
 {
 	int result = 0;
+	int printStats = 0;
 
 	int i;
 	for (i = 0; i < limit; i++)
@@ -334,20 +344,34 @@ int compareDiscard(int player, struct gameState* before, struct gameState* after
 		{
 			if (before->discard[player][i] != after->discard[player][i]) {
 				printf("player %d\'s discard is different\n", player);
-				printf("BEFORE: discard[%d]: %s, AFTER: discard[%d]: %s\n", i, before->discard[player][i], i, after->discard[player][i]);
 				fflush(stdout);
-				result = -1;
+				printStats = 1;	
 			}
 		}
 		else if (flag == DIFFERENT_DISCARD)
 		{
 			if (before->discard[player][i] == after->discard[player][i]) {
 				printf("player %d\'s discard is still the same\n", player);
-				printf("BEFORE: discard[%d]: %s, AFTER: discard[%d]: %s\n", i, before->discard[player][i], i, after->discard[player][i]);
 				fflush(stdout);
-				result = -1;
+				printStats = 1;	
 			}
 		}
+
+		if(printStats == 1)
+		{
+			char name[MAX_STRING_LENGTH];
+			memset(name, '\0', sizeof(name));
+			cardNumToName(before->discard[player][i], name);
+
+			char nombre[MAX_STRING_LENGTH];
+			memset(nombre, '\0', sizeof(nombre));
+			cardNumToName(after->discard[player][i], nombre);
+
+			printf("BEFORE: discard[%d]: %s, AFTER: discard[%d]: %s\n", i, name, i, nombre );
+			fflush(stdout);
+			result = -1;
+		}
+
 	}
 	return result;
 }
@@ -472,7 +496,28 @@ int minionTest2()
 	/* int minionCard(int choice1, int choice2, struct gameState *state, int handPos) */
 	/* void prepMinion(int players, int seed, int* kingdom, struct gameState* state, int handSize, int handPos, int card) */
 
+	printf("TRACE: BEFORE: IN minionCard() gameState is:\n");
+	printState(&G);
+
+	printf("TRACE: BEFORE: handCount is: %d\n", G.handCount[G.whoseTurn] );
+	printf("TRACE: BEFORE: IN minionCard() hand is:\n");
+	printHand(G.whoseTurn, &G);
+
+	printf("TRACE: BEFORE: IN minionCard() discard is:\n");
+	printDiscard(G.whoseTurn, &G);
+
 	minionCard(1, 1, &G, otherNumber);
+
+	printf("TRACE: AFTER: IN minionCard() gameState is:\n");
+	printState(&G);
+
+	printf("TRACE: AFTER: handCount is: %d\n", G.handCount[G.whoseTurn] );
+	printf("TRACE: AFTER: IN minionCard() hand is:\n");
+	printHand(G.whoseTurn, &G);
+
+	printf("TRACE: AFTER: IN minionCard() discard is:\n");
+	printDiscard(G.whoseTurn, &G);
+
 	compareNumActions(G.whoseTurn, &backup, &G);
 	compareCoins(G.whoseTurn, &backup, &G);
 
