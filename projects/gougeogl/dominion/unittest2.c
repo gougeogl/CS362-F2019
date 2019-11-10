@@ -44,6 +44,7 @@ enum TEST_FLAGS
 // TEST PROTO-TYPES
 void initTestGame(int players, int* kDeck, int mySeed, struct gameState* game);
 void prepMinion(int players, int seed, int* kingdom, struct gameState* state, int handSize, int handPos, int card);
+int setUpOtherPlayers(int originalPlayer, struct gameState* state, int handSize );
 
 // HELPER PROTOS-TYPES
 void wipeDeck(struct gameState* state);
@@ -101,6 +102,38 @@ void prepMinion(int players, int seed, int* kingdom, struct gameState* state, in
 	state->coins = 0;
 }
 
+int setUpOtherPlayers(int originalPlayer, struct gameState* state, int handSize )
+{
+	if(state->numPlayers > 1 && state->numPlayers < 5)
+	{
+		int currentPlayer = originalPlayer;
+		currentPlayer++;
+
+		int numPlayers = state->numPlayers;
+		int number = -1;
+
+		int i;
+		for(i = currentPlayer; i < numPlayers; i++)
+		{
+			wipeDeck(state);
+			wipeDiscard(state);
+			updateCoins(currentPlayer, state, 0);
+			resetHand(state);
+			setHandCount(state, handSize);
+			state->coins = 0;
+
+			int j;
+			for (j = 0; j < handSize; j++)
+			{
+				number = _rand_of_kingdomCards();
+				setHandPos(state, number, j);
+			}
+
+		}
+
+	}
+	return originalPlayer;
+}
 // set player to remove all estates from current player's deck  
 void wipeDeck(struct gameState* state)
 {
@@ -478,6 +511,10 @@ int minionTest2()
 	}
 
 	prepMinion(2, seed, kingdomCards, &G, 5, 0, -1);
+	G. whoseTurn = setUpOtherPlayers(G.whoseTurn, &G, 5 );
+	printf(":]======= >>TRACE: whoseTurn is: %d\n", G.whoseTurn);
+
+
 	int number = -1;
 
 	int i;
@@ -496,29 +533,50 @@ int minionTest2()
 	/* int minionCard(int choice1, int choice2, struct gameState *state, int handPos) */
 	/* void prepMinion(int players, int seed, int* kingdom, struct gameState* state, int handSize, int handPos, int card) */
 
-	printf("TRACE: BEFORE: IN minionCard() gameState is:\n");
+	printf("PRE: minionTest2() gameState is:\n");
 	printState(&G);
 
-	printf("TRACE: BEFORE: handCount is: %d\n", G.handCount[G.whoseTurn] );
-	printf("TRACE: BEFORE: IN minionCard() hand is:\n");
+	printf("PRE: minionTest2() handCount is: %d\n", G.handCount[G.whoseTurn] );
+	printf("PRE: minionTest2() hand is:\n");
 	printHand(G.whoseTurn, &G);
 
-	printf("TRACE: BEFORE: IN minionCard() discard is:\n");
+	printf("PRE: minionTest2() discard is:\n");
 	printDiscard(G.whoseTurn, &G);
 	printf("TRACE: otherNumber: %d\n", otherNumber);
 
-	minionCard(1, 1, &G, otherNumber);
-
-	printf("TRACE: AFTER: IN minionCard() gameState is:\n");
-	printState(&G);
-
-	printf("TRACE: AFTER: handCount is: %d\n", G.handCount[G.whoseTurn] );
-	printf("TRACE: AFTER: IN minionCard() hand is:\n");
+	G.whoseTurn++;
+	printf("PLAYER 1\n");
+	printf("PRE: minionTest2() handCount is: %d\n", G.handCount[G.whoseTurn] );
+	printf("PRE: minionTest2() hand is:\n");
 	printHand(G.whoseTurn, &G);
 
-	printf("TRACE: AFTER: IN minionCard() discard is:\n");
+	printf("PRE: minionTest2() discard is:\n");
 	printDiscard(G.whoseTurn, &G);
+	printf("TRACE: otherNumber: %d\n", otherNumber);
+	G.whoseTurn--;
 
+	minionCard(1, 1, &G, otherNumber);
+
+	printf("POST: minionTest2() gameState is:\n");
+	printState(&G);
+
+	printf("POST: minionTest2() handCount is: %d\n", G.handCount[G.whoseTurn] );
+	printf("POST: minionTest2() hand is:\n");
+	printHand(G.whoseTurn, &G);
+
+	printf("POST: minionTest2() deckCount is: %d\n", G.deckCount[G.whoseTurn] );
+	printf("POST: minionTest2() deck is:\n");
+	printDeck(G.whoseTurn, &G);
+
+	printf("PLAYER 1\n");
+	G.whoseTurn++;
+	printf("POST: minionTest2() handCount is: %d\n", G.handCount[G.whoseTurn] );
+	printf("POST: minionTest2() hand is:\n");
+	printHand(G.whoseTurn, &G);
+
+	printf("POST: minionTest2() deckCount is: %d\n", G.deckCount[G.whoseTurn] );
+	printf("POST: minionTest2() deck is:\n");
+	printDeck(G.whoseTurn, &G);
 	compareNumActions(G.whoseTurn, &backup, &G);
 	compareCoins(G.whoseTurn, &backup, &G);
 
