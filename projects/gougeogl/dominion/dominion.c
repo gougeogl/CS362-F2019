@@ -6,8 +6,6 @@
 * documentation: SEE separate .pdf for  explanation
 
 ****************************************************/
-#define DEBUG_B 0
-
 #include "dominion.h"
 #include "dominion_helpers.h"
 #include "interface.h"
@@ -583,55 +581,119 @@ int drawCard(int player, struct gameState *state)
 
     if (state->deckCount[player] <= 0) { //Deck is empty
 
+	/*
+	if(DEBUG){
+		printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+		printf("Deck Count before %d\n", state->deckCount[player] );
+		printDeck(player, state);
+		printf("Discard Count before %d\n", state->discardCount[player] );
+		printDiscard(player, state);
+	}
+	*/
         //Step 1 Shuffle the discard pile back into a deck
         int i;
         //Move discard to deck
         for (i = 0; i < state->discardCount[player]; i++) {
             state->deck[player][i] = state->discard[player][i];
+		//printf("deck[%d]: %d\n", i, state->deck[player][i] );
+		//printDeck(player, state);
             state->discard[player][i] = -1;
         }
 
         state->deckCount[player] = state->discardCount[player];
         state->discardCount[player] = 0;//Reset discard
 
+	/*	
+	if(DEBUG){
+		printf("Deck Count after %d\n", state->deckCount[player] );
+		printDeck(player, state);
+		printf("Discard Count after %d\n", state->discardCount[player] );
+		printDiscard(player, state);
+		printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	}
+	*/
+
         //Shufffle the deck
         shuffle(player, state);//Shuffle the deck up and make it so that we can draw
 
         if (DEBUG) { //Debug statements
+		//printf("++++++++++++++++++ after shuffle *****************\n");
             printf("Deck count now: %d\n", state->deckCount[player]);
         }
 
         //state->discardCount[player] = 0; <--- BUG ! if you use this..you'll only have coppers !!
 
-		//Step 2 Draw Card
-		count = state->handCount[player];//Get current player's hand count
+	//Step 2 Draw Card
+	count = state->handCount[player];//Get current player's hand count
 
-		if (DEBUG) { //Debug statements
-			printf("Current hand count: %d\n", count);
-		}
-
-		deckCounter = state->deckCount[player];//Create a holder for the deck count
-
-		if (deckCounter == 0)
-			return -1;
-
-		state->hand[player][count] = state->deck[player][deckCounter - 1];//Add card to hand
-		state->deckCount[player]--;
-		state->handCount[player]++;//Increment hand count
-
+	if (DEBUG) { //Debug statements
+		printf("Current hand count: %d\n", count);
 	}
-	else {
-		count = state->handCount[player];//Get current hand count for player
-		if (DEBUG) { //Debug statements
-			printf("Current hand count: %d\n", count);
-		}
 
-		deckCounter = state->deckCount[player];//Create holder for the deck count
-		state->hand[player][count] = state->deck[player][deckCounter - 1];//Add card to the hand
-		state->deckCount[player]--;
-		state->handCount[player]++;//Increment hand count
+	deckCounter = state->deckCount[player];//Create a holder for the deck count
 
+	if (deckCounter == 0)
+		return -1;
+
+	state->hand[player][count] = state->deck[player][deckCounter -1 ];//Add card to hand
+	state->deckCount[player]--;
+	state->handCount[player]++;//Increment hand count
+	/*
+	if(DEBUG){
+		printf("Hand Count MID %d\n", state->handCount[player] );
+		printHand(player, state);
+
+		printf("Deck Count MID %d\n", state->deckCount[player] );
+		printDeck(player, state);
+		
+		printf("Discard Count MID %d\n", state->discardCount[player] );
+		printDiscard(player, state);
+		printf("END DRAW CARD --\n");
 	}
+	*/
+   }
+   else {
+   	count = state->handCount[player];//Get current hand count for player
+	if (DEBUG) { //Debug statements
+		printf("Current hand count: %d\n", count);
+	}
+
+	deckCounter = state->deckCount[player];//Create holder for the deck count
+	state->hand[player][count] = state->deck[player][deckCounter -1 ];//Add card to the hand
+	state->deckCount[player]--;
+	state->handCount[player]++;//Increment hand count
+
+	/*
+	if(DEBUG){
+		printf("Hand Count ELSE %d\n", state->handCount[player] );
+		printHand(player, state);
+
+		printf("Deck Count ELSE %d\n", state->deckCount[player] );
+		printDeck(player, state);
+		
+		printf("Discard Count ELSE %d\n", state->discardCount[player] );
+		printDiscard(player, state);
+		printf("END DRAW CARD --\n");
+	}
+	*/
+
+   }
+	/*
+	if(DEBUG){
+		printf("==================================================================\n");
+		printf("Hand Count END %d\n", state->handCount[player] );
+		printHand(player, state);
+
+		printf("Deck Count END %d\n", state->deckCount[player] );
+		printDeck(player, state);
+		
+		printf("Discard Count END %d\n", state->discardCount[player] );
+		printDiscard(player, state);
+		printf("END DRAW CARD --\n");
+		printf("==================================================================\n");
+	}
+	*/
+
     	return 0;
 }
 
@@ -781,13 +843,52 @@ int minionCard(int choice1, int choice2, struct gameState *state, int handPos)
 					//discard hand
 					while (state->handCount[i] > 0)
 					{
+						/*
+						if(DEBUG){
+							printf("MC <== before discardCard() called\n");
+							printf("player %d Discard Count: %d\n", i, state->discardCount[i] );
+							printDiscard(i, state);
+							printf("Player %d Hand Count: %d\n", i, state->handCount[i] );
+							printHand(i, state);
+							printf("MC\n");
+						}	
+						*/	
 						discardCard(0, i, state); /* CHANGED: b/c of shiftCards() can start at 0..all others will SHIFT left  */
+						/*
+						if(DEBUG){
+							printf("MC <== after discardCard() called\n");
+							printf("player %d Discard Count: %d\n", i, state->discardCount[i] );
+							printDiscard(i, state);
+							printf("Player %d Hand Count: %d\n", i, state->handCount[i] );
+							printHand(i, state);
+							printf("MC\n");
+						}	
+						*/
 					}
 
 					//draw 4
 					for (j = 0; j < 4; j++)
 					{
+						if(DEBUG){
+							printf("MC <== before drawCard() called\n");
+							printf("player %d Discard Count: %d\n", i, state->discardCount[i] );
+							printDiscard(i, state);
+							printf("Player %d Hand Count: %d\n", i, state->handCount[i] );
+							printHand(i, state);
+							printf("MC\n");
+						}	
+
 						drawCard(i, state);
+
+						if(DEBUG){
+							printf("MC <== after drawCard() called\n");
+							printf("player %d Discard Count: %d\n", i, state->discardCount[i] );
+							printDiscard(i, state);
+							printf("Player %d Hand Count: %d\n", i, state->handCount[i] );
+							printHand(i, state);
+							printf("MC\n");
+						}	
+
 					}
 				}
 			}

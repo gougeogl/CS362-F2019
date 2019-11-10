@@ -44,15 +44,15 @@ enum TEST_FLAGS
 // TEST PROTO-TYPES
 void initTestGame(int players, int* kDeck, int mySeed, struct gameState* game);
 void prepMinion(int players, int seed, int* kingdom, struct gameState* state, int handSize, int handPos, int card);
-int setUpOtherPlayers(int originalPlayer, struct gameState* state, int handSize );
+int prepOthersMinion(int originalPlayer, struct gameState* state, int handSize );
 
 // HELPER PROTOS-TYPES
-void wipeDeck(struct gameState* state);
-void wipeDiscard(struct gameState* state);
+void wipeDeck(int player, struct gameState* state);
+void wipeDiscard(int player, struct gameState* state);
 
-void resetHand(struct gameState* dState);
-void setHandCount(struct gameState* state, int newHandSize);
-void setHandPos(struct gameState* state, int card, int handPos);
+void resetHand(int player, struct gameState* dState);
+void setHandCount(int player, struct gameState* state, int newHandSize);
+void setHandPos(int player, struct gameState* state, int card, int handPos);
 
 int compareCoins(int player, struct gameState* before, struct gameState* after );
 int compareNumActions(int player, struct gameState* before, struct gameState* after);
@@ -93,16 +93,16 @@ void initTestGame(int players, int* kDeck, int mySeed, struct gameState* game)
 void prepMinion(int players, int seed, int* kingdom, struct gameState* state, int handSize, int handPos, int card)
 {
 	initTestGame(players, kingdom, seed, state);
-	wipeDeck(state);
-	wipeDiscard(state);
-	updateCoins(state->whoseTurn, state, 0); /* <== added this */
-	resetHand(state);
-	setHandCount(state, handSize);
-	setHandPos(state, card, handPos);
+	wipeDeck(0, state);
+	wipeDiscard(0, state);
+	updateCoins(0, state, 0); /* <== added this */
+	resetHand(0, state);
+	setHandCount(0, state, handSize);
+	setHandPos(0, state, card, handPos);
 	state->coins = 0;
 }
 
-int setUpOtherPlayers(int originalPlayer, struct gameState* state, int handSize )
+int prepOthersMinion(int originalPlayer, struct gameState* state, int handSize )
 {
 	if(state->numPlayers > 1 && state->numPlayers < 5)
 	{
@@ -115,78 +115,90 @@ int setUpOtherPlayers(int originalPlayer, struct gameState* state, int handSize 
 		int i;
 		for(i = currentPlayer; i < numPlayers; i++)
 		{
-			wipeDeck(state);
-			wipeDiscard(state);
-			updateCoins(currentPlayer, state, 0);
-			resetHand(state);
-			setHandCount(state, handSize);
+			wipeDeck(i, state);
+			wipeDiscard(i, state);
+			updateCoins(i, state, 0);
+			resetHand(i, state);
+			setHandCount(i, state, handSize);
 			state->coins = 0;
-
+/*
+			printf("IN: setUpOtherPlayers..before assign hand\n");
+			printf("player %d handCount: %d\n", i, state->handCount[i] );
+			printHand(currentPlayer, state);
+			printf("player %d deckCount: %d\n", i, state->deckCount[i] );
+			printDeck(currentPlayer, state);
+			printf("player %d discardCount: %d\n", i, state->discardCount[i] );
+			printDiscard(currentPlayer, state);
+*/
 			int j;
 			for (j = 0; j < handSize; j++)
 			{
 				number = _rand_of_kingdomCards();
-				setHandPos(state, number, j);
+	//			printf("number: %d\n", number);
+				setHandPos(i, state, number, j);
+	//			printf("%d\n", state->hand[i][j] );
 			}
-
+/*
+			printf("STATS IN : player %d: setUpOtherPlayers\n", i);
+			printf("player %d handCount: %d\n", i, state->handCount[i] );
+			printHand(currentPlayer, state);
+			printf("player %d deckCount: %d\n", i, state->deckCount[i] );
+			printDeck(currentPlayer, state);
+			printf("player %d discardCount: %d\n", i, state->discardCount[i] );
+			printDiscard(currentPlayer, state);
+*/
 		}
 
 	}
 	return originalPlayer;
 }
 // set player to remove all estates from current player's deck  
-void wipeDeck(struct gameState* state)
+void wipeDeck(int player, struct gameState* state)
 {
-	int currentPlayer = whoseTurn(state);
-
 	int i = 0;
-	while (i < state->deckCount[currentPlayer])
+	while (i < state->deckCount[player])
 	{
-		state->deck[currentPlayer][i] = -1;
+		state->deck[player][i] = -1;
 		i++;
 	}
-	state->deckCount[currentPlayer] = 0;
+	state->deckCount[player] = 0;
 }
 
 // eliminate all estates from discard.   
-void wipeDiscard(struct gameState* state)
+void wipeDiscard(int player, struct gameState* state)
 {
-	int currentPlayer = whoseTurn(state);
-
 	int i = 0;
-	while (i < state->discardCount[currentPlayer])
+	while (i < state->discardCount[player])
 	{
-		state->discard[currentPlayer][i] = -1;
+		state->discard[player][i] = -1;
 		i++;
 	}
-	state->discardCount[currentPlayer] = 0;
+	state->discardCount[player] = 0;
 }
 
 /* Sets current player's handCount to newHandSize, then
 	overwrites everything in hand with -1 */
-void resetHand(struct gameState* dState)
+void resetHand(int player, struct gameState* dState)
 {
-	int currentPlayer = whoseTurn(dState);
-
 	int i;
-	for (i = 0; i < dState->handCount[currentPlayer]; i++)
+	for (i = 0; i < dState->handCount[player]; i++)
 	{
-		dState->hand[currentPlayer][i] = -1;
+		dState->hand[player][i] = -1;
 	}
-	dState->handCount[currentPlayer] = 0;
+	dState->handCount[player] = 0;
 }
 
-void setHandCount(struct gameState* state, int newHandSize)
+void setHandCount(int player, struct gameState* state, int newHandSize)
 {
-	int currentPlayer = whoseTurn(state);
-	state->handCount[currentPlayer] = newHandSize;
+	state->handCount[player] = newHandSize;
 }
 
 /* adds indicated card in current player's hand at handPos */
-void setHandPos(struct gameState* state, int card, int handPos)
+void setHandPos(int player, struct gameState* state, int card, int handPos)
 {
-	int currentPlayer = whoseTurn(state);
-	state->hand[currentPlayer][handPos] = card;
+	//printf("IN setHandPos player is: %d\n", player);
+	state->hand[player][handPos] = card;
+	//printf("IN setHandPos now at handPos is: %d\n", state->hand[player][handPos] );
 }
 
 /*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM*/
@@ -477,11 +489,11 @@ int minionTest1()
 	for (i = 0; i < 5; i++)
 	{
 		number = _rand_of_kingdomCards();
-		setHandPos(&G, number, i);
+		setHandPos(0, &G, number, i);
 	}
 
 	int otherNumber = rand() % (4 - 0 + 1) + 0;
-	setHandPos(&G, otherNumber, minion); /* <== need a minion in hand to use it right ? */
+	setHandPos(0, &G, otherNumber, minion); /* <== need a minion in hand to use it right ? */
 
 	memset(&backup, '\0', sizeof(backup));
 	backup = G;
@@ -510,10 +522,8 @@ int minionTest2()
 		printf("OUTPUT:\n");
 	}
 
-	prepMinion(2, seed, kingdomCards, &G, 5, 0, -1);
-	G. whoseTurn = setUpOtherPlayers(G.whoseTurn, &G, 5 );
-	printf(":]======= >>TRACE: whoseTurn is: %d\n", G.whoseTurn);
-
+	prepMinion(3, seed, kingdomCards, &G, 5, 0, -1);
+	G.whoseTurn = prepOthersMinion(G.whoseTurn, &G, 5 );
 
 	int number = -1;
 
@@ -521,11 +531,11 @@ int minionTest2()
 	for (i = 0; i < 5; i++)
 	{
 		number = _rand_of_kingdomCards();
-		setHandPos(&G, number, i);
+		setHandPos(0, &G, number, i);
 	}
 
 	int otherNumber = rand() % (4 - 0 + 1) + 0;
-	setHandPos(&G, otherNumber, minion); /* <== need a minion in hand to use it right ? */
+	setHandPos(0, &G, otherNumber, minion); /* <== need a minion in hand to use it right ? */
 
 	memset(&backup, '\0', sizeof(backup));
 	backup = G;
@@ -533,50 +543,52 @@ int minionTest2()
 	/* int minionCard(int choice1, int choice2, struct gameState *state, int handPos) */
 	/* void prepMinion(int players, int seed, int* kingdom, struct gameState* state, int handSize, int handPos, int card) */
 
-	printf("PRE: minionTest2() gameState is:\n");
-	printState(&G);
+	int j;
+	for(j = 0; j < G.numPlayers; j++)
+	{
+		printf("PRE: player %d\n", j);
 
-	printf("PRE: minionTest2() handCount is: %d\n", G.handCount[G.whoseTurn] );
-	printf("PRE: minionTest2() hand is:\n");
-	printHand(G.whoseTurn, &G);
+		printf("PRE: minionTest2() gameState is:\n");
+		printState(&G);
 
-	printf("PRE: minionTest2() discard is:\n");
-	printDiscard(G.whoseTurn, &G);
-	printf("TRACE: otherNumber: %d\n", otherNumber);
+		printf("PRE: minionTest2() handCount is: %d\n", G.handCount[j] );
+		printHand(j, &G);
 
-	G.whoseTurn++;
-	printf("PLAYER 1\n");
-	printf("PRE: minionTest2() handCount is: %d\n", G.handCount[G.whoseTurn] );
-	printf("PRE: minionTest2() hand is:\n");
-	printHand(G.whoseTurn, &G);
+		printf("PRE: minionTest2() discard is:\n");
+		printDiscard(j, &G);
+		printf("TRACE: otherNumber: %d\n", otherNumber);
 
-	printf("PRE: minionTest2() discard is:\n");
-	printDiscard(G.whoseTurn, &G);
-	printf("TRACE: otherNumber: %d\n", otherNumber);
-	G.whoseTurn--;
+		printf("PRE: minionTest2() deckCount is: %d\n", G.deckCount[j] );
+		printDeck(j, &G);
 
+		printf(" ** NEXT PLAYER PRE ** MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
+	}
+
+	printf(" <========================== ABOUT to CALL !!\n");
+	printf("JUST BEFORE CALL player is: %d\n", G.whoseTurn );
 	minionCard(1, 1, &G, otherNumber);
+	printf("JUST AFTER CALL player is: %d\n", G.whoseTurn );
+	printf(" <========================== ABOUT to CALL !!\n");
 
-	printf("POST: minionTest2() gameState is:\n");
-	printState(&G);
+	int k;
+	for(k = 0; k < G.numPlayers; k++)
+	{
+		printf("PLAYER %d\n", k);
+		printf("POST: minionTest2() gameState is:\n");
+		printState(&G);
 
-	printf("POST: minionTest2() handCount is: %d\n", G.handCount[G.whoseTurn] );
-	printf("POST: minionTest2() hand is:\n");
-	printHand(G.whoseTurn, &G);
+		printf("POST: minionTest2() handCount is: %d\n", G.handCount[k] );
+		printHand(k, &G);
 
-	printf("POST: minionTest2() deckCount is: %d\n", G.deckCount[G.whoseTurn] );
-	printf("POST: minionTest2() deck is:\n");
-	printDeck(G.whoseTurn, &G);
+		printf("POST: minionTest2() deckCount is: %d\n", G.deckCount[k] );
+		printDeck(k, &G);
 
-	printf("PLAYER 1\n");
-	G.whoseTurn++;
-	printf("POST: minionTest2() handCount is: %d\n", G.handCount[G.whoseTurn] );
-	printf("POST: minionTest2() hand is:\n");
-	printHand(G.whoseTurn, &G);
+		printf("POST: minionTest2() discardCount is: %d\n", G.discardCount[k] );
+		printDiscard(k, &G);
 
-	printf("POST: minionTest2() deckCount is: %d\n", G.deckCount[G.whoseTurn] );
-	printf("POST: minionTest2() deck is:\n");
-	printDeck(G.whoseTurn, &G);
+		printf(" ** NEXT PLAYER POST ** MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
+	}
+
 	compareNumActions(G.whoseTurn, &backup, &G);
 	compareCoins(G.whoseTurn, &backup, &G);
 
