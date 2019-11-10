@@ -6,6 +6,7 @@
 * documentation: SEE separate .pdf for  explanation
 
 ****************************************************/
+#define DEBUG_B 0
 
 #include "dominion.h"
 #include "dominion_helpers.h"
@@ -182,9 +183,13 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
         state->discardCount[i] = 0;
         //draw 5 cards
         for (j = 0; j < 5; j++)
-        	{
-        	  drawCard(i, state);
-        	}
+        {
+//		printf("INIT GAME DRAW ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+
+       		drawCard(i, state);
+        
+//		printf("END INIT GAME DRAW ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	}
     }
 
     //set embargo tokens to 0 for all supply piles
@@ -598,6 +603,7 @@ int drawCard(int player, struct gameState *state)
         shuffle(player, state);//Shuffle the deck up and make it so that we can draw
 
         if (DEBUG) { //Debug statements
+	    printf("START DRAW CARD MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
 	    printf("GLEN: TRACE: uno.\n");
             printf("Deck count now: %d\n", state->deckCount[player]);
         }
@@ -617,7 +623,7 @@ int drawCard(int player, struct gameState *state)
 		if (deckCounter == 0)
 			return -1;
 
-		if (DEBUG) {
+		if (DEBUG_B) {
 			printf("IN drawCard() toward end:\n");
 			printf("BEFORE: state->hand[player][count] = %d\n", state->hand[player][count]);
 			printf("BEFORE: state->deckCount[player] = %d\n", state->deckCount[player]);
@@ -629,7 +635,7 @@ int drawCard(int player, struct gameState *state)
 		state->deckCount[player]--;
 		state->handCount[player]++;//Increment hand count
 
-		if (DEBUG) {
+		if (DEBUG_B) {
 			printf("IN drawCard() toward end:\n");
 			printf("AFTER: state->hand[player][count] = %d\n", state->hand[player][count]);
 			printf("AFTER: state->deckCount[player] = %d\n", state->deckCount[player]);
@@ -645,7 +651,7 @@ int drawCard(int player, struct gameState *state)
 			printf("Current hand count: %d\n", count);
 		}
 
-		if (DEBUG) {
+		if (DEBUG_B) {
 			printf("IN drawCard() toward end:\n");
 			printf("BEFORE: state->hand[player][count] = %d\n", state->hand[player][count]);
 			printf("BEFORE: state->deckCount[player] = %d\n", state->deckCount[player]);
@@ -659,7 +665,7 @@ int drawCard(int player, struct gameState *state)
 		state->deckCount[player]--;
 		state->handCount[player]++;//Increment hand count
 
-		if (DEBUG) {
+		if (DEBUG_B) {
 			printf("IN drawCard() toward end:\n");
 			printf("AFTER: state->hand[player][count] = %d\n", state->hand[player][count]);
 			printf("AFTER: state->deckCount[player] = %d\n", state->deckCount[player]);
@@ -667,7 +673,8 @@ int drawCard(int player, struct gameState *state)
 			printf("AFTER: deckCounter = %d, deckCounter - 1 = %d\n", deckCounter, deckCounter - 1);
 			printf("AFTER: state->deck[player][deckCounter - 1] = %d\n", state->deck[player][deckCounter - 1]);
 		}
-
+		//printf("END DRAW CARD MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
+	}
     return 0;
 }
 
@@ -797,7 +804,12 @@ int minionCard(int choice1, int choice2, struct gameState *state, int handPos)
 		//discard hand
 		while (numHandCards(state) > 0)
 		{
+			//printf("TRACE: BEFORE: numHandCards(state): %d\n", numHandCards(state) );
+			//printf("TRACE: BEFORE: minionCard() after discardCard() hand[curentPlayer][0] = %d\n", state->hand[state->whoseTurn][0] );
+			printf("XXXXXXXXXXXXXX CALL discardCard() WITHIN minion XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
 			discardCard(0, currentPlayer, state); /* CHANGED: since shiftCards() goes left..this will work to remove all  */
+			//printf("TRACE: AFTER: numHandCards(state): %d\n", numHandCards(state) );
+			//printf("TRACE: AFTER: minionCard() after discardCard() hand[curentPlayer][0] = %d\n", state->hand[state->whoseTurn][0] );
 		}
 
 		//draw 4
@@ -1415,16 +1427,38 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 int shiftCards(int handPos, int currentPlayer, struct gameState *state)
 {
 	int result = FAILURE;
-/*
-	printf("TRACE: IN shiftCards() \n");
-	printf("BEFORE: DISCARD: state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
-*/
+	printf("////////////// START shiftCards() ///////////////////////////////////////////////////////////////////////////////\n");
+	//printf("TRACE: IN shiftCards() \n");
+	//printf("     : START  state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
+	//printf("     : START  state->discard[currentPlayer][state->discardCount[currentPlayer] -1 ] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer] - 1] ); 
+
+	printf("AT: beginning of shiftCards() hand contains:\n");
+	int y = 0;
+	while(y < state->handCount[currentPlayer])
+	{
+		printf(" hand[%d]: %d\n", y, state->hand[currentPlayer][y] );
+		y++;	
+	}
+	printf("AT: beginnin of shiftCards() discard contains:\n");
+	int z = 0;
+	while(z < state->discardCount[currentPlayer])
+	{
+		printf(" discard[%d]: %d\n", z, state->discard[currentPlayer][z] );
+		z++;	
+	}
+
 	/* check if at least 1 card in hand */
 	if (state->handCount[currentPlayer] > 1)
 	{
 		int i;
-		for (i = handPos; i < state->handCount[currentPlayer]; i++) {
-			state->hand[currentPlayer][i] = state->hand[currentPlayer][i + 1];
+		//int card_id = 0;
+		for (i = handPos; i <= state->handCount[currentPlayer]; i++) {
+		//	if(card_id >= curse && card_id <= treasure_map)
+		//	{
+			//	printf("SHIFTING: LOOP Before %d\n", state->hand[currentPlayer][i]);
+				state->hand[currentPlayer][i] = state->hand[currentPlayer][i + 1];
+			//	printf("SHIFTING: LOOP After %d\n", state->hand[currentPlayer][i]);
+		//	}
 		}
 		/* last place in hand is garbage. Mark unused (= -1 ) */
 		state->hand[currentPlayer][i] = UNUSED;
@@ -1432,7 +1466,23 @@ int shiftCards(int handPos, int currentPlayer, struct gameState *state)
 		result = SUCCESS;
 	}
 
-//	printf("BEFORE: DISCARD: state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
+	printf("AT: end of shiftCards() hand contains:\n");
+	int j = 0;
+	while(j < state->handCount[currentPlayer])
+	{
+		printf(" hand[%d]: %d\n", j, state->hand[currentPlayer][j] );
+		j++;	
+	}
+	printf("AT: end of shiftCards() discard contains:\n");
+	int k = 0;
+	while(k < state->discardCount[currentPlayer])
+	{
+		printf(" discard[%d]: %d\n", k, state->discard[currentPlayer][k] );
+		k++;	
+	}
+	//printf("END SHIFT CARDS: state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
+	//printf("END SHIFT CARDS: state->discard[currentPlayer][state->discardCount[currentPlayer] -1] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer] -1] ); 
+	printf("////////////// END shiftCards() ///////////////////////////////////////////////////////////////////////////////\n");
 	return result;
 }
 
@@ -1464,34 +1514,37 @@ int shiftCards(int handPos, int currentPlayer, struct gameState *state)
 int discardCard(int handPos, int currentPlayer, struct gameState *state)
 {
 	int action_success = FAILURE;
-	/*
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~ START discardCard() ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");	
 	printf("TRACE: IN discardCard:\n");
 	printf("BEFORE: handPos = %d\n", handPos);
 	printf("BEFORE: HAND:    state->hand[currentPlayer][handPos] = %d\n", state->hand[currentPlayer][handPos]);
 	printf("BEFORE: DISCARD: state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
 	printf("BEFORE: INCREMENT: discardCount[currentPlayer] = %d\n", state->discardCount[currentPlayer] );
-	*/
 
+	printf("-- SETTING FROM HAND TO DISCARD -- S -- S -- S -- S -- S -- S -- -- -- - -- - --\n");	
 	state->discard[currentPlayer][(state->discardCount[currentPlayer])] = state->hand[currentPlayer][handPos];
+	printf("-- FIN FROM HAND TO DISCARD -- S -- S -- S -- S -- S -- S -- -- -- - -- - --\n");	
 
-	//printf("AFTER: HAND:    state->hand[currentPlayer][handPos] = %d\n", state->hand[currentPlayer][handPos]);
-	//printf("AFTER: DISCARD: state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
+	printf("AFTER: HAND:    state->hand[currentPlayer][handPos] = %d\n", state->hand[currentPlayer][handPos]);
+	printf("AFTER: DISCARD: state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
 
 	state->discardCount[currentPlayer]++;
 
-	//printf("AFTER INCREMENT: discardCount[currentPlayer] = %d\n", state->discardCount[currentPlayer] );
-	//printf("AFTER: INCREMENT: DISCARD: state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
+	printf("AFTER INCREMENT: discardCount[currentPlayer] = %d\n", state->discardCount[currentPlayer] );
+	printf("AFTER: INCREMENT: DISCARD: state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
 	
 	/* adjust what's in hand */
 	state->hand[currentPlayer][handPos] = UNUSED;
-	state->handCount[currentPlayer]--;
+	//state->handCount[currentPlayer]--;
 
 	action_success = shiftCards(handPos, currentPlayer, state); 
+state->handCount[currentPlayer]--;
 	if( (state->handCount[currentPlayer] > 1) && (action_success != FAILURE) )
 	{ action_success = SUCCESS; }
 
-	//printf("TRACE: END OF discardCard() \n");
-	//printf("AFTER: DISCARD: state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
+	printf("TRACE: END OF discardCard() \n");
+	printf("AFTER: DISCARD: state->discard[currentPlayer][state->discardCount[currentPlayer]] = %d\n", state->discard[currentPlayer][state->discardCount[currentPlayer]] ); 
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~ END discardCard() ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");	
 
     return action_success;
 }

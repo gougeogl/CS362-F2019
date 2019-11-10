@@ -505,6 +505,7 @@ int minionTest2()
 
 	printf("TRACE: BEFORE: IN minionCard() discard is:\n");
 	printDiscard(G.whoseTurn, &G);
+	printf("TRACE: otherNumber: %d\n", otherNumber);
 
 	minionCard(1, 1, &G, otherNumber);
 
