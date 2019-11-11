@@ -843,27 +843,7 @@ int minionCard(int choice1, int choice2, struct gameState *state, int handPos)
 					//discard hand
 					while (state->handCount[i] > 0)
 					{
-						/*
-						if(DEBUG){
-							printf("MC <== before discardCard() called\n");
-							printf("player %d Discard Count: %d\n", i, state->discardCount[i] );
-							printDiscard(i, state);
-							printf("Player %d Hand Count: %d\n", i, state->handCount[i] );
-							printHand(i, state);
-							printf("MC\n");
-						}	
-						*/	
 						discardCard(0, i, state); /* CHANGED: b/c of shiftCards() can start at 0..all others will SHIFT left  */
-						/*
-						if(DEBUG){
-							printf("MC <== after discardCard() called\n");
-							printf("player %d Discard Count: %d\n", i, state->discardCount[i] );
-							printDiscard(i, state);
-							printf("Player %d Hand Count: %d\n", i, state->handCount[i] );
-							printHand(i, state);
-							printf("MC\n");
-						}	
-						*/
 					}
 
 					//draw 4
@@ -912,7 +892,7 @@ int ambassadorCard(int choice1, int choice2, struct gameState *state, int handPo
 		return -1;
 	}
 
-	if (choice1 == handPos) /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 5: Assignment vs. equality choice1 == handPos correct */
+	if (choice1 == handPos) 
 	{
 		return -1;
 	}
@@ -950,7 +930,7 @@ int ambassadorCard(int choice1, int choice2, struct gameState *state, int handPo
 	}
 
 	//discard played card from hand
-	trashCard(handPos, currentPlayer, state, TRASH); /* <<<<<<<<<<<<<<<<<<<<<<< BUG 6: Incorrect flag given. fail to execute function */
+	discardCard(handPos, currentPlayer, state ); /* <<<<<<<<<<<<<<<<<<<<<<< BUG 6: Incorrect function called..should be trashCard not discardCard */
 
 	//trash copies of cards returned to supply
 	for (j = 0; j < choice2; j++)
@@ -1566,27 +1546,24 @@ int discardCard(int handPos, int currentPlayer, struct gameState *state)
 *		FAILURE returned by trashCard()
 *
 **************************************************************************/
-int trashCard(int handPos, int currentPlayer, struct gameState *state, int trashFlag)
+int trashCard(int handPos, int currentPlayer, struct gameState* state )
 {
 	int action_success = FAILURE;
 
 	//if card is not trashed, added to currentPlayer's discard pile
-	if (trashFlag == TRASH)
-	{
-		state->trashPile[state->trashCount] = state->hand[currentPlayer][handPos];
-		state->trashCount++;
 
-		state->hand[currentPlayer][handPos] = UNUSED;
+	state->trashPile[state->trashCount] = state->hand[currentPlayer][handPos];
+	state->trashCount++;
 
-		/* adjust what's in hand */
-		action_success = shiftCards(handPos, currentPlayer, state);
+	state->hand[currentPlayer][handPos] = UNUSED;
+
+	/* adjust what's in hand */
+	action_success = shiftCards(handPos, currentPlayer, state);
 		
-		state->handCount[currentPlayer]--;
+	state->handCount[currentPlayer]--;
 
-		if ((state->handCount[currentPlayer] > 1) && (action_success != FAILURE))
-		{ action_success = SUCCESS;}
-
-	}
+	if ((state->handCount[currentPlayer] > 1) && (action_success != FAILURE))
+	{ action_success = SUCCESS;}
 
 	return action_success;
 }

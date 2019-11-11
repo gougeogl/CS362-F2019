@@ -61,17 +61,18 @@ int compareNumActions(int player, struct gameState* before, struct gameState* af
 int compareHand(int player, struct gameState* before, struct gameState* after , int flag );
 int compareDeck(int player, struct gameState* before, struct gameState* after, int limit, int flag );
 void savePreviousHandCounts(int* container, struct gameState* state );
+void saveZerosHand(int player, struct gameState* state, int* ambosHand);
 
 /* selects a random card from kingdomCards deck */
 int _rand_of_kingdomCards();
 
 int ambassadorTest1();
-int ambassadorTest2();
+//int ambassadorTest2();
 
 int main()
 {
 	ambassadorTest1();
-	ambassadorTest2();
+	//ambassadorTest2();
 	printf("\n\n");
 	return 0;
 }
@@ -110,7 +111,7 @@ void initTestGame(int players, int* kDeck, int mySeed, struct gameState* game)
 * RETURNS: n/a 
 *
 ****************************************************************************/
-void prep(int players, int seed, int* kingdom, struct gameState* state, int handSize, int handPos, int card)
+void prepAmbassador(int players, int seed, int* kingdom, struct gameState* state, int handSize, int handPos, int card)
 {
 	initTestGame(players, kingdom, seed, state);
 	wipeDeck(0, state);
@@ -124,7 +125,7 @@ void prep(int players, int seed, int* kingdom, struct gameState* state, int hand
 
 /* *************************************************************************
 * prepOthers 
-* Sets up other players for testing minionCard() with handSize of 5
+* Sets up other players for testing ambassadorCard() with handSize of 5
 * CALLS:
 * 	wipeDeck()
 * 	wipeDiscard()
@@ -139,7 +140,7 @@ void prep(int players, int seed, int* kingdom, struct gameState* state, int hand
 * RETURNS originalPlayer (the player who used the minion card)
 *		* should NOT change from input parameter
 ****************************************************************************/
-int prepOthersMinion(int originalPlayer, struct gameState* state, int handSize )
+int prepOthers(int originalPlayer, struct gameState* state, int handSize )
 {
 	if(state->numPlayers > 1 && state->numPlayers < 5)
 	{
@@ -407,6 +408,20 @@ void savePreviousHandCounts(int* container, struct gameState* state )
 }
 
 /* *************************************************************************
+* save - player zero's hand
+*
+****************************************************************************/
+void saveZerosHand(int player, struct gameState* state, int* ambosHand )
+{
+	int i;
+	for (i = 0; i < state->handCount[player]; i++)
+	{
+		ambosHand[i] = state->hand[player][i];
+		printf("IN saveZerosHand: ambosHand[i %d]: %d\n", i, ambosHand[i]);
+	}
+}
+
+/* *************************************************************************
 * random of kingdom cards 
 * generates a random choice out of a hard-coded set of kingdom cards 
 *
@@ -469,16 +484,19 @@ int ambassadorTest1()
 	{
 		printf("unittest3.c bug #.\n");
 		printf("AMBASSADOR TEST 1: Rules:\n");
-		printf("             : Use same kingdomCards deck as in Baron Card testing.\n");
-		printf("             :  Players.\n");
-		//printf("	     : Each player starts with 5 random cards in hand.\n");
-		//printf("	     : Randomly assign cards from kingdomCards to each player.\n"); 
+		printf("                 : Use same kingdomCards deck as in Baron Card testing.\n");
+		printf("                 : 4 Players.\n");
+		printf("	             : Each player starts with 5 random cards in hand from kingdomCards.\n");
+		printf("	             : Assign 2 Ambassador cards to primary player.\n"); 
+		printf("                 : Because of bug, should remove BOTH Ambassador cards !\n");
 		printf("OUTPUT:\n\n");
 	}
+	prepAmbassador(4, seed, kingdomCards, &G, 5, 0, ambassador)
+	prepOthers(0, &G, 5);
 
-	prep(2, seed, kingdomCards, &G, 5, 0, -1);
 	int number = -1;
 
+	/* FILL HAND WITH RANDOM KINGDOM CARDS */
 	int i;
 	for (i = 0; i < 5; i++)
 	{
@@ -486,22 +504,26 @@ int ambassadorTest1()
 		setHandPos(0, &G, number, i);
 	}
 
-	/* NEED TO WRITE A FUNCTION */
-	int otherNumber = rand() % (4 - 0 + 1) + 0;
-	setHandPos(0, &G, otherNumber, ambassador); /* <== need an ambassador in hand to use it right ? */
-
-	otherNumber = rand() % (4 - 0 + 1) + 0;
-	setHandPos(0, &G, otherNumber, ambassador); 
+	/* place 1st ambassador in hand */
+	int firstSlot = rand() % (4 - 0 + 1) + 0;
+	setHandPos(0, &G, firstSlot, ambassador); /* <== need an ambassador in hand to use it right ? */
+	/* place 2nd ambassador in hand */
+	int secondSlot = rand() % (4 - 0 + 1) + 0;
+	setHandPos(0, &G, secondSlot, ambassador); 
 
 	/* SAVE HAND COUNTS  */
 	int handBox[MAX_PLAYERS];
-
 	savePreviousHandCounts(handBox, &G);
+
+	/* SAVE PLAYER OF AMBASSADORS HAND */
+	int primePlayersHand[G.hand[0]];
+	saveZerosHand(0, primePlayersHand, &G);
+
 	memset(&backup, '\0', sizeof(backup));
 	backup = G;
 
 	/** ==> CALL <================================================= */
-	ambassadorCard(int choice1, int choice2, &G, int handPos);
+	ambassadorCard(secondSlot, 2, &G, firstSlot);
 
 	printf("\n\n");
 
@@ -509,59 +531,7 @@ int ambassadorTest1()
 }
 
 /*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM*/
-int ambassadorTest2()
-{
-	int result = 0;
-	int seed = 1;
-	int kingdomCards[10] = { adventurer, ambassador, baron, estate, tribute, minion, mine,  gardens, remodel, smithy };
 
-	// Game States 
-	struct gameState G;
-	struct gameState backup;
-
-	/* TEST 1 */
-	if (RULES)
-	{
-		printf("unittest3.c bug #.\n");
-		printf("AMBASSADOR TEST 2: Rules:\n");
-		printf("             : Use same kingdomCards deck as in Baron Card testing.\n");
-		printf("             :  Players.\n");
-		//printf("	     : Each player starts with 5 random cards in hand.\n");
-		//printf("	     : Randomly assign cards from kingdomCards to each player.\n"); 
-		printf("OUTPUT:\n\n");
-	}
-
-	prep(2, seed, kingdomCards, &G, 5, 0, -1);
-	int number = -1;
-
-	int i;
-	for (i = 0; i < 5; i++)
-	{
-		number = _rand_of_kingdomCards();
-		setHandPos(0, &G, number, i);
-	}
-
-	/* NEED TO WRITE A FUNCTION */
-	int otherNumber = rand() % (4 - 0 + 1) + 0;
-	setHandPos(0, &G, otherNumber, ambassador); /* <== need an ambassador in hand to use it right ? */
-
-	otherNumber = rand() % (4 - 0 + 1) + 0;
-	setHandPos(0, &G, otherNumber, ambassador);
-
-	/* SAVE HAND COUNTS  */
-	int handBox[MAX_PLAYERS];
-
-	savePreviousHandCounts(handBox, &G);
-	memset(&backup, '\0', sizeof(backup));
-	backup = G;
-
-	/** ==> CALL <================================================= */
-	ambassadorCard(int choice1, int choice2, &G, int handPos);
-
-	printf("\n\n");
-
-	return result;
-}
 
 
 
