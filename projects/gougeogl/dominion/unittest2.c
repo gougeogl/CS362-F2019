@@ -3,7 +3,7 @@
 ** Author: Glen Gougeon
 ** Class : CS362 Software Engineering II
 ** Date : 10 - 25 - 2019
-** Last Mod : 11 - 8 - 2019
+** Last Mod : 11 - 10 - 2019
 *
 ** Description : Assignment 3 : Unit Testing :
 *		Refactored code for Minion, has 2 bugs I introduced.
@@ -29,7 +29,7 @@
 #include "rngs.h"
 
 // TO PRINT RULES FOR TESTS
-#define RULES 1 /* <========= SET TO 1 TO PRINT RULES FOR TESTS & RELATION TO BUGS I INTRODUCED !! */
+#define RULES 0 /* <========= SET TO 1 TO PRINT RULES FOR TESTS & RELATION TO BUGS I INTRODUCED !! */
 
 enum TEST_FLAGS
 {
@@ -38,7 +38,9 @@ enum TEST_FLAGS
 	SAME_DECK,
 	DIFFERENT_DECK,
 	SAME_DISCARD,
-	DIFFERENT_DISCARD
+	DIFFERENT_DISCARD,
+	PLUS_2_COINS,
+	SAME_COINS
 };
 
 // TEST PROTO-TYPES
@@ -54,11 +56,11 @@ void resetHand(int player, struct gameState* dState);
 void setHandCount(int player, struct gameState* state, int newHandSize);
 void setHandPos(int player, struct gameState* state, int card, int handPos);
 
-int compareCoins(int player, struct gameState* before, struct gameState* after );
+int compareCoins(int player, struct gameState* before, struct gameState* after , int flag );
 int compareNumActions(int player, struct gameState* before, struct gameState* after);
 int compareHand(int player, struct gameState* before, struct gameState* after , int flag );
 int compareDeck(int player, struct gameState* before, struct gameState* after, int limit, int flag );
-int compareDiscard(int player, struct gameState* before, struct gameState* after, int limit, int flag);
+void savePreviousHandCounts(int* container, struct gameState* state );
 
 /* selects a random card from kingdomCards deck */
 int _rand_of_kingdomCards();
@@ -68,7 +70,7 @@ int minionTest2();
 
 int main()
 {
-	//minionTest1();
+	minionTest1();
 	minionTest2();
 	printf("\n\n");
 	return 0;
@@ -90,6 +92,24 @@ void initTestGame(int players, int* kDeck, int mySeed, struct gameState* game)
 
 }
 
+/* *************************************************************************
+* prepMinion 
+* Sets up player zero for testing minionCard() 
+* CALLS:
+* 	initTestGame() to initialize game 
+* 	wipeDeck()
+* 	wipeDiscard()
+* 	updateCoins()
+* 	resetHand()
+* 	setHandCount()
+* SETS:
+* 	state->coins = 0
+*
+* APPLIES TO: PLAYER ZERO
+*
+* RETURNS: n/a 
+*
+****************************************************************************/
 void prepMinion(int players, int seed, int* kingdom, struct gameState* state, int handSize, int handPos, int card)
 {
 	initTestGame(players, kingdom, seed, state);
@@ -102,6 +122,23 @@ void prepMinion(int players, int seed, int* kingdom, struct gameState* state, in
 	state->coins = 0;
 }
 
+/* *************************************************************************
+* prepOthersMinion 
+* Sets up other players for testing minionCard() with handSize of 5
+* CALLS:
+* 	wipeDeck()
+* 	wipeDiscard()
+* 	updateCoins()
+* 	resetHand()
+* 	setHandCount()
+* SETS:
+* 	state->coins = 0
+*
+* APPLIES TO: ALL PLAYERS EXCEPT PLAYER ZERO
+*
+* RETURNS originalPlayer (the player who used the minion card)
+*		* should NOT change from input parameter
+****************************************************************************/
 int prepOthersMinion(int originalPlayer, struct gameState* state, int handSize )
 {
 	if(state->numPlayers > 1 && state->numPlayers < 5)
@@ -121,37 +158,19 @@ int prepOthersMinion(int originalPlayer, struct gameState* state, int handSize )
 			resetHand(i, state);
 			setHandCount(i, state, handSize);
 			state->coins = 0;
-/*
-			printf("IN: setUpOtherPlayers..before assign hand\n");
-			printf("player %d handCount: %d\n", i, state->handCount[i] );
-			printHand(currentPlayer, state);
-			printf("player %d deckCount: %d\n", i, state->deckCount[i] );
-			printDeck(currentPlayer, state);
-			printf("player %d discardCount: %d\n", i, state->discardCount[i] );
-			printDiscard(currentPlayer, state);
-*/
+
 			int j;
 			for (j = 0; j < handSize; j++)
 			{
 				number = _rand_of_kingdomCards();
-	//			printf("number: %d\n", number);
 				setHandPos(i, state, number, j);
-	//			printf("%d\n", state->hand[i][j] );
 			}
-/*
-			printf("STATS IN : player %d: setUpOtherPlayers\n", i);
-			printf("player %d handCount: %d\n", i, state->handCount[i] );
-			printHand(currentPlayer, state);
-			printf("player %d deckCount: %d\n", i, state->deckCount[i] );
-			printDeck(currentPlayer, state);
-			printf("player %d discardCount: %d\n", i, state->discardCount[i] );
-			printDiscard(currentPlayer, state);
-*/
 		}
 
 	}
 	return originalPlayer;
 }
+
 // set player to remove all estates from current player's deck  
 void wipeDeck(int player, struct gameState* state)
 {
@@ -188,17 +207,16 @@ void resetHand(int player, struct gameState* dState)
 	dState->handCount[player] = 0;
 }
 
+// sets handCount of player to newHandSize
 void setHandCount(int player, struct gameState* state, int newHandSize)
 {
 	state->handCount[player] = newHandSize;
 }
 
-/* adds indicated card in current player's hand at handPos */
+// adds indicated card in current player's hand at handPos 
 void setHandPos(int player, struct gameState* state, int card, int handPos)
 {
-	//printf("IN setHandPos player is: %d\n", player);
 	state->hand[player][handPos] = card;
-	//printf("IN setHandPos now at handPos is: %d\n", state->hand[player][handPos] );
 }
 
 /*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM*/
@@ -210,32 +228,36 @@ void setHandPos(int player, struct gameState* state, int card, int handPos)
 * if coins is > +2 previous will print that error.
 *
 ****************************************************************************/
-int compareCoins(int player, struct gameState* before, struct gameState* after )
+int compareCoins(int player, struct gameState* before, struct gameState* after , int flag )
 {
 	int result = 0;
 	int printStats = 0;
-	if (before->coins + 2 < after->coins)
-	{
-		printf("Player %d\'s coins is less than +2 previous !\n", player);
-		fflush(stdout);
-		printStats = 1;
-		result = -1;
-	}
-	else if (before->coins + 2 < after->coins)
-	{
-		printf("Player %d\'s coins is more than +2 previous !\n", player);
-		fflush(stdout);
-		printStats = 1;
-		result = -1;
-	}
 
-	if (printStats == 1)
+	if(flag == PLUS_2_COINS)
+	{
+		if (before->coins + 2 != after->coins)
+		{
+			printf("Player %d\'s coins is not +2 previous !\n", player);
+			fflush(stdout);
+			printStats = 1;
+		}
+	}
+	else if(flag == SAME_COINS)
+	{
+		if( before->coins != after->coins )
+		{
+			printf("Player %d\'s coins changed, but shouldn't have.\n", player);
+			fflush(stdout);
+			printStats = 1;
+		}
+	}
+	if(printStats == 1)
 	{
 		printf("BEFORE: coins: %d\n", before->coins);
 		printf("AFTER:  coins: %d\n", after->coins);
 		fflush(stdout);
+		result = -1;
 	}
-	
 	return result;
 }
 
@@ -369,58 +391,26 @@ int compareDeck(int player, struct gameState* before, struct gameState* after, i
 }
 
 /* *************************************************************************
-* discard
-* Check is discard of a player is same / different before some saved
-* gameState (before)
-* if discard is different, will print the difference.
-* if discard is same, will warn hand is the same.
-* S.T. flag of desired comparison SAME_DISCARD, DIFFERENT_DISCARD
+* save - previous - hand - counts 
+* Saves handCounts of all players after initial testing setup 
 *
 ****************************************************************************/
-int compareDiscard(int player, struct gameState* before, struct gameState* after, int limit, int flag)
+void savePreviousHandCounts(int* container, struct gameState* state )
 {
-	int result = 0;
-	int printStats = 0;
+	int numPlayers = state->numPlayers;
 
 	int i;
-	for (i = 0; i < limit; i++)
+	for(i = 0; i < numPlayers; i++)
 	{
-		if (flag == SAME_DISCARD)
-		{
-			if (before->discard[player][i] != after->discard[player][i]) {
-				printf("player %d\'s discard is different\n", player);
-				fflush(stdout);
-				printStats = 1;	
-			}
-		}
-		else if (flag == DIFFERENT_DISCARD)
-		{
-			if (before->discard[player][i] == after->discard[player][i]) {
-				printf("player %d\'s discard is still the same\n", player);
-				fflush(stdout);
-				printStats = 1;	
-			}
-		}
-
-		if(printStats == 1)
-		{
-			char name[MAX_STRING_LENGTH];
-			memset(name, '\0', sizeof(name));
-			cardNumToName(before->discard[player][i], name);
-
-			char nombre[MAX_STRING_LENGTH];
-			memset(nombre, '\0', sizeof(nombre));
-			cardNumToName(after->discard[player][i], nombre);
-
-			printf("BEFORE: discard[%d]: %s, AFTER: discard[%d]: %s\n", i, name, i, nombre );
-			fflush(stdout);
-			result = -1;
-		}
-
+		container[i] = state->handCount[i];	
 	}
-	return result;
 }
 
+/* *************************************************************************
+* random of kingdom cards 
+* generates a random choice out of a hard-coded set of kingdom cards 
+*
+****************************************************************************/
 int _rand_of_kingdomCards()
 {
 	int result = -1;
@@ -477,9 +467,13 @@ int minionTest1()
 	/* TEST 1 */
 	if (RULES)
 	{
-		printf("unittest2.c bug #3: draws 3 cards instead of 4 for whoever played minion, but not other players\n");
+		printf("unittest2.c bug #4: condition 2 isn't an \'else if\' so you always gain +2 to coin.\n");
 		printf("MINION TEST 1: Rules:\n");
-		printf("OUTPUT:\n");
+		printf("             : Use same kingdomCards deck as in Baron Card testing.\n");
+		printf("             : 2 Players.\n");
+		printf("	     : Each player starts with 5 random cards in hand.\n");
+		printf("	     : Randomly assign cards from kingdomCards to each player.\n"); 
+		printf("OUTPUT:\n\n");
 	}
 
 	prepMinion(2, seed, kingdomCards, &G, 5, 0, -1);
@@ -495,36 +489,75 @@ int minionTest1()
 	int otherNumber = rand() % (4 - 0 + 1) + 0;
 	setHandPos(0, &G, otherNumber, minion); /* <== need a minion in hand to use it right ? */
 
+	/* SAVE HAND COUNTS  */
+	int handBox[MAX_PLAYERS];
+
+	savePreviousHandCounts(handBox, &G);
 	memset(&backup, '\0', sizeof(backup));
 	backup = G;
 
-	/* int minionCard(int choice1, int choice2, struct gameState *state, int handPos) */
-	/* void prepMinion(int players, int seed, int* kingdom, struct gameState* state, int handSize, int handPos, int card) */
+	/** ==> CALL <================================================= */
+	minionCard(1, 1, &G, otherNumber);
+
+	/* assert numActions increased properly to +1 previous */
+	compareNumActions(G.whoseTurn, &backup, &G);
+	/* assert if coins increased */
+
+	int checkCoins = -1;
+	int handCheck = -1;
+	checkCoins = compareCoins(G.whoseTurn, &backup, &G, SAME_COINS);
+	int j;
+	for(j = 1; j < G.numPlayers; j++)
+	{
+		
+		if(handBox[j] > 4 && checkCoins == -1)
+		{
+			/* assert that hand is now same as before */
+			handCheck = compareHand(j, &backup, &G, SAME_HAND);
+			if(handCheck == -1)
+			{
+				printf("Player %d had a previous hand of 5+, and their hand changed..\n", j);
+				printf("	  .. it is probable that minion was played.\n"); 
+				printf("          This should not be the case if player of Minion gained +2 coins !\n");
+			}
+		}
+	}
+	printf("\n\n");
 
 	return result;
 }
 
+/*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM*/
 int minionTest2()
 {
 	int result = 0;
 	int seed = 1;
+
+	/* SET OF CARDS TO BE USED */
 	int kingdomCards[10] = { adventurer, ambassador, baron, estate, tribute, minion, mine,  gardens, remodel, smithy };
 
 	// Game States 
 	struct gameState G;
 	struct gameState backup;
 
-	/* TEST 2 */
+	/* PRINT WHAT THE TEST DOES IF DESIRED */
 	if (RULES)
 	{
-		printf("unittest2.c bug #4: condition 2 isn't an \'else if\' so you always gain +2 to coin.\n");
+		printf("unittest2.c bug #3: draws 3 cards instead of 4 for whoever played minion, but not other players\n");
 		printf("MINION TEST 2: Rules:\n");
-		printf("OUTPUT:\n");
+		printf("             : Use same kingdomCards deck as in Baron Card testing.\n");
+		printf("             : 3 Players.\n");
+		printf("	     : Each player starts with 5 random cards in hand.\n");
+		printf("	     : Randomly assign cards from kingdomCards to each player.\n"); 
+		printf("OUTPUT:\n\n");
 	}
 
+	/* INITIALIZES GAME AND PLAYER ZERO ALL AT SAME TIME. HAND SIZE = 5 */
 	prepMinion(3, seed, kingdomCards, &G, 5, 0, -1);
+	/* SETS HANDS AT RANDOM FOR ALL OTHER PLAYERS */
 	G.whoseTurn = prepOthersMinion(G.whoseTurn, &G, 5 );
 
+	/* Randomly assign cards to player zero.. the PLAYER WHO HAS THE MINION CARD */
 	int number = -1;
 
 	int i;
@@ -534,63 +567,47 @@ int minionTest2()
 		setHandPos(0, &G, number, i);
 	}
 
+	/* PLACE MINION AT 'otherNumber'  */
 	int otherNumber = rand() % (4 - 0 + 1) + 0;
 	setHandPos(0, &G, otherNumber, minion); /* <== need a minion in hand to use it right ? */
 
+	/* SAVE HAND COUNTS  */
+	int handBox[MAX_PLAYERS];
+	savePreviousHandCounts(handBox, &G);
+
+	/* MAKE COPY OF STATE AFTER SETUP */
 	memset(&backup, '\0', sizeof(backup));
 	backup = G;
 
-	/* int minionCard(int choice1, int choice2, struct gameState *state, int handPos) */
-	/* void prepMinion(int players, int seed, int* kingdom, struct gameState* state, int handSize, int handPos, int card) */
-
-	int j;
-	for(j = 0; j < G.numPlayers; j++)
-	{
-		printf("PRE: player %d\n", j);
-
-		printf("PRE: minionTest2() gameState is:\n");
-		printState(&G);
-
-		printf("PRE: minionTest2() handCount is: %d\n", G.handCount[j] );
-		printHand(j, &G);
-
-		printf("PRE: minionTest2() discard is:\n");
-		printDiscard(j, &G);
-		printf("TRACE: otherNumber: %d\n", otherNumber);
-
-		printf("PRE: minionTest2() deckCount is: %d\n", G.deckCount[j] );
-		printDeck(j, &G);
-
-		printf(" ** NEXT PLAYER PRE ** MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
-	}
-
-	printf(" <========================== ABOUT to CALL !!\n");
-	printf("JUST BEFORE CALL player is: %d\n", G.whoseTurn );
+	/** ==> CALL <================================================= */
 	minionCard(1, 1, &G, otherNumber);
-	printf("JUST AFTER CALL player is: %d\n", G.whoseTurn );
-	printf(" <========================== ABOUT to CALL !!\n");
 
-	int k;
-	for(k = 0; k < G.numPlayers; k++)
+	/* assert numActions increased properly to +1 previous */
+	compareNumActions(G.whoseTurn, &backup, &G);
+	/* assert if coins increased */
+	compareCoins(G.whoseTurn, &backup, &G, PLUS_2_COINS);
+	/* assert that deck is now different than before */
+     	compareDeck(G.whoseTurn, &backup, &G, 5, DIFFERENT_DECK);
+
+	/* assert hand now at least size 4  */
+	if(G.handCount[G.whoseTurn] < 4)
 	{
-		printf("PLAYER %d\n", k);
-		printf("POST: minionTest2() gameState is:\n");
-		printState(&G);
-
-		printf("POST: minionTest2() handCount is: %d\n", G.handCount[k] );
-		printHand(k, &G);
-
-		printf("POST: minionTest2() deckCount is: %d\n", G.deckCount[k] );
-		printDeck(k, &G);
-
-		printf("POST: minionTest2() discardCount is: %d\n", G.discardCount[k] );
-		printDiscard(k, &G);
-
-		printf(" ** NEXT PLAYER POST ** MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
+		printf("Player of Minion Card doesn't have 4 cards after call !\n");
+		printf("Hand Count previous: %d\n", backup.handCount[backup.whoseTurn] );
+		printf("Hand Count current: %d\n", G.handCount[G.whoseTurn] );
 	}
 
-	compareNumActions(G.whoseTurn, &backup, &G);
-	compareCoins(G.whoseTurn, &backup, &G);
+	/* assert if other player's hands were 5+ , they are now at least size 5 */
+	int j;
+	for(j = 1; j < G.numPlayers; j++)
+	{
+		if(handBox[j] > 4 && G.handCount[j] < 4)
+		{
+			printf("Player %d had 5+ cards before call, but now they have less than 4 !\n", j);
+			printf("Hand Count previous: %d\n", handBox[j] ); 
+			printf("Hand Count current: %d\n", G.handCount[j] );
+		}
+	}		
 
 	return result;
 }
