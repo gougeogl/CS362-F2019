@@ -889,26 +889,44 @@ int ambassadorCard(int choice1, int choice2, struct gameState *state, int handPo
 
 	if (choice2 > 2 || choice2 < 0)
 	{
+		printf("ERROR: if (choice2 > 2 || choice2 < 0)\n");
 		return -1;
 	}
 
 	if (choice1 == handPos) 
 	{
+		printf("ERROR: if (choice1 == handPos)\n");
 		return -1;
 	}
-
+	if(DEBUG){
+		printf("CONDITION IS: if (i != handPos && i == state->hand[currentPlayer][choice1] && i != choice1)\n");  
+	}
 	for (i = 0; i < state->handCount[currentPlayer]; i++)
 	{
-		if (i == handPos && i == state->hand[currentPlayer][choice1] && i != choice1) /* <<<<<<<<<<<<<<<<<< BUG 5: GOOD = i != handPos, BAD = i == handPos
-														    This bug allows for the player to discard the
-														    card in hand at handPos. You get rid of more
-														    more of your "junk" cards this way. */
+		if(DEBUG){
+		printf("i = %d\n", i);
+		printf("handPos = %d\n", handPos);
+		printf("state->hand[currentPlayer %d][choice1 %d]: %d\n", currentPlayer, choice1, state->hand[currentPlayer][choice1] );
+		}
+		if (	(i != handPos) && 
+			(state->hand[currentPlayer][i] == state->hand[currentPlayer][choice1]))// && 
+			//(i != choice1)	) 
+			/* <<<<<<<<<<<<<<<<<< BUG 5: GOOD = i != handPos, BAD = i == handPos
+			This bug allows for the player to discard the
+			card in hand at handPos. You get rid of more
+			more of your "junk" cards this way. */
 		{
 			j++;
+			if(DEBUG){
+				printf("j = %d\n", j);
+			}
 		}
 	}
 	if (j < choice2)
 	{
+		if(DEBUG){
+			printf("ERROR: if (j < choice2)\n");
+		}
 		return -1;
 	}
 
@@ -926,12 +944,15 @@ int ambassadorCard(int choice1, int choice2, struct gameState *state, int handPo
 		if (i != currentPlayer)
 		{
 			gainCard(state->hand[currentPlayer][choice1], state, 0, i);
+			if(DEBUG){
+				printf("OTHER PLAYER GAINED A CARD: %d\n", state->hand[currentPlayer][choice1] );
+			}
 		}
 	}
 
 	//discard played card from hand
 	discardCard(handPos, currentPlayer, state ); /* <<<<<<<<<<<<<<<<<<<<<<< BUG 6: Incorrect function called..should be trashCard not discardCard */
-
+	//printf("CARD TRASHED\n");
 	//trash copies of cards returned to supply
 	for (j = 0; j < choice2; j++)
 	{
@@ -939,7 +960,8 @@ int ambassadorCard(int choice1, int choice2, struct gameState *state, int handPo
 		{
 			if (state->hand[currentPlayer][i] == state->hand[currentPlayer][choice1])
 			{
-				trashCard(i, currentPlayer, state, TRASH);
+				trashCard(i, currentPlayer, state);
+				//printf("Identical card trashed !\n");
 				break;
 			}
 		}
@@ -1069,7 +1091,7 @@ int mineCard(int choice1, int choice2, struct gameState *state, int handPos)
 	{
 		if (state->hand[currentPlayer][i] == j)
 		{
-			trashCard(i, currentPlayer, state, TRASH);
+			trashCard(i, currentPlayer, state);
 			break;
 		}
 	}
@@ -1225,7 +1247,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
         {
             if (state->hand[currentPlayer][i] == j)
             {
-                trashCard(i, currentPlayer, state, TRASH);
+                trashCard(i, currentPlayer, state);
                 break;
             }
         }
@@ -1297,8 +1319,8 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
         else
         {
             //trash 2 cards in hand
-            trashCard(choice2, currentPlayer, state, TRASH);
-            trashCard(choice3, currentPlayer, state, TRASH);
+            trashCard(choice2, currentPlayer, state);
+            trashCard(choice3, currentPlayer, state);
         }
 
         //discard card from hand
@@ -1370,7 +1392,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
         state->embargoTokens[choice1]++;
 
         //trash card
-        trashCard(handPos, currentPlayer, state, TRASH);
+        trashCard(handPos, currentPlayer, state);
         return 0;
 
     case outpost:
@@ -1390,7 +1412,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
             //gain coins equal to trashed card
             state->coins = state->coins + getCost( handCard(choice1, state) );
             //trash card
-            trashCard(choice1, currentPlayer, state, TRASH);
+            trashCard(choice1, currentPlayer, state);
         }
 
         //discard card
@@ -1422,8 +1444,8 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
         if (index > -1)
         {
             //trash both treasure cards
-            trashCard(handPos, currentPlayer, state, TRASH);
-            trashCard(index, currentPlayer, state, TRASH);
+            trashCard(handPos, currentPlayer, state);
+            trashCard(index, currentPlayer, state);
 
             //gain 4 Gold cards
             for (i = 0; i < 4; i++)

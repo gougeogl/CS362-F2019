@@ -31,18 +31,6 @@
 // TO PRINT RULES FOR TESTS
 #define RULES 0 /* <========= SET TO 1 TO PRINT RULES FOR TESTS & RELATION TO BUGS I INTRODUCED !! */
 
-enum TEST_FLAGS
-{
-	SAME_HAND = 800,
-	DIFFERENT_HAND,
-	SAME_DECK,
-	DIFFERENT_DECK,
-	SAME_DISCARD,
-	DIFFERENT_DISCARD,
-	PLUS_2_COINS,
-	SAME_COINS
-};
-
 // TEST PROTO-TYPES
 void initTestGame(int players, int* kDeck, int mySeed, struct gameState* game);
 void prepAmbassador(int players, int seed, int* kingdom, struct gameState* state, int handSize, int handPos, int card);
@@ -56,23 +44,22 @@ void resetHand(int player, struct gameState* dState);
 void setHandCount(int player, struct gameState* state, int newHandSize);
 void setHandPos(int player, struct gameState* state, int card, int handPos);
 
-int compareCoins(int player, struct gameState* before, struct gameState* after , int flag );
-int compareNumActions(int player, struct gameState* before, struct gameState* after);
-int compareHand(int player, struct gameState* before, struct gameState* after , int flag );
-int compareDeck(int player, struct gameState* before, struct gameState* after, int limit, int flag );
-void savePreviousHandCounts(int* container, struct gameState* state );
+//int compareCoins(int player, struct gameState* before, struct gameState* after , int flag );
+//int compareNumActions(int player, struct gameState* before, struct gameState* after);
+//int compareHand(int player, struct gameState* before, struct gameState* after , int flag );
+//int compareDeck(int player, struct gameState* before, struct gameState* after, int limit, int flag );
+//void savePreviousHandCounts(int* container, struct gameState* state );
 void saveZerosHand(int player, struct gameState* state, int* ambosHand);
 
+int tallyType(int player, struct gameState* state, int idx_picked );
 /* selects a random card from kingdomCards deck */
 int _rand_of_kingdomCards();
 
 int ambassadorTest1();
-//int ambassadorTest2();
 
 int main()
 {
 	ambassadorTest1();
-	//ambassadorTest2();
 	printf("\n\n");
 	return 0;
 }
@@ -222,192 +209,6 @@ void setHandPos(int player, struct gameState* state, int card, int handPos)
 
 /*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM*/
 /* *************************************************************************
-* coins
-* Check is coins of a player is same before some saved gameState (before) and
-* if coins is +2 will print nothing.
-* if coins is < +2 previous will print error.
-* if coins is > +2 previous will print that error.
-*
-****************************************************************************/
-int compareCoins(int player, struct gameState* before, struct gameState* after , int flag )
-{
-	int result = 0;
-	int printStats = 0;
-
-	if(flag == PLUS_2_COINS)
-	{
-		if (before->coins + 2 != after->coins)
-		{
-			printf("Player %d\'s coins is not +2 previous !\n", player);
-			fflush(stdout);
-			printStats = 1;
-		}
-	}
-	else if(flag == SAME_COINS)
-	{
-		if( before->coins != after->coins )
-		{
-			printf("Player %d\'s coins changed, but shouldn't have.\n", player);
-			fflush(stdout);
-			printStats = 1;
-		}
-	}
-	if(printStats == 1)
-	{
-		printf("BEFORE: coins: %d\n", before->coins);
-		printf("AFTER:  coins: %d\n", after->coins);
-		fflush(stdout);
-		result = -1;
-	}
-	return result;
-}
-
-/* *************************************************************************
-* numActions
-* Check is numActions of a player is same before some saved gameState (before) and
-* if numActions is not +1 previous  will print error, nothing otherwise.
-*
-****************************************************************************/
-int compareNumActions(int player, struct gameState* before, struct gameState* after)
-{
-	int result = 0;
-
-	if (before->numActions + 1 != after->numActions)
-	{
-		printf("Player %d\'s numActions is not +1 previous !\n", player);
-		printf("BEFORE: numActions: %d\n", before->numActions);
-		printf("AFTER:  numActions: %d\n", after->numActions);
-		fflush(stdout);
-		result = -1;	
-	}
-	return result;
-}
-
-/* *************************************************************************
-* hand 
-* Check is hand of a player is same before some saved gameState (before) and
-* if hand is different, will print the difference. 
-* if hand is same, will warn the same.
-* S.T. flag of desired comparison SAME_HAND, DIFFERENT_HAND
-*
-****************************************************************************/
-int compareHand(int player, struct gameState* before, struct gameState* after , int flag )
-{
-	int result = 0;
-	int printStats = 0; 
-
-	int i;
-	for (i = 0; i < after->handCount[player]; i++) 
-	{
-		if (flag == SAME_HAND)
-		{
-			if (before->hand[player][i] != after->hand[player][i]) 
-			{
-				printf("player %d\'s hand is different\n", player);
-				fflush(stdout);
-				printStats = 1;
-			}
-		}
-		else if (flag == DIFFERENT_HAND)
-		{
-			if (before->hand[player][i] == after->hand[player][i]) 
-			{
-
-				printf("player %d\'s hand is still the same\n", player);
-				fflush(stdout);
-				printStats = 1;
-			}
-		}
-		
-		if(printStats == 1)
-		{
-			char name[MAX_STRING_LENGTH];
-			memset(name, '\0', sizeof(name));
-			cardNumToName(before->hand[player][i], name);
-
-			char nombre[MAX_STRING_LENGTH];
-			memset(nombre, '\0', sizeof(nombre));
-			cardNumToName(after->hand[player][i], nombre);
-
-			printf("BEFORE: hand[%d]: %s, AFTER: hand[%d]: %s\n", i, name, i, nombre );
-			fflush(stdout);
-			result = -1;
-		}
-	}
-
-	return result;
-}
-
-
-/* *************************************************************************
-* deck
-* Check is deck of a player is same / different before some saved 
-* gameState (before) 
-* if hand is different, will print the difference.
-* if hand is same, will warn hand is the same.
-* S.T. flag of desired comparison SAME_DECK, DIFFERENT_DECK
-*
-****************************************************************************/
-int compareDeck(int player, struct gameState* before, struct gameState* after, int limit, int flag )
-{
-	int result = 0;
-	int printStats = 0;
-
-	int i;
-	for (i = 0; i < limit; i++) 
-	{
-		if (flag == SAME_DECK)
-		{
-			if (before->deck[player][i] != after->deck[player][i]) {
-				printf("player %d\'s deck is different\n", player);
-				fflush(stdout);
-				printStats = 1;	
-			}
-		}
-		else if (flag == DIFFERENT_DECK)
-		{
-			if (before->deck[player][i] == after->deck[player][i]) {
-				printf("player %d\'s deck is still the same\n", player);
-				fflush(stdout);
-				printStats = 1;	
-			}
-		}
-		
-		if(printStats == 1)
-		{
-			char name[MAX_STRING_LENGTH];
-			memset(name, '\0', sizeof(name));
-			cardNumToName(before->deck[player][i], name);
-
-			char nombre[MAX_STRING_LENGTH];
-			memset(nombre, '\0', sizeof(nombre));
-			cardNumToName(after->deck[player][i], nombre);
-
-			printf("BEFORE: deck[%d]: %s, AFTER: deck[%d]: %s\n", i, name, i, nombre );
-			fflush(stdout);
-			result = -1;
-		}
-	}
-	return result;
-}
-
-/* *************************************************************************
-* save - previous - hand - counts 
-* Saves handCounts of all players after initial testing setup 
-*
-****************************************************************************/
-void savePreviousHandCounts(int* container, struct gameState* state )
-{
-	int numPlayers = state->numPlayers;
-
-	int i;
-	for(i = 0; i < numPlayers; i++)
-	{
-		container[i] = state->handCount[i];	
-	}
-}
-
-/* *************************************************************************
 * save - player zero's hand
 *
 ****************************************************************************/
@@ -417,8 +218,29 @@ void saveZerosHand(int player, struct gameState* state, int* ambosHand )
 	for (i = 0; i < state->handCount[player]; i++)
 	{
 		ambosHand[i] = state->hand[player][i];
-		printf("IN saveZerosHand: ambosHand[i %d]: %d\n", i, ambosHand[i]);
+		//printf("IN saveZerosHand: ambosHand[i %d]: %d\n", i, ambosHand[i]);
 	}
+}
+
+/* *************************************************************************
+* tally a type in hand 
+*
+****************************************************************************/
+int tallyType(int player, struct gameState* state, int idx_picked )
+{
+	int tally = 0;
+
+	int i;
+	for(i = 0; i < state->handCount[player]; i++)
+	{
+		if(state->hand[player][i] == state->hand[player][idx_picked])
+		{
+			tally++;
+			//printf("tally now: %d\n", tally);
+		} 
+	}
+	//printf("returning tally total of: %d\n", tally);
+	return tally;
 }
 
 /* *************************************************************************
@@ -486,52 +308,68 @@ int ambassadorTest1()
 		printf("AMBASSADOR TEST 1: Rules:\n");
 		printf("                 : Use same kingdomCards deck as in Baron Card testing.\n");
 		printf("                 : 4 Players.\n");
-		printf("	             : Each player starts with 5 random cards in hand from kingdomCards.\n");
-		printf("	             : Assign 2 Ambassador cards to primary player.\n"); 
-		printf("                 : Because of bug, should remove BOTH Ambassador cards !\n");
+		printf("	         : Each player starts with 5 random cards in hand from kingdomCards.\n");
+		printf("	         : Assign 3 golds cards to primary player.\n"); 
+		printf("	         : Assign 2 silvers cards to primary player.\n"); 
+		printf("                 : Because of bug, should remove 1 Silver , but there aren't 3 total !\n");
 		printf("OUTPUT:\n\n");
 	}
-	prepAmbassador(4, seed, kingdomCards, &G, 5, 0, ambassador)
+	prepAmbassador(4, seed, kingdomCards, &G, 5, 0, ambassador);
 	prepOthers(0, &G, 5);
 
-	int number = -1;
+	//int number = -1;
 
-	/* FILL HAND WITH RANDOM KINGDOM CARDS */
+	/* FILL HAND WITH GOLD CARDS */
 	int i;
 	for (i = 0; i < 5; i++)
 	{
-		number = _rand_of_kingdomCards();
-		setHandPos(0, &G, number, i);
+		setHandPos(0, &G, gold, i);
 	}
 
-	/* place 1st ambassador in hand */
-	int firstSlot = rand() % (4 - 0 + 1) + 0;
-	setHandPos(0, &G, firstSlot, ambassador); /* <== need an ambassador in hand to use it right ? */
-	/* place 2nd ambassador in hand */
-	int secondSlot = rand() % (4 - 0 + 1) + 0;
-	setHandPos(0, &G, secondSlot, ambassador); 
+	/* add 2 silvers which isn't enough */
+	setHandPos(0, &G, silver, 1);
+	setHandPos(0, &G, silver, 2);
 
-	/* SAVE HAND COUNTS  */
-	int handBox[MAX_PLAYERS];
-	savePreviousHandCounts(handBox, &G);
+	/* place the ambassador card */
+	setHandPos(0, &G, ambassador, 0); /* <== need an ambassador in hand to use it right ? */
 
 	/* SAVE PLAYER OF AMBASSADORS HAND */
-	int primePlayersHand[G.hand[0]];
-	saveZerosHand(0, primePlayersHand, &G);
+	int primePlayersHand[G.handCount[0]];
+	saveZerosHand(0, &G, primePlayersHand);
 
+	/* set up an index of some repeated card to remove.. silver */
+	int redundant_card_idx = 1;
+	int redundant_count_before = 0;
+
+	/* tally the repeated cound of that card */
+	redundant_count_before = tallyType(G.whoseTurn, &G, redundant_card_idx);
+
+	/* save game state */
 	memset(&backup, '\0', sizeof(backup));
 	backup = G;
 
-	/** ==> CALL <================================================= */
-	ambassadorCard(secondSlot, 2, &G, firstSlot);
+	int amount_to_remove = 2; 
 
+	/** ==> CALL <================================================= */
+	ambassadorCard(1, amount_to_remove, &G, 0);
+
+	/* NOW tally that same repeated card AFTERWARD */
+	int redundant_count_after = 0;
+	redundant_count_after = tallyType(G.whoseTurn, &G, redundant_card_idx);
+
+	/* ERROR STATEMENTS  */
+	if((redundant_count_before - amount_to_remove) != redundant_count_after)
+	{
+		printf("Ambassador did not remove desired amount\n");
+		printf("quantity of repeated card to remove BEFORE call: %d\n", redundant_count_before );
+		printf("quantity of repeated card to remove AFTER call: %d\n", redundant_count_after);
+
+		if( redundant_count_before - 2 <  redundant_count_after )
+		{
+			printf("You illegally removed a card !\n");
+		}
+	}
 	printf("\n\n");
 
 	return result;
 }
-
-/*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM*/
-
-
-
-

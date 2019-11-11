@@ -11,7 +11,7 @@ int discardCard(int handPos, int currentPlayer, struct gameState *state);
 
 /* NEW HELPERS */
 int shiftCards(int handPos, int currentPlayer, struct gameState *state);
-int trashCard(int handPos, int currentPlayer, struct gameState *state, int trashFlag);
+int trashCard(int handPos, int currentPlayer, struct gameState *state);
 
 int gainCard(int supplyPos, struct gameState *state, int toFlag, int player);
 int getCost(int cardNumber);
