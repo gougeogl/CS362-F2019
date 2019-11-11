@@ -1529,9 +1529,9 @@ int discardCard(int handPos, int currentPlayer, struct gameState *state)
 	state->discard[currentPlayer][(state->discardCount[currentPlayer])] = state->hand[currentPlayer][handPos];
 	state->discardCount[currentPlayer]++;
 
-	/* adjust what's in hand */
 	state->hand[currentPlayer][handPos] = UNUSED;
 
+	/* adjust what's in hand */
 	action_success = shiftCards(handPos, currentPlayer, state); 
 
 	/* NOTE: important to increment AFTER call to shiftCards() or handCount will be off ! */
@@ -1543,7 +1543,7 @@ int discardCard(int handPos, int currentPlayer, struct gameState *state)
     return action_success;
 }
 
-/************************************************************************* <---------------------------------------------------------------- NEW  FUNCTION 
+/************************************************************************* 
 *
 * Function: trashCard()
 * Params:
@@ -1576,17 +1576,16 @@ int trashCard(int handPos, int currentPlayer, struct gameState *state, int trash
 		state->trashPile[state->trashCount] = state->hand[currentPlayer][handPos];
 		state->trashCount++;
 
-		/* adjust what's in hand */
 		state->hand[currentPlayer][handPos] = UNUSED;
+
+		/* adjust what's in hand */
+		action_success = shiftCards(handPos, currentPlayer, state);
+		
 		state->handCount[currentPlayer]--;
 
-		/* if there is more than 1 card in hand, and shiftCards fails, then discard fails */
-		if (shiftCards(handPos, currentPlayer, state) == FAILURE && state->handCount[currentPlayer] > 1)
-		{
-			action_success = FAILURE;
-		}
-		else
-			action_success = SUCCESS;
+		if ((state->handCount[currentPlayer] > 1) && (action_success != FAILURE))
+		{ action_success = SUCCESS;}
+
 	}
 
 	return action_success;
