@@ -1,9 +1,9 @@
 # ********************************************************
 # FileName: 	Makefile
 # Edited by: 	Glen Gougeon
-# Date: 	10-26-2019
+# Date: 	11-14-2019
 #
-# Description: 	Makefile for Assignment 3 unit testing
+# Description: 	Makefile for Assignment 4 random testing
 # 		compilation of refactored functions
 #
 # ********************************************************
@@ -41,29 +41,30 @@ runtests: testDrawCard
 	cat dominion.c.gcov >> unittestresult.out
 #***********************************************************************
 
-unittest1: unittest1.c dominion.o rngs.o interface.o 
-	${CC} -o unittest1 unittest1.c -g dominion.o rngs.o interface.o $(CFLAGS)
+randomtest1: randomtest1.c dominion.o rngs.o interface.o 
+	${CC} -o randomtest1 randomtest1.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
-unittest2: unittest2.c dominion.o rngs.o interface.o 
-	${CC} -o unittest2 unittest2.c -g dominion.o rngs.o interface.o $(CFLAGS)
+#unittest2: unittest2.c dominion.o rngs.o interface.o 
+#	${CC} -o unittest2 unittest2.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
-unittest3: unittest3.c dominion.o rngs.o interface.o 
-	${CC} -o unittest3 unittest3.c -g dominion.o rngs.o interface.o $(CFLAGS)
+#unittest3: unittest3.c dominion.o rngs.o interface.o 
+#	${CC} -o unittest3 unittest3.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
 #***********************************************************************
 
 unittestresults: unittest1 unittest2 unittest3 
-	./unittest1 &> unittestresults.out 
-	./unittest2 >> unittestresults.out
-	./unittest3 >> unittestresults.out
-	${GCOV} dominion.c >> unittestresults.out
-	${GCOV} unittest1.c >> unittestresults.out
-	${GCOV} unittest2.c >> unittestresults.out
-	${GCOV} unittest3.c >> unittestresults.out
-	cat unittest1.c.gcov >> unittestresults.out
-	cat unittest2.c.gcov >> unittestresults.out
-	cat unittest3.c.gcov >> unittestresults.out
-	cat dominion.c.gcov >> unittestresults.out
+	./randomtest1 &> randomtestresults.out 
+	${GCOV} dominion.c >> randomtestresults.out
+	${GCOV} randomtest1.c >> randomtestresults.out
+	cat randomtest1.c.gcov >> randomtestresults.out
+#	./unittest2 >> unittestresults.out
+#	./unittest3 >> unittestresults.out
+#	${GCOV} dominion.c >> unittestresults.out
+#	${GCOV} unittest2.c >> unittestresults.out
+#	${GCOV} unittest3.c >> unittestresults.out
+#	cat unittest2.c.gcov >> unittestresults.out
+#	cat unittest3.c.gcov >> unittestresults.out
+	cat dominion.c.gcov >> randomtestresults.out
 
 #***********************************************************************
 testDiscardCard: testDiscardCard.c dominion.o rngs.o interface.o 
@@ -78,23 +79,11 @@ discardresults: testDiscardCard
 
 #***********************************************************************
 
-testInitGame: testInitGame.c dominion.o rngs.o interface.o
-	${CC} -o testInitGame testInitGame.c -g dominion.o rngs.o interface.o ${CFLAGS}
-
-testInitGameResults: testInitGame
-	./testInitGame &> testinitgameresults.out
-	${GCOV} dominion.c >> testinitgameresults.out
-	${GCOV} testInitGame.c >> testinitgameresults.out
-	cat dominion.c.gcov >> testinitgameresults.out
-	cat testInitGame.c.gcov >> testinitgameresults.out
-
-#***************************************************************************
-
 player: player.c interface.o
 	${CC} -o player player.c -g  dominion.o rngs.o interface.o $(CFLAGS)
 
 all: playdom player unittest1 
 
 clean:
-	rm -f *.o playdom player unittest1 *.gcov *.gcda *.gcno *.so *.out *.exe
-	rm -f testDiscardCard testDrawCard testInitGame unittest1 unittest2 unittest3 
+	rm -f *.o playdom player *.gcov *.gcda *.gcno *.so *.out *.exe
+	rm -f testDiscardCard testDrawCard randomtest1 randomtest2 randomtest3 randomtest4 randomtest5 
