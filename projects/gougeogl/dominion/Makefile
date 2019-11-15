@@ -52,7 +52,7 @@ randomtest1: randomtest1.c dominion.o rngs.o interface.o
 
 #***********************************************************************
 
-unittestresults: unittest1 unittest2 unittest3 
+randomtestresults: randomtest1 
 	./randomtest1 &> randomtestresults.out 
 	${GCOV} dominion.c >> randomtestresults.out
 	${GCOV} randomtest1.c >> randomtestresults.out

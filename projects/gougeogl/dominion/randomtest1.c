@@ -19,14 +19,17 @@
 ****************************************************************/
 
 #include <stdio.h>
-#include <math.h>
 #include <stdlib.h>
+#include <time.h>
+#include <math.h>
 #include <string.h>
 
 #include "dominion.h"
 #include "dominion_helpers.h"
 #include "interface.h"
 #include "rngs.h"
+
+#define DEBUG_RANDOM 1
 
 // TEST PROTO-TYPES
 void initTestGame(int players, int* kDeck, int mySeed, struct gameState* game);
@@ -48,16 +51,20 @@ void setHandPos(struct gameState* state, int card, int handPos);
 int getTopDiscard(struct gameState* state);
 
 // TEST PROTO-TYPE
-int randomBaronTest();
+void randomBaronTest();
 
 int main()
 {
+	time_t t = 0;
+	unsigned seedling = time(&t);
+	srand(seedling);
+	
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 	printf("NOTE TO GRADER: Rules Available: change RULES MACRO to 1 for Rules used.\n");
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
 	randomBaronTest();
-	printf("\n\n");
+	//printf("\n\n");
 	return 0;
 }
 
@@ -147,7 +154,7 @@ int _rand_of_kingdomCards()
 // generate random number according to input range
 int _genRandRange(int min, int max)
 {
-	int num = rand() % (max - min + 1) + min;
+	unsigned num = rand() % (max - min + 1) + min;
 	if (DEBUG_RANDOM)
 	{
 		printf("rand num: %d\n", num);
@@ -261,10 +268,9 @@ int getTopDiscard(struct gameState* state)
  * 	not found in discard afterward
  *
  * ***************************************************/
-int randomBaronTest()
+void randomBaronTest()
 {
-	int result = 0;
-	int seed = 1;
+	int numErrors = 0;
 	int kingdomCards[10] = { adventurer, ambassador, baron, estate, tribute, minion, mine,  gardens, remodel, smithy };
 
 	// Game States 
@@ -275,11 +281,8 @@ int randomBaronTest()
 	printf("RANDOM BARON TEST :\n");
 	printf("OUTPUT:\n\n");
 
-	int i;
-	for (i = 0; i < 1000; i++)
+	do
 	{
-		//void prep(int numPlayers, int seed, int* kingdom, struct gameState* state, int numEstates, int handSize, int handPos, int card)
-
 		// number of players
 		int newNumPlayers = _genRandRange(2, MAX_PLAYERS);
 
@@ -302,7 +305,7 @@ int randomBaronTest()
 		int newHandSize = _genRandRange(0, MAX_HAND);
 
 		// position to place a single kingdom card into hand
-		int newHandPos = _genRandRange(0, newHandSize - 1);
+		int newHandPos = _genRandRange(0, newHandSize);
 
 		// random kingdom card for specific deck
 		int whichKcard = _rand_of_kingdomCards();
@@ -336,7 +339,7 @@ int randomBaronTest()
 			printf("Error: Baron card played, but numBuys didn't increase.\n");
 			printf("     : previous numBuys: %d\n", backup.numBuys);
 			printf("     : current numBuys: %d\n", G.numBuys);
-			result = -1;
+			numErrors++;	
 		}
 		/* check top of discard */
 		if (getTopDiscard(&G) != estate)
@@ -348,7 +351,7 @@ int randomBaronTest()
 			int currentPlayer = whoseTurn(&G);
 			cardNumToName(G.discard[currentPlayer][G.discardCount[currentPlayer]], name);
 			printf("Top of discard contains: %s\n", name);
-			result = -1;
+			numErrors++;	
 		}
 		else if (getTopDiscard(&G) == estate)
 		{
@@ -358,10 +361,10 @@ int randomBaronTest()
 				printf("Error: An estate in discard, but coins is not +4 previous.\n");
 				printf("     : previous coins: %d\n", backup.coins);
 				printf("     : current  coins: %d\n", G.coins);
-				result = -1;
+				numErrors++;	
 			}
 		}
-	}
-	return result;
+
+	} while( numErrors < 10000 );
 }
 
