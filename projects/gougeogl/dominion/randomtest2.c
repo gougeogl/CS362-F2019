@@ -26,6 +26,8 @@
 #include "interface.h"
 #include "rngs.h"
 
+#define DEBUG_RANDOM 0
+
 enum TEST_FLAGS
 {
 	SAME_HAND = 800,
@@ -406,7 +408,7 @@ void savePreviousHandCounts(int* container, struct gameState* state )
 // generate random number according to input range
 int _genRandRange(int min, int max)
 {
-	unsigned num = rand() % (max - min + 1) + min;
+	int num = rand() % (max - min + 1) + min;
 	if (DEBUG_RANDOM)
 	{
 		printf("rand num: %d\n", num);
@@ -465,6 +467,7 @@ int _rand_of_kingdomCards()
 /*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM*/
 void randomMinionTest()
 {
+	int result = 0;
 	int numErrors = 0;
 
 	/* SET OF CARDS TO BE USED */
@@ -511,21 +514,21 @@ void randomMinionTest()
 		//newNumDuplicates = _genRandRange(0, G.handCount[G.whoseTurn]);
 
 		/* SETS HANDS AT RANDOM FOR ALL OTHER PLAYERS */
-		otherPlayerHandSize = _genRandRange(0, MAX_HAND);
-		prepOthersMinion(G.whoseTurn, &G, 5);
+		int otherPlayersHandSize = _genRandRange(0, MAX_HAND);
+		prepOthersMinion(G.whoseTurn, &G, otherPlayersHandSize);
 
-		/* Randomly assign cards to player zero.. the PLAYER WHO HAS THE MINION CARD */
+		/* Randomly assign cards to .. the PLAYER WHO HAS THE MINION CARD */
 		int someCard = 0;
 
 		int i;
-		for (i = 0; i < newHandSize; i++)
+		for (i = 0; i < G.handCount[G.whoseTurn]; i++)
 		{
 			someCard = _rand_of_kingdomCards();
 			setHandPos(0, &G, someCard, i);
 		}
 
 		/* OVER-WRITE AT 'someIdx' with MINION */
-		int someIdx = _genRandRange(0, newHandSize)
+		int someIdx = _genRandRange(0, newHandSize);
 		setHandPos(0, &G, minion, someIdx); /* <== need a minion in hand to use it right ? */
 
 			/* SAVE HAND COUNTS  */
@@ -548,13 +551,19 @@ void randomMinionTest()
 		/* MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM */
 
 		/* assert numActions increased properly to +1 previous */
-		compareNumActions(G.whoseTurn, &backup, &G);
+		result = compareNumActions(G.whoseTurn, &backup, &G);
+		if(result == -1) { numErrors++; }
+		result = 0;
 
 		/* assert if coins increased */
-		compareCoins(G.whoseTurn, &backup, &G, PLUS_2_COINS);
+		result = compareCoins(G.whoseTurn, &backup, &G, PLUS_2_COINS);
+		if(result == -1) { numErrors++; }
+		result = 0;
 
 		/* assert that deck is now different than before */
-		compareDeck(G.whoseTurn, &backup, &G, 5, DIFFERENT_DECK);
+		result = compareDeck(G.whoseTurn, &backup, &G, 5, DIFFERENT_DECK);
+		if(result == -1) { numErrors++; }
+		result = 0;
 
 		/* assert hand now at least size 4  */
 		if (G.handCount[G.whoseTurn] < 4)
@@ -562,6 +571,7 @@ void randomMinionTest()
 			printf("Player of Minion Card doesn't have 4 cards after call !\n");
 			printf("Hand Count previous: %d\n", backup.handCount[backup.whoseTurn]);
 			printf("Hand Count current: %d\n", G.handCount[G.whoseTurn]);
+			numErrors++;
 		}
 
 		/* assert if other player's hands were 5+ , they are now at least size 5 */
@@ -573,9 +583,11 @@ void randomMinionTest()
 				printf("Player %d had 5+ cards before call, but now they have less than 4 !\n", j);
 				printf("Hand Count previous: %d\n", handBox[j]);
 				printf("Hand Count current: %d\n", G.handCount[j]);
+				numErrors++;
 			}
 		}
-	} while (numErrors < 100000);
+
+	} while (numErrors < 10000);
 
 }
 

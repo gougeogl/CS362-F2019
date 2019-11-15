@@ -29,7 +29,7 @@
 #include "interface.h"
 #include "rngs.h"
 
-#define DEBUG_RANDOM 1
+#define DEBUG_RANDOM 0
 
 // TEST PROTO-TYPES
 void initTestGame(int players, int* kDeck, int mySeed, struct gameState* game);
@@ -60,7 +60,7 @@ int main()
 	srand(seedling);
 	
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-	printf("NOTE TO GRADER: Rules Available: change RULES MACRO to 1 for Rules used.\n");
+	printf("ASSIGNMENT 4: RANDOM TESTINT.\n");
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
 	randomBaronTest();
@@ -154,7 +154,7 @@ int _rand_of_kingdomCards()
 // generate random number according to input range
 int _genRandRange(int min, int max)
 {
-	unsigned num = rand() % (max - min + 1) + min;
+	int num = rand() % (max - min + 1) + min;
 	if (DEBUG_RANDOM)
 	{
 		printf("rand num: %d\n", num);

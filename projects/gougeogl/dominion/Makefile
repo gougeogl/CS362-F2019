@@ -47,34 +47,16 @@ randomtest1: randomtest1.c dominion.o rngs.o interface.o
 randomtest2: randomtest2.c dominion.o rngs.o interface.o 
 	${CC} -o randomtest2 randomtest2.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
-#unittest3: unittest3.c dominion.o rngs.o interface.o 
-#	${CC} -o unittest3 unittest3.c -g dominion.o rngs.o interface.o $(CFLAGS)
-
 #***********************************************************************
 
 randomtestresults: randomtest1 randomtest2
-	echo "CONTENTS:"
-	echo "1. random test output"
-	echo "2. dominion.c coverage results"
-	echo "3. random tests coverage results"
-	echo "4. random test gcov data"
-	echo "5. dominion.c gcov data"
-	echo
-	echo "RANDOM TEST OUTPUT"
 	./randomtest1 &> randomtestresults.out 
 	./randomtest2 >> randomtestresults.out 
-	echo "DOMINION COVERAGE RESULTS"
-	#
 	${GCOV} dominion.c >> randomtestresults.out
-	echo "RANDOM TESTING COVERAGE RESULTS"
 	${GCOV} randomtest1.c >> randomtestresults.out
 	${GCOV} randomtest2.c >> randomtestresults.out
-	#
-	echo "RANDOM TESTING GCOV DATA"
 	cat randomtest1.c.gcov >> randomtestresults.out
-	cat randomtest1.c.gcov >> randomtestresults.out
-	#
-	echo "DOMINION.C GCOV DATA"
+	cat randomtest2.c.gcov >> randomtestresults.out
 	cat dominion.c.gcov >> randomtestresults.out
 
 #***********************************************************************
