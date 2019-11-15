@@ -60,6 +60,9 @@ void savePreviousHandCounts(int* container, struct gameState* state );
 /* selects a random card from kingdomCards deck */
 int _rand_of_kingdomCards();
 
+// randomly gen an int in range [min..max]
+int _genRandRange(int min, int max);
+
 /* RANDOM TEST PROTO-TYPE*/
 void randomMinionTest();
 
@@ -398,6 +401,18 @@ void savePreviousHandCounts(int* container, struct gameState* state )
 	{
 		container[i] = state->handCount[i];	
 	}
+}
+
+// generate random number according to input range
+int _genRandRange(int min, int max)
+{
+	unsigned num = rand() % (max - min + 1) + min;
+	if (DEBUG_RANDOM)
+	{
+		printf("rand num: %d\n", num);
+		fflush(stdout);
+	}
+	return num;
 }
 
 /* *************************************************************************
