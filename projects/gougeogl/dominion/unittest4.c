@@ -70,7 +70,7 @@ int compareDeck(int player, struct gameState* before, struct gameState* after, i
 
 // SAVE VALUES PROTO-TYPES
 void savePreviousHandCounts(int* container, struct gameState* state );
-int* saveTop2Deck(int player, struct gameState* state);
+void saveTop2Deck(int player, struct gameState* state, int* topTwo);
 
 /* selects a random card from kingdomCards deck */
 int _rand_of_kingdomCards();
@@ -169,14 +169,28 @@ void _prepOnePlayer(
 void fillDeck(int player, struct gameState* state, int newDeckSize )
 {
 	int card = 0;
+	char name[MAX_STRING_LENGTH];
 
+	printf("START: FILL DECK MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
 	int i = 0;
 	while (i < newDeckSize)
 	{
 		card = _rand_of_kingdomCards();
+		memset(name, '\0', sizeof(name));
+
+		cardNumToName(card, name);
+		printf("TRACE: card#%d: %s\n", card ,name);
+
 		state->deck[player][i] = card;
+		memset(name, '\0', sizeof(name));
+
+		cardNumToName(state->deck[player][i], name);
+		printf("TRACE: state->deck[player %d][i %d]:%s\n", player, i, name);
 		i++;
 	}
+	state->deckCount[player] = newDeckSize;
+	printf("TRACE: state->deckCount[player %d]: %d\n", player, state->deckCount[player] );
+	printf("END: FILL DECK MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n\n");
 }
 
 // set player to remove all estates from current player's deck  
@@ -417,10 +431,10 @@ void savePreviousHandCounts(int* container, struct gameState* state )
 * Saves the top 2 cards in the player's deck
 *
 ****************************************************************************/
-int* saveTop2Deck(int player, struct gameState* state)
+void saveTop2Deck(int player, struct gameState* state, int* topTwo )
 {
-	int* result = NULL;
-	int topTwo[2] = { 0 };
+	//int* result = NULL;
+	//int topTwo[2] = { 0 };
 	int topCard = state->deckCount[player];
 	topCard--;
 	int nextTop = topCard;
@@ -458,8 +472,10 @@ int* saveTop2Deck(int player, struct gameState* state)
 			topTwo[1], player, state->deck[player][deckCount]);
 	}
 
-	result = topTwo;
-	return result;
+	//result = topTwo;
+	printf("topTwo[0]: %d\n", topTwo[0] );
+	printf("topTwo[1]: %d\n", topTwo[1] );
+	//return result;
 }
 
 /* *************************************************************************
@@ -549,15 +565,16 @@ int tributeTest1()
 
 	/* set deck for players according to size */
 	fillDeck(0, &G, 5);
-	fillDeck(1, &G, 5);
+	//fillDeck(1, &G, 5);
 
 	/* SAVE HAND COUNTS  */
 	int handBox[MAX_PLAYERS];
 	savePreviousHandCounts(handBox, &G);
 
 	/* SAVE TOP 2 DECK */
-	int* savedTop2Deck = NULL;
-	savedTop2Deck = saveTop2Deck(0, &G);
+	//int* savedTop2Deck = NULL;
+	int topTwo[2] = { 0 };
+	saveTop2Deck(0, &G, topTwo );
 
 	/* BACK UP STATE BEFORE CALL */
 	memset(&backup, '\0', sizeof(backup));
@@ -571,8 +588,8 @@ int tributeTest1()
 	printf("TRACE: Deck after call to tribute..\n");
 	printDeck(0, &G);
 
-	printf("savedTop2Deck[0]: %d\n", savedTop2Deck[0]);
-	printf("savedTop2Deck[1]: %d\n", savedTop2Deck[1]);
+	printf("topTwo[0]: %d\n", topTwo[0]);
+	printf("topTwo[1]: %d\n", topTwo[1]);
 
 
 	printf("\n\n");
