@@ -114,9 +114,9 @@ void prepPlayers(
 )
 {
 	int i;
-	for (i = fromPlayer; i < toPlayer; i++)
+	for (i = fromPlayer; i <= toPlayer; i++)
 	{
-		_prepOnePlayer(i, state, newHandSize, fill_type, card)
+		_prepOnePlayer(i, state, newHandSize, fill_type, card);
 	}
 }
 
@@ -147,7 +147,7 @@ void _prepOnePlayer(
 	emptyHand(player, state);
 	setNewHandCount(player, state, newHandSize);
 
-	int i, card = -1;
+	int i;
 		
 	for (i = 0; i < newHandSize; i++)
 	{
@@ -420,12 +420,29 @@ int* saveTop2Deck(int player, struct gameState* state)
 	if (DEBUG_TOP2_DECK)
 	{
 		printf("TRACE: saveTop2Deck\n");
+		printf("player %d\n", player);
+		printf("state->deckCount[player]:%d\n", state->deckCount[player] );
+		printf("deckCount:%d\n", deckCount);
+
+		printf("ORIGINAL: state->deck[player][state->deckCount[player]]:%d\n", 
+			state->deck[player][state->deckCount[player]]);
+		printf("COPY OF: state->deck[player][deckCount]:%d\n", 
+			state->deck[player][state->deckCount[player]]);
+
 		deckCount--;
+		printf("DECREMENT 1: deckCount:%d\n", deckCount);
+		printf("DECREMENT 1: state->deck[player][deckCount]:%d\n", 
+			state->deck[player][deckCount]);
+
 		printf("topTwo[0]: %d vs. state->deck[player %d][deckCount]: %d\n",
 			topTwo[0], player, state->deck[player][deckCount]);
+
 		deckCount--;
-		printf("topTwo[1]: %d vs. state->deck[player %d][state->deckCount[player]: %d\n",
-			topTwo[1], player, state->deck[player][state->deckCount[player]);
+		printf("DECREMENT 2: deckCount:%d\n", deckCount);
+		printf("DECREMENT 2: state->deck[player][deckCount]:%d\n", 
+			state->deck[player][deckCount]);
+		printf("topTwo[1]: %d vs. state->deck[player %d][deckCount]: %d\n",
+			topTwo[1], player, state->deck[player][deckCount]);
 	}
 
 	result = topTwo;
@@ -509,13 +526,13 @@ int tributeTest1()
 	}
 
 	/* # players, cards to use, seed, gameState */
-	initTestGame(2, kingdomCards, 1, &G);
+	initTestGame(2, kingdomCards, seed, &G);
 
 	/* set up all players with 5 random cards in each hand */
-	void prepPlayers(0, 1, &G, 5, FILL_DIFF, -1);
+	prepPlayers(0, 1, &G, 5, FILL_DIFF, -1);
 
 	/* set a tribute card in player zero's hand at position zero */
-	void setAtHandPos(0, &G, tribute, 0);
+	setAtHandPos(0, &G, tribute, 0);
 
 	/* SAVE HAND COUNTS  */
 	int handBox[MAX_PLAYERS];

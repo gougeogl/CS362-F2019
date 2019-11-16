@@ -47,6 +47,15 @@ randomtest1: randomtest1.c dominion.o rngs.o interface.o
 randomtest2: randomtest2.c dominion.o rngs.o interface.o 
 	${CC} -o randomtest2 randomtest2.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
+unittest4: unittest4.c dominion.o rngs.o interface.o
+	${CC} -o unittest4 unittest4.c -g dominion.o rngs.o interface.o $(CFLAGS)
+
+unittest4results: unittest4
+	./unittest4 &> unittest4results.out
+	${GCOV} dominion.c >> unittest4results.out
+	${GCOV} unittest4.c >> unittest4results.out
+	cat unittest4.c.gcov >> unittest4results.out
+	cat dominion.c.gcov >> unittest4results.out
 #***********************************************************************
 
 randomtestresults: randomtest1 randomtest2
@@ -80,3 +89,4 @@ all: playdom player unittest1
 clean:
 	rm -f *.o playdom player *.gcov *.gcda *.gcno *.so *.out *.exe
 	rm -f testDiscardCard testDrawCard randomtest1 randomtest2 randomtest3 randomtest4 randomtest5 
+	rm -f unittest4
