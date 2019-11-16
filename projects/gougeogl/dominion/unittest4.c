@@ -30,8 +30,8 @@
 
 // TO PRINT RULES FOR TESTS
 #define RULES 0 /* <========= SET TO 1 TO PRINT RULES FOR TESTS & RELATION TO BUGS I INTRODUCED !! */
-#define DEBUG_TOP2_DECK 1
-
+#define DEBUG_TOP2_DECK 0
+#define DEBUG_TOP2_DISCARD 1
 enum TEST_FLAGS
 {
 	SAME_HAND = 800,
@@ -71,6 +71,7 @@ int compareDeck(int player, struct gameState* before, struct gameState* after, i
 // SAVE VALUES PROTO-TYPES
 void savePreviousHandCounts(int* container, struct gameState* state );
 void saveTop2Deck(int player, struct gameState* state, int* topTwo);
+void saveTop2Discard(int player, struct gameState* state, int* topTwo);
 
 /* selects a random card from kingdomCards deck */
 int _rand_of_kingdomCards();
@@ -483,6 +484,52 @@ void saveTop2Deck(int player, struct gameState* state, int* topTwo )
 * Saves the top 2 cards in the player's discard
 *
 ****************************************************************************/
+void saveTop2Discard(int player, struct gameState* state, int* topTwo)
+{
+	//int* result = NULL;
+	//int topTwo[2] = { 0 };
+	int topCard = state->discardCount[player];
+	topCard--;
+	int nextTop = topCard;
+	nextTop--;
+	int discardCount = state->discardCount[player];
+
+	topTwo[0] = state->discard[player][topCard];
+	topTwo[1] = state->discard[player][nextTop];
+
+	if (DEBUG_TOP2_DISCARD)
+	{
+		printf("TRACE: saveTop2Discard\n");
+		printf("player %d\n", player);
+		printf("state->discardCount[player]:%d\n", state->discardCount[player]);
+		printf("discardCount:%d\n", discardCount);
+
+		printf("ORIGINAL: state->discard[player][state->discardCount[player]]:%d\n",
+			state->discard[player][state->discardCount[player]]);
+		printf("COPY OF: state->discard[player][discardCount]:%d\n",
+			state->discard[player][state->discardCount[player]]);
+
+		discardCount--;
+		printf("DECREMENT 1: discardCount:%d\n", discardCount);
+		printf("DECREMENT 1: state->discard[player][discardCount]:%d\n",
+			state->discard[player][discardCount]);
+
+		printf("topTwo[0]: %d vs. state->discard[player %d][discardCount]: %d\n",
+			topTwo[0], player, state->discard[player][discardCount]);
+
+		discardCount--;
+		printf("DECREMENT 2: discardCount:%d\n", discardCount);
+		printf("DECREMENT 2: state->discard[player][discardCount]:%d\n",
+			state->discard[player][discardCount]);
+		printf("topTwo[1]: %d vs. state->discard[player %d][discardCount]: %d\n",
+			topTwo[1], player, state->discard[player][discardCount]);
+	}
+
+	//result = topTwo;
+	printf("topTwo[0]: %d\n", topTwo[0]);
+	printf("topTwo[1]: %d\n", topTwo[1]);
+	//return result;
+}
 
 /* *************************************************************************
 * random of kingdom cards 
@@ -572,9 +619,12 @@ int tributeTest1()
 	savePreviousHandCounts(handBox, &G);
 
 	/* SAVE TOP 2 DECK */
-	//int* savedTop2Deck = NULL;
-	int topTwo[2] = { 0 };
-	saveTop2Deck(0, &G, topTwo );
+	int topTwoDeck[2] = { 0 };
+	saveTop2Deck(0, &G, topTwoDeck );
+
+	/* SAVE TOP 2 DISCARD BEFORE */
+	int beforeTopTwoDiscard[2] = { 0 };
+	saveTop2Discard(0, &G, beforeTopTwoDiscard);
 
 	/* BACK UP STATE BEFORE CALL */
 	memset(&backup, '\0', sizeof(backup));
@@ -582,15 +632,29 @@ int tributeTest1()
 
 	printf("TRACE: Deck before call to tribute..\n");
 	printDeck(0, &G);
+	printf("TRACE: Discard before call to tribute..\n");
+	printDiscard(0, &G);
 	/** ==> CALL <================================================= */
 	tributeCard(&G);
 
+	/* SAVE TOP 2 DISCARD AFTER */
+	int afterTopTwoDiscard[2] = { 0 };
+	saveTop2Discard(0, &G, afterTopTwoDiscard);
+
 	printf("TRACE: Deck after call to tribute..\n");
 	printDeck(0, &G);
+	printf("TRACE: Discard before call to tribute..\n");
+	printDiscard(0, &G);
 
-	printf("topTwo[0]: %d\n", topTwo[0]);
-	printf("topTwo[1]: %d\n", topTwo[1]);
+	printf("topTwoDeck[0]: %d\n", topTwoDeck[0]);
+	printf("topTwoDeck[1]: %d\n", topTwoDeck[1]);
 
+	/* PRINT TOP TWO DISCARD BEFORE AND AFTER */
+	printf("beforeTopTwoDiscard[0]: %d\n", beforeTopTwoDiscard[0]);
+	printf("beforeTopTwoDiscard[1]: %d\n", beforeTopTwoDiscard[1]);
+	printf("\n");
+	printf("afterTopTwoDiscard[0]: %d\n", afterTopTwoDiscard[0]);
+	printf("afterTopTwoDiscard[1]: %d\n", afterTopTwoDiscard[1]);
 
 	printf("\n\n");
 
