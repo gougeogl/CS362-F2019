@@ -622,6 +622,10 @@ int tributeTest1()
 	int topTwoDeck[2] = { 0 };
 	saveTop2Deck(0, &G, topTwoDeck );
 
+	//int discardCard(int handPos, int currentPlayer, struct gameState *state)
+	dicardCard(0, 0, &G);
+	dicardCard(1, 0, &G);
+
 	/* SAVE TOP 2 DISCARD BEFORE */
 	int beforeTopTwoDiscard[2] = { 0 };
 	saveTop2Discard(0, &G, beforeTopTwoDiscard);
