@@ -53,6 +53,7 @@ void prepPlayers(int fromPlayer, int toPlayer, struct gameState* state, int newH
 void _prepOnePlayer(int player, struct gameState* state, int newHandSize, int fill_type, int card);
 
 // HELPER PROTOS-TYPES
+void fillDeck(int player, struct gameState* state, int newDeckSize);
 void emptyDeck(int player, struct gameState* state);
 void emptyDiscard(int player, struct gameState* state);
 
@@ -163,6 +164,19 @@ void _prepOnePlayer(
 		}
 	}
 
+}
+
+void fillDeck(int player, struct gameState* state, int newDeckSize )
+{
+	int card = 0;
+
+	int i = 0;
+	while (i < newDeckSize)
+	{
+		card = _rand_of_kingdomCards();
+		state->deck[player][i] = card;
+		i++;
+	}
 }
 
 // set player to remove all estates from current player's deck  
@@ -305,7 +319,6 @@ int compareHand(int player, struct gameState* before, struct gameState* after , 
 		{
 			if (before->hand[player][i] == after->hand[player][i]) 
 			{
-
 				printf("player %d\'s hand is still the same\n", player);
 				fflush(stdout);
 				printStats = 1;
@@ -533,6 +546,10 @@ int tributeTest1()
 
 	/* set a tribute card in player zero's hand at position zero */
 	setAtHandPos(0, &G, tribute, 0);
+
+	/* set deck for players according to size */
+	fillDeck(0, &G, 5);
+	fillDeck(1, &G, 5);
 
 	/* SAVE HAND COUNTS  */
 	int handBox[MAX_PLAYERS];
