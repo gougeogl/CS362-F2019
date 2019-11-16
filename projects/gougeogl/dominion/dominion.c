@@ -979,14 +979,14 @@ int tributeCard(struct gameState *state)
 	int nextPlayer = whoseNext(state);
 
 	int tributeRevealedCards[2] = { -1, -1 };
+	// <<<<<<<<<<<<<<<< BUG 7: should be <= 1 NOT < 1 If this is < 1, the nested branches below it
+	//			   will never be true. You cannot have > 0 and < 0
+	//			   unless you are at 0, which means the lower 
+	// 			   condition will always execute, and the nextPlayer
+ 	//		           will always have their deck reshuffled. 
+ 	//		           This can affect game play
+	if ((state->discardCount[nextPlayer] + state->deckCount[nextPlayer]) <= 1) { //<=== BUG 7: SEE HERE
 
-	if ((state->discardCount[nextPlayer] + state->deckCount[nextPlayer]) < 1) { /* <<<<<<<<<<<<<<<< BUG 7: should be <= 1 NOT < 1
-																				                     If this is < 1, the nested branches below it
-																									 will never be true. You cannot have > 0 and < 0
-																									 unless you are at 0, which means the lower
-																									 condition will always execute, and the nextPlayer
-																									 will always have their deck reshuffled. This can
-																									 affect game play*/
 		if (state->deckCount[nextPlayer] > 0) {
 			tributeRevealedCards[0] = state->deck[nextPlayer][state->deckCount[nextPlayer] - 1];
 			state->deckCount[nextPlayer]--;
@@ -1006,39 +1006,51 @@ int tributeCard(struct gameState *state)
 	else {
 		if (state->deckCount[nextPlayer] == 0) {
 			for (i = 0; i < state->discardCount[nextPlayer]; i++) {
-				state->deck[nextPlayer][i] = state->discard[nextPlayer][i];//Move to deck
-				/* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 8: forgot to increment player's deckCount.
-				                                                                                Not incrementing it in this case while their
-																								discard increases, but combined with BUG 7, means
-																								they would always have 0 (ZERO) cards in their hand,
-																								but it would also mean the positions of the cards in
-																								the deck would be off */
-				//state->deckCount[nextPlayer]++; 
+				//Move to deck
+				state->deck[nextPlayer][i] = state->discard[nextPlayer][i];
+				// BUG 8: forgot to increment player's deckCount.
+				// Not incrementing it in this case while their
+				// discard increases, but combined with BUG 7,
+				// means they would always have 0 (ZERO) cards in
+				// their hand, but it would also mean the positions of 
+				// the card in the deck would be off
+				
+				state->deckCount[nextPlayer]++; // <=========== BUG 8
 				state->discard[nextPlayer][i] = -1;
 				state->discardCount[nextPlayer]--;
 			}
 			shuffle(nextPlayer, state);//Shuffle the deck
 		}
+		// draw 1st card from deck into tributeRevealedCards [ ]
 		tributeRevealedCards[0] = state->deck[nextPlayer][state->deckCount[nextPlayer] - 1];
-		state->deck[nextPlayer][state->deckCount[nextPlayer]--] = -1;
-		state->deckCount[nextPlayer]--;
-		tributeRevealedCards[1] = state->deck[nextPlayer][state->deckCount[nextPlayer] - 1];
-		state->deck[nextPlayer][state->deckCount[nextPlayer]--] = -1;
-		state->deckCount[nextPlayer]--;
-	}
+		printf("TRIBUTE DEBUG: tributeRevealedCards[0]: %d\n", tributeRevealedCards[0] ); 
+		state->deck[nextPlayer][state->deckCount[nextPlayer] -1 ] = -1;
+		state->deckCount[nextPlayer]--; 
 
-	if (tributeRevealedCards[0] == tributeRevealedCards[1]) { //If we have a duplicate card, just drop one
-		state->playedCards[state->playedCardCount] = tributeRevealedCards[1];
-		state->playedCardCount++;
+		// draw 2nd card from deck into tributeRevealedCards [ ]
+		tributeRevealedCards[1] = state->deck[nextPlayer][state->deckCount[nextPlayer] - 1];
+		printf("TRIBUTE DEBUG: tributeRevealedCards[1]: %d\n", tributeRevealedCards[1] ); 
+		state->deck[nextPlayer][state->deckCount[nextPlayer] -1 ] = -1;
+		state->deckCount[nextPlayer]--; 
+	}
+	//If we have a duplicate card, just drop one
+	if (tributeRevealedCards[0] == tributeRevealedCards[1]) { 
+		//state->playedCards[state->playedCardCount] = tributeRevealedCards[1];
+		//state->playedCardCount++;
 		tributeRevealedCards[1] = -1;
 	}
 
-	for (i = 0; i <= 2; i++) {
+	for (i = 0; i < 2; i++) {
 		if (tributeRevealedCards[i] == copper || tributeRevealedCards[i] == silver || tributeRevealedCards[i] == gold) { //Treasure cards
 			state->coins += 2;
 		}
 
-		else if (tributeRevealedCards[i] == estate || tributeRevealedCards[i] == duchy || tributeRevealedCards[i] == province || tributeRevealedCards[i] == gardens || tributeRevealedCards[i] == great_hall) { //Victory Card Found
+		else if (tributeRevealedCards[i] == estate || 
+                         tributeRevealedCards[i] == duchy || 
+                         tributeRevealedCards[i] == province || 
+                         tributeRevealedCards[i] == gardens || 
+                         tributeRevealedCards[i] == great_hall) { //Victory Card Found
+
 			drawCard(currentPlayer, state);
 			drawCard(currentPlayer, state);
 		}
@@ -1046,7 +1058,14 @@ int tributeCard(struct gameState *state)
 			state->numActions = state->numActions + 2;
 		}
 	}
-
+	if(tributeRevealedCards[0] != -1){
+		state->discard[nextPlayer][state->discardCount[nextPlayer]] = tributeRevealedCards[0];
+		state->discardCount[nextPlayer]++;	
+	}
+	if(tributeRevealedCards[1] != -1){
+		state->discard[nextPlayer][state->discardCount[nextPlayer]] = tributeRevealedCards[1];
+		state->discardCount[nextPlayer]++;	
+	}
 	return 0;
 
 }

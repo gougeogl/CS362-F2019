@@ -22,7 +22,7 @@ GCOV += -f # function info
 rngs.o: rngs.h rngs.c
 	${CC} -c rngs.c -g  $(CFLAGS) 
 
-dominion.o: dominion.h dominion_helpers.h dominion.c rngs.o
+dominion.o: dominion.c dominion.h dominion_helpers.h rngs.o
 	${CC} -c dominion.c -g  $(CFLAGS) 
 
 playdom: dominion.o playdom.c
@@ -47,7 +47,7 @@ randomtest1: randomtest1.c dominion.o rngs.o interface.o
 randomtest2: randomtest2.c dominion.o rngs.o interface.o 
 	${CC} -o randomtest2 randomtest2.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
-unittest4: unittest4.c dominion.o rngs.o interface.o
+unittest4: unittest4.c dominion.o dominion_helpers.h rngs.o interface.o
 	${CC} -o unittest4 unittest4.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
 unittest4results: unittest4

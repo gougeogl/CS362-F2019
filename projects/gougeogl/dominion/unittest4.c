@@ -31,7 +31,8 @@
 // TO PRINT RULES FOR TESTS
 #define RULES 0 /* <========= SET TO 1 TO PRINT RULES FOR TESTS & RELATION TO BUGS I INTRODUCED !! */
 #define DEBUG_TOP2_DECK 0
-#define DEBUG_TOP2_DISCARD 1
+#define DEBUG_TOP2_DISCARD 0
+
 enum TEST_FLAGS
 {
 	SAME_HAND = 800,
@@ -611,55 +612,72 @@ int tributeTest1()
 	setAtHandPos(0, &G, tribute, 0);
 
 	/* set deck for players according to size */
-	fillDeck(0, &G, 5);
-	//fillDeck(1, &G, 5);
+	//printf("FILL DECK PLAYER 0 <-----------------------------------------\n");
+	//fillDeck(0, &G, 5);
+	printf("FILL DECK PLAYER 1 <-----------------------------------------\n");
+	fillDeck(1, &G, 5);
 
 	/* SAVE HAND COUNTS  */
 	int handBox[MAX_PLAYERS];
 	savePreviousHandCounts(handBox, &G);
 
 	/* SAVE TOP 2 DECK */
+	printf("BEFORE: saveTop2Deck() PLAYER 1 <------------------------\n");
 	int topTwoDeck[2] = { 0 };
-	saveTop2Deck(0, &G, topTwoDeck );
+	saveTop2Deck(1, &G, topTwoDeck );
 
 	//int discardCard(int handPos, int currentPlayer, struct gameState *state)
-	dicardCard(0, 0, &G);
-	dicardCard(1, 0, &G);
+	/*
+	printf("DISCARD FIRST CARD FROM PLAYER 1 <------------------------\n");
+	discardCard(0, 1, &G);
+	printf("DISCARD SECOND CARD FROM PLAYER 1 <------------------------\n");
+	discardCard(1, 1, &G);
+	*/
 
 	/* SAVE TOP 2 DISCARD BEFORE */
+	printf("BEFORE: saveTop2Discard() PLAYER 1 <------------------------\n");
 	int beforeTopTwoDiscard[2] = { 0 };
-	saveTop2Discard(0, &G, beforeTopTwoDiscard);
+	saveTop2Discard(1, &G, beforeTopTwoDiscard);
 
 	/* BACK UP STATE BEFORE CALL */
 	memset(&backup, '\0', sizeof(backup));
 	backup = G;
 
-	printf("TRACE: Deck before call to tribute..\n");
-	printDeck(0, &G);
-	printf("TRACE: Discard before call to tribute..\n");
-	printDiscard(0, &G);
+	printf("TRACE: Player 1 Deck before call to tribute..\n");
+	printDeck(1, &G);
+	printf("TRACE: Player 1 Discard before call to tribute..\n");
+	printDiscard(1, &G);
 	/** ==> CALL <================================================= */
 	tributeCard(&G);
 
 	/* SAVE TOP 2 DISCARD AFTER */
+	printf("AFTER: saveTop2Discard() PLAYER 1 <------------------------\n");
 	int afterTopTwoDiscard[2] = { 0 };
-	saveTop2Discard(0, &G, afterTopTwoDiscard);
+	saveTop2Discard(1, &G, afterTopTwoDiscard);
 
-	printf("TRACE: Deck after call to tribute..\n");
-	printDeck(0, &G);
-	printf("TRACE: Discard before call to tribute..\n");
-	printDiscard(0, &G);
+	printf("TRACE: Player 1 Deck after call to tribute..\n");
+	printDeck(1, &G);
+	printf("TRACE: Player 1 Discard after call to tribute..\n");
+	printDiscard(1, &G);
 
+	printf("PLAYER 1 TOP 2 DECK MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
 	printf("topTwoDeck[0]: %d\n", topTwoDeck[0]);
 	printf("topTwoDeck[1]: %d\n", topTwoDeck[1]);
 
 	/* PRINT TOP TWO DISCARD BEFORE AND AFTER */
+	printf("BEFORE: beforeTopTwoDiscard [ ] MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
 	printf("beforeTopTwoDiscard[0]: %d\n", beforeTopTwoDiscard[0]);
 	printf("beforeTopTwoDiscard[1]: %d\n", beforeTopTwoDiscard[1]);
 	printf("\n");
+	printf("AFTER: afterTopTwoDiscard [ ] MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
 	printf("afterTopTwoDiscard[0]: %d\n", afterTopTwoDiscard[0]);
 	printf("afterTopTwoDiscard[1]: %d\n", afterTopTwoDiscard[1]);
 
+	printf("MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
+	printf("PLAYER 0 DECK AFTER\n");
+	printDeck(0, &G);
+	printf("PLAYER 0 DISCARD AFTER\n");
+	printDiscard(0, &G);
 	printf("\n\n");
 
 	return result;
