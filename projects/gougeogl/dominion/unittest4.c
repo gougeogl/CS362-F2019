@@ -73,6 +73,7 @@ int compareDeck(int player, struct gameState* before, struct gameState* after, i
 void savePreviousHandCounts(int* container, struct gameState* state );
 void saveTop2Deck(int player, struct gameState* state, int* topTwo);
 void saveTop2Discard(int player, struct gameState* state, int* topTwo);
+int compareTopsAfter(int player, int* deckTops, int* discardTops)
 
 /* selects a random card from kingdomCards deck */
 int _rand_of_kingdomCards();
@@ -532,6 +533,53 @@ void saveTop2Discard(int player, struct gameState* state, int* topTwo)
 	//return result;
 }
 
+/* ***********************************************************************
+* Used after calls to saveTop2Deck() & saveTop2Discard().
+* Compares both sets of value for equality. 
+* If all values equal in both sets, prints nothing and returns 1.
+* If not, prints both sets of values, returns -1.
+****************************************************************************/
+int compareTopsAfter(int player, int* deckTops, int* discardTops)
+{
+	int result = -1;
+	if (deckTops[0] != discardTops[0] ||
+		deckTops[0] != discardTops[1] ||
+		deckTops[1] != discardTops[0] ||
+		deckTops[1] != discardTops[1]) {
+
+		char name[MAX_STRING_LENGTH];
+		memset(name, '\0', sizeof(name));
+		cardNumToName(deckTops[0], name);
+		char* deck1 = name;
+
+		memset(name, '\0', sizeof(name));
+		cardNumToName(deckTops[1], name);
+		char* deck2 = name;
+
+		memset(name, '\0', sizeof(name));
+		cardNumToName(discardTops[0], name);
+		char* discard1 = name;
+
+		memset(name, '\0', sizeof(name));
+		cardNumToName(discardTops[1], name);
+		char* discard2 = name;
+
+
+		printf("Player %d\'s previous top 2 deck cards..\n");
+		printf(".. do not match the top 2 cards in their discard !\n");
+		prinf("deck[0]: %s != discard[0]: %s || discard[1]: %s\n",
+			deck1, discard1, discard2);
+		printf("-- OR --\n");
+		prinf("deck[1]: %s != discard[0]: %s || discard[1]: %s\n",
+			deck2, discard1, discard2);
+	}
+	else {
+		result = 1;
+	}
+
+	return result;
+}
+
 /* *************************************************************************
 * random of kingdom cards 
 * generates a random choice out of a hard-coded set of kingdom cards 
@@ -672,6 +720,10 @@ int tributeTest1()
 	printf("AFTER: afterTopTwoDiscard [ ] MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
 	printf("afterTopTwoDiscard[0]: %d\n", afterTopTwoDiscard[0]);
 	printf("afterTopTwoDiscard[1]: %d\n", afterTopTwoDiscard[1]);
+
+	//int compareTopsAfter(int player, int* deckTops, int* discardTops)
+	printf("CALLING: compareTopsAfter\n");
+	result = compareTopsAfter(1, topTwoDeck, afterTopTwoDiscard);
 
 	printf("MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
 	printf("PLAYER 0 DECK AFTER\n");
