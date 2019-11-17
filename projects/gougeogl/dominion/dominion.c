@@ -1023,13 +1023,11 @@ int tributeCard(struct gameState *state)
 		}
 		// draw 1st card from deck into tributeRevealedCards [ ]
 		tributeRevealedCards[0] = state->deck[nextPlayer][state->deckCount[nextPlayer] - 1];
-		printf("TRIBUTE DEBUG: tributeRevealedCards[0]: %d\n", tributeRevealedCards[0] ); 
 		state->deck[nextPlayer][state->deckCount[nextPlayer] -1 ] = -1;
 		state->deckCount[nextPlayer]--; 
 
 		// draw 2nd card from deck into tributeRevealedCards [ ]
 		tributeRevealedCards[1] = state->deck[nextPlayer][state->deckCount[nextPlayer] - 1];
-		printf("TRIBUTE DEBUG: tributeRevealedCards[1]: %d\n", tributeRevealedCards[1] ); 
 		state->deck[nextPlayer][state->deckCount[nextPlayer] -1 ] = -1;
 		state->deckCount[nextPlayer]--; 
 	}
@@ -1058,6 +1056,7 @@ int tributeCard(struct gameState *state)
 			state->numActions = state->numActions + 2;
 		}
 	}
+	// BELOW WERE MISSING FROM ORIGINAL * if left out..will not be in discard afterward
 	if(tributeRevealedCards[0] != -1){
 		state->discard[nextPlayer][state->discardCount[nextPlayer]] = tributeRevealedCards[0];
 		state->discardCount[nextPlayer]++;	

@@ -3,7 +3,7 @@
 ** Author: Glen Gougeon
 ** Class : CS362 Software Engineering II
 ** Date : 11 - 15 - 2019
-** Last Mod : 11 - 15 - 2019
+** Last Mod : 11 - 16 - 2019
 *
 ** Description : Assignment 3 : Unit Testing :
 *		Refactored code for Tribute, has 2 bugs I introduced.
@@ -32,6 +32,8 @@
 #define RULES 0 /* <========= SET TO 1 TO PRINT RULES FOR TESTS & RELATION TO BUGS I INTRODUCED !! */
 #define DEBUG_TOP2_DECK 0
 #define DEBUG_TOP2_DISCARD 0
+#define FILL_DECK_DEBUG 0
+#define DEBUG_TRIBUTE_TEST_1 0
 
 enum TEST_FLAGS
 {
@@ -69,10 +71,10 @@ int compareNumActionsTribute(int player, struct gameState* before, struct gameSt
 int compareHand(int player, struct gameState* before, struct gameState* after , int flag );
 int compareDeck(int player, struct gameState* before, struct gameState* after, int limit, int flag );
 int compareTopsAfter(int player, int* deckTops, int* discardTops);
-void setTypesFoundTribute(int* oldDeckTops, int* coin_count, int* draw_card_count, int* num_actions_count)
+void setTypesFoundTribute(int* oldDeckTops, int* coin_count, int* draw_card_count, int* num_actions_count);
 
 // SAVE VALUES PROTO-TYPES
-void savePreviousHandCounts(int* container, struct gameState* state );
+void savePreviousHandCounts(int* container, struct gameState* state);
 void savePreviousDeckCounts(int* container, struct gameState* state);
 void savePreviousDiscardCounts(int* container, struct gameState* state);
 
@@ -86,8 +88,10 @@ int tributeTest1();
 
 int main()
 {
-	tributeTest1();
-	printf("\n\n");
+	if( tributeTest1() != -1 )
+	{
+		printf("ALL TRIBUTE TESTS PASSED !!\n\n");
+	};
 	return 0;
 }
 
@@ -178,7 +182,10 @@ void fillDeck(int player, struct gameState* state, int newDeckSize )
 	int card = 0;
 	char name[MAX_STRING_LENGTH];
 
-	printf("START: FILL DECK MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
+	if(FILL_DECK_DEBUG){
+		printf("START: FILL DECK MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
+	}
+
 	int i = 0;
 	while (i < newDeckSize)
 	{
@@ -186,18 +193,27 @@ void fillDeck(int player, struct gameState* state, int newDeckSize )
 		memset(name, '\0', sizeof(name));
 
 		cardNumToName(card, name);
-		printf("TRACE: card#%d: %s\n", card ,name);
+
+		if(FILL_DECK_DEBUG){
+			printf("TRACE: card#%d: %s\n", card ,name);
+		}
 
 		state->deck[player][i] = card;
 		memset(name, '\0', sizeof(name));
 
 		cardNumToName(state->deck[player][i], name);
-		printf("TRACE: state->deck[player %d][i %d]:%s\n", player, i, name);
+
+		if(FILL_DECK_DEBUG){
+			printf("TRACE: state->deck[player %d][i %d]:%s\n", player, i, name);
+		}
+
 		i++;
 	}
 	state->deckCount[player] = newDeckSize;
-	printf("TRACE: state->deckCount[player %d]: %d\n", player, state->deckCount[player] );
-	printf("END: FILL DECK MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n\n");
+	if(FILL_DECK_DEBUG){
+		printf("TRACE: state->deckCount[player %d]: %d\n", player, state->deckCount[player] );
+		printf("END: FILL DECK MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n\n");
+	}
 }
 
 // set player to remove all estates from current player's deck  
@@ -472,8 +488,6 @@ void savePreviousDiscardCounts(int* container, struct gameState* state)
 ****************************************************************************/
 void saveTop2Deck(int player, struct gameState* state, int* topTwo )
 {
-	//int* result = NULL;
-	//int topTwo[2] = { 0 };
 	int topCard = state->deckCount[player];
 	topCard--;
 	int nextTop = topCard;
@@ -509,12 +523,11 @@ void saveTop2Deck(int player, struct gameState* state, int* topTwo )
 			state->deck[player][deckCount]);
 		printf("topTwo[1]: %d vs. state->deck[player %d][deckCount]: %d\n",
 			topTwo[1], player, state->deck[player][deckCount]);
+
+		printf("END: topTwo[0]: %d\n", topTwo[0] );
+		printf("END: topTwo[1]: %d\n", topTwo[1] );
 	}
 
-	//result = topTwo;
-	printf("topTwo[0]: %d\n", topTwo[0] );
-	printf("topTwo[1]: %d\n", topTwo[1] );
-	//return result;
 }
 
 /* *************************************************************************
@@ -524,8 +537,6 @@ void saveTop2Deck(int player, struct gameState* state, int* topTwo )
 ****************************************************************************/
 void saveTop2Discard(int player, struct gameState* state, int* topTwo)
 {
-	//int* result = NULL;
-	//int topTwo[2] = { 0 };
 	int topCard = state->discardCount[player];
 	topCard--;
 	int nextTop = topCard;
@@ -561,12 +572,11 @@ void saveTop2Discard(int player, struct gameState* state, int* topTwo)
 			state->discard[player][discardCount]);
 		printf("topTwo[1]: %d vs. state->discard[player %d][discardCount]: %d\n",
 			topTwo[1], player, state->discard[player][discardCount]);
+
+		printf("END: topTwo[0]: %d\n", topTwo[0]);
+		printf("END: topTwo[1]: %d\n", topTwo[1]);
 	}
 
-	//result = topTwo;
-	printf("topTwo[0]: %d\n", topTwo[0]);
-	printf("topTwo[1]: %d\n", topTwo[1]);
-	//return result;
 }
 
 /* ***********************************************************************
@@ -577,7 +587,7 @@ void saveTop2Discard(int player, struct gameState* state, int* topTwo)
 ****************************************************************************/
 int compareTopsAfter(int player, int* deckTops, int* discardTops)
 {
-	int result = -1;
+	int result = 0;
 	if (	( deckTops[0] != discardTops[0] && 
 		  deckTops[0] != discardTops[1] ) ||
 		( deckTops[1] != discardTops[0] && 
@@ -606,9 +616,8 @@ int compareTopsAfter(int player, int* deckTops, int* discardTops)
 		printf("-- OR --\n");
 		printf("deck[1]: %s != discard[0]: %s || discard[1]: %s\n",
 			deck2, disc1, disc2);
-	}
-	else {
-		result = 1;
+	
+		result = -1;
 	}
 
 	return result;
@@ -626,7 +635,7 @@ void setTypesFoundTribute(int* oldDeckTops, int* coin_count, int* draw_card_coun
 	int i;
 	for (i = 0; i < 2; i++) {
 		if (oldDeckTops[i] == copper || oldDeckTops[i] == silver || oldDeckTops[i] == gold) { //Treasure cards
-			coin_flag++;
+			coin_count++;
 		}
 
 		else if (oldDeckTops[i] == estate ||
@@ -706,10 +715,22 @@ int tributeTest1()
 	{
 		printf("unittest4.c\n");
 		printf("TRIBUTE TEST 1: Rules:\n");
-		printf("              : Use same kingdomCards deck as in Baron Card testing.\n");
+		printf("	      : Wipe every player's hand, deck, and discard piles.\n");
+		printf("              : Use these kingdomCards:\n");
+		printf("              : 	adventurer\n");
+		printf("              : 	ambassador\n");
+		printf("              : 	baron\n");
+		printf("              : 	estate\n");
+		printf("              : 	tribute\n");
+		printf("              : 	minion\n");
+		printf("              : 	mine\n");
+		printf("              : 	gardens\n");
+		printf("              : 	remodel\n");
+		printf("              : 	smithy\n");
 		printf("              : 2 Players.\n");
-		//printf("	          : Each player starts with 5 random cards in hand.\n");
-		//printf("	          : Randomly assign cards from kingdomCards to each player.\n"); 
+		printf("	      : Randomly assign 5 cards from kingdomCards to..\n"); 
+		printf("              : each player's hand.\n"); 
+		printf("              : each player's deck.\n"); 
 		printf("OUTPUT:\n\n");
 	}
 
@@ -723,9 +744,11 @@ int tributeTest1()
 	setAtHandPos(0, &G, tribute, 0);
 
 	/* set deck for players according to size */
-	//printf("FILL DECK PLAYER 0 <-----------------------------------------\n");
-	//fillDeck(0, &G, 5);
-	printf("FILL DECK PLAYER 1 <-----------------------------------------\n");
+
+	if(DEBUG_TRIBUTE_TEST_1){	
+		printf("FILL DECK PLAYER 1 <-----------------------------------------\n");
+	}
+
 	fillDeck(1, &G, 5);
 
 	// NOTE* on SAVE COUNTS: idx 0 of ___Box[ ] is player 0, et cet.
@@ -743,111 +766,107 @@ int tributeTest1()
 	savePreviousDiscardCounts(discardBox, &G);
 
 	/* SAVE TOP 2 DECK */
-	printf("BEFORE: saveTop2Deck() PLAYER 1 <------------------------\n");
+	if(DEBUG_TRIBUTE_TEST_1){	
+		printf("BEFORE: saveTop2Deck() PLAYER 1 <------------------------\n");
+	}
+
 	int topTwoDeck[2] = { 0 };
 	saveTop2Deck(1, &G, topTwoDeck );
 
-	int* coin_tally = NULL;
-	*coin_tally = 0;
-	int* draw_card_tally = NULL;
-	*draw_card_tally = 0;
-	int* num_actions_tally = NULL;
-	*num_actions_tally = 0;
+	int coin_tally = 0;
+	int draw_card_tally = 0;
+	int num_actions_tally = 0;
 
 	/* TALLY TYPES FOUND BEFORE CALL TO KNOW WHAT TO TEST FOR COMPARISON */
-	setTypesFoundTribute(topTwoDeck, coin_tally,  draw_card_tally,  num_actions_tally);
-
-	/* SAVE TOP 2 DISCARD BEFORE */
-	printf("BEFORE: saveTop2Discard() PLAYER 1 <------------------------\n");
-	int beforeTopTwoDiscard[2] = { 0 };
-	saveTop2Discard(1, &G, beforeTopTwoDiscard);
+	setTypesFoundTribute(topTwoDeck, &coin_tally,  &draw_card_tally,  &num_actions_tally);
 
 	/* BACK UP STATE BEFORE CALL */
 	memset(&backup, '\0', sizeof(backup));
 	backup = G;
 
+	if(DEBUG_TRIBUTE_TEST_1){	
+		printf("TRACE: Player 1 Deck before call to tribute..\n");
+		printDeck(1, &G);
+		printf("TRACE: Player 1 Discard before call to tribute..\n");
+		printDiscard(1, &G);
+	}	
 
-
-
-
-
-
-
-
-
-	printf("TRACE: Player 1 Deck before call to tribute..\n");
-	printDeck(1, &G);
-	printf("TRACE: Player 1 Discard before call to tribute..\n");
-	printDiscard(1, &G);
 	/** ==> CALL <================================================= */
 	tributeCard(&G);
 
+	if(DEBUG_TRIBUTE_TEST_1){	
+		printf("AFTER: saveTop2Discard() PLAYER 1 <------------------------\n");
+	}
+
 	/* SAVE TOP 2 DISCARD AFTER */
-	printf("AFTER: saveTop2Discard() PLAYER 1 <------------------------\n");
 	int afterTopTwoDiscard[2] = { 0 };
 	saveTop2Discard(1, &G, afterTopTwoDiscard);
 
-	printf("TRACE: Player 1 Deck after call to tribute..\n");
-	printDeck(1, &G);
-	printf("TRACE: Player 1 Discard after call to tribute..\n");
-	printDiscard(1, &G);
+	if(DEBUG_TRIBUTE_TEST_1){	
+		printf("TRACE: Player 1 Deck after call to tribute..\n");
+		printDeck(1, &G);
+		printf("TRACE: Player 1 Discard after call to tribute..\n");
+		printDiscard(1, &G);
+	}
+
 	//********************************************************************
-	if (coins_tally > 0 || draw_card_tally > 0 || num_actions_tally > 0)
+	if (coin_tally > 0 || draw_card_tally > 0 || num_actions_tally > 0)
 	{
 		// ASSERT previous deckCount of nextPlayer was >= 2
 		if (deckBox[1] < 2)
 		{
 			printf("WARNING: Next Player didn't have 2 cards in deck before call.\n");
+			result = -1;
 		}
+		// ASSERT discardCount of nextPlayer is now >= 2
 		if (discardBox[1] < 2)
 		{
 			printf("Next Player doesnt have 2 cards in discard after call.\n");
+			result = -1;
 		}
 	}
-	// ASSERT discardCount of nextPlayer is now >= 2
+
 	//********************************************************************
 	// CALL APPROPRIATE COMPARISONS
 	if (coin_tally > 0)
 	{
 		// checks if coins += 2 previous
-		compareCoins(0, &backup, &G, PLUS_2_COINS);
+		result = compareCoins(0, &backup, &G, PLUS_2_COINS);
 	}
 	if (draw_card_tally > 0)
 	{
+		if(handBox[0] == G.handCount[0])
+		{
+			printf("Next Player had a victory card within top 2 of deck,\n");
+			printf("\tbut your handCount didn't change !\n");
+			result = -1;
+		}
+		
 		// checks if every card in hand is different
-		compareHand(0, &backup, &G, DIFFERENT_HAND);
+		result = compareHand(0, &backup, &G, DIFFERENT_HAND);
 	}
 	if (num_actions_tally > 0)
 	{
 		// checks if numActions += 2 of previous
-		compareNumActionsTribute(0, &backup, &G);
+		result = compareNumActionsTribute(0, &backup, &G);
 	}
 	//********************************************************************
 
-	printf("PLAYER 1 TOP 2 DECK MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
-	printf("topTwoDeck[0]: %d\n", topTwoDeck[0]);
-	printf("topTwoDeck[1]: %d\n", topTwoDeck[1]);
+	if(DEBUG_TRIBUTE_TEST_1){	
+		printf("PLAYER 1 TOP 2 DECK MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
+		printf("topTwoDeck[0]: %d\n", topTwoDeck[0]);
+		printf("topTwoDeck[1]: %d\n", topTwoDeck[1]);
 
-	/* PRINT TOP TWO DISCARD BEFORE AND AFTER */
-	printf("BEFORE: beforeTopTwoDiscard [ ] MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
-	printf("beforeTopTwoDiscard[0]: %d\n", beforeTopTwoDiscard[0]);
-	printf("beforeTopTwoDiscard[1]: %d\n", beforeTopTwoDiscard[1]);
-	printf("\n");
-	printf("AFTER: afterTopTwoDiscard [ ] MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
-	printf("afterTopTwoDiscard[0]: %d\n", afterTopTwoDiscard[0]);
-	printf("afterTopTwoDiscard[1]: %d\n", afterTopTwoDiscard[1]);
+		/* PRINT TOP TWO DISCARD AFTER */
+		printf("AFTER: afterTopTwoDiscard [ ] MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
+		printf("afterTopTwoDiscard[0]: %d\n", afterTopTwoDiscard[0]);
+		printf("afterTopTwoDiscard[1]: %d\n", afterTopTwoDiscard[1]);
 
-	//int compareTopsAfter(int player, int* deckTops, int* discardTops)
-	printf("CALLING: compareTopsAfter <==========================================\n");
+		printf("CALLING: compareTopsAfter <==========================================\n");
+	}
+
 	// assert if nextPlayer's previous top 2 deck cards are the top 2 in their discard
 	result = compareTopsAfter(1, topTwoDeck, afterTopTwoDiscard);
-
-	printf("MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
-	printf("PLAYER 0 DECK AFTER\n");
-	printDeck(0, &G);
-	printf("PLAYER 0 DISCARD AFTER\n");
-	printDiscard(0, &G);
-	printf("\n\n");
 
 	return result;
 }
