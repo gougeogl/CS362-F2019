@@ -2,6 +2,7 @@
 # FileName: 	Makefile
 # Edited by: 	Glen Gougeon
 # Date: 	11-14-2019
+# Last Mod:	11-16-2019
 #
 # Description: 	Makefile for Assignment 4 random testing
 # 		compilation of refactored functions
@@ -47,25 +48,22 @@ randomtest1: randomtest1.c dominion.o rngs.o interface.o
 randomtest2: randomtest2.c dominion.o rngs.o interface.o 
 	${CC} -o randomtest2 randomtest2.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
-unittest4: unittest4.c dominion.o dominion_helpers.h rngs.o interface.o
-	${CC} -o unittest4 unittest4.c -g dominion.o rngs.o interface.o $(CFLAGS)
+randomtest3: randomtest3.c dominion.o rngs.o interface.o 
+	${CC} -o randomtest3 randomtest3.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
-unittest4results: unittest4
-	./unittest4 &> unittest4results.out
-	${GCOV} dominion.c >> unittest4results.out
-	${GCOV} unittest4.c >> unittest4results.out
-	cat unittest4.c.gcov >> unittest4results.out
-	cat dominion.c.gcov >> unittest4results.out
 #***********************************************************************
 
 randomtestresults: randomtest1 randomtest2
 	./randomtest1 &> randomtestresults.out 
 	./randomtest2 >> randomtestresults.out 
+	./randomtest3 >> randomtestresults.out 
 	${GCOV} dominion.c >> randomtestresults.out
 	${GCOV} randomtest1.c >> randomtestresults.out
 	${GCOV} randomtest2.c >> randomtestresults.out
+	${GCOV} randomtest3.c >> randomtestresults.out
 	cat randomtest1.c.gcov >> randomtestresults.out
 	cat randomtest2.c.gcov >> randomtestresults.out
+	cat randomtest3.c.gcov >> randomtestresults.out
 	cat dominion.c.gcov >> randomtestresults.out
 
 #***********************************************************************
@@ -84,9 +82,8 @@ discardresults: testDiscardCard
 player: player.c interface.o
 	${CC} -o player player.c -g  dominion.o rngs.o interface.o $(CFLAGS)
 
-all: playdom player unittest1 
+all: randomtestresults 
 
 clean:
 	rm -f *.o playdom player *.gcov *.gcda *.gcno *.so *.out *.exe
-	rm -f testDiscardCard testDrawCard randomtest1 randomtest2 randomtest3 randomtest4 randomtest5 
-	rm -f unittest4
+	rm -f testDiscardCard testDrawCard randomtest1 randomtest2 randomtest3 

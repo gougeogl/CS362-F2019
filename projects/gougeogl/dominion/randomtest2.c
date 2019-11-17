@@ -70,6 +70,10 @@ void randomMinionTest();
 
 int main()
 {
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printf("ASSIGNMENT 4: RANDOM TESTING: MINION CARD.\n");
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+
 	randomMinionTest();
 	printf("\n\n");
 	return 0;

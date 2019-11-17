@@ -60,7 +60,7 @@ int main()
 	srand(seedling);
 	
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-	printf("ASSIGNMENT 4: RANDOM TESTINT.\n");
+	printf("ASSIGNMENT 4: RANDOM TESTING: BARON CARD.\n");
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
 	randomBaronTest();

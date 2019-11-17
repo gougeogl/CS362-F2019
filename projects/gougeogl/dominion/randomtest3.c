@@ -34,6 +34,7 @@
 #define DEBUG_TOP2_DISCARD 0
 #define FILL_DECK_DEBUG 0
 #define DEBUG_TRIBUTE_TEST_1 0
+#define DEBUG_RANDOM 0
 
 enum TEST_FLAGS
 {
@@ -93,7 +94,12 @@ int randomTributeTest();
 int main()
 {
 	int qty_errors = 0;
-	qty_errors = randomTributeTest()
+
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printf("ASSIGNMENT 4: RANDOM TESTING: TRIBUTE CARD.\n");
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+
+	qty_errors = randomTributeTest();
 		if (qty_errors == 0)
 		{
 			printf("ALL TRIBUTE TESTS PASSED !!\n\n");
@@ -847,7 +853,7 @@ int randomTributeTest()
 
 		/* SAVE TOP 2 DISCARD AFTER */
 		int afterTopTwoDiscard[2] = { 0 };
-		saveTop2Discard(playerTwo, &G, afterTopTwoDiscard);
+		saveTop2Discard(nextPlayer, &G, afterTopTwoDiscard);
 
 		if (DEBUG_TRIBUTE_TEST_1) {
 			printf("TRACE: NEXT PLAYER Deck after call to tribute..\n");
@@ -921,7 +927,7 @@ int randomTributeTest()
 		result = compareTopsAfter(nextPlayer, topTwoDeck, afterTopTwoDiscard);
 		if (result == -1) { numErrors++; }
 
-	} while (numErrors < 10000);
+	} while (numErrors < 100000);
 
 	return numErrors;
 }

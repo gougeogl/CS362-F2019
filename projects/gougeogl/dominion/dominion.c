@@ -985,7 +985,7 @@ int tributeCard(struct gameState *state)
 	// 			   condition will always execute, and the nextPlayer
  	//		           will always have their deck reshuffled. 
  	//		           This can affect game play
-	if ((state->discardCount[nextPlayer] + state->deckCount[nextPlayer]) <= 1) { //<=== BUG 7: SEE HERE
+	if ((state->discardCount[nextPlayer] + state->deckCount[nextPlayer]) < 1) { //<=== BUG 7: SEE HERE
 
 		if (state->deckCount[nextPlayer] > 0) {
 			tributeRevealedCards[0] = state->deck[nextPlayer][state->deckCount[nextPlayer] - 1];
@@ -1015,7 +1015,7 @@ int tributeCard(struct gameState *state)
 				// their hand, but it would also mean the positions of 
 				// the card in the deck would be off
 				
-				state->deckCount[nextPlayer]++; // <=========== BUG 8
+				//state->deckCount[nextPlayer]++; // <=========== BUG 8
 				state->discard[nextPlayer][i] = -1;
 				state->discardCount[nextPlayer]--;
 			}
