@@ -3,7 +3,7 @@
 ** Author: Glen Gougeon
 ** Class : CS362 Software Engineering II
 ** Date : 11 - 14 - 2019
-** Last Mod : 11 - 14 - 2019
+** Last Mod : 11 - 17 - 2019
 *
 ** Description : Assignment 4 : Random Testing :
 *		Refactored code for Minion, has 2 bugs I introduced.
@@ -591,7 +591,7 @@ void randomMinionTest()
 			}
 		}
 
-	} while (numErrors < 10000);
+	} while (numErrors < 5);
 
 }
 

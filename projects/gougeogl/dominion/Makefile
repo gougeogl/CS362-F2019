@@ -53,7 +53,7 @@ randomtest3: randomtest3.c dominion.o rngs.o interface.o
 
 #***********************************************************************
 
-randomtestresults: randomtest1 randomtest2
+randomtestresults: randomtest1 randomtest2 randomtest3
 	./randomtest1 &> randomtestresults.out 
 	./randomtest2 >> randomtestresults.out 
 	./randomtest3 >> randomtestresults.out 

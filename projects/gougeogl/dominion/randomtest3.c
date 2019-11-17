@@ -2,8 +2,8 @@
 ** FileName: randomtest3.c
 ** Author: Glen Gougeon
 ** Class : CS362 Software Engineering II
-** Date : 11 - 15 - 2019
-** Last Mod : 11 - 16 - 2019
+** Date : 11 - 16 - 2019
+** Last Mod : 11 - 17 - 2019
 *
 ** Description : Assignment 4 : Random Testing :
 *		Refactored code for Tribute, has 2 bugs I introduced.
@@ -927,7 +927,7 @@ int randomTributeTest()
 		result = compareTopsAfter(nextPlayer, topTwoDeck, afterTopTwoDiscard);
 		if (result == -1) { numErrors++; }
 
-	} while (numErrors < 100000);
+	} while (numErrors < 5);
 
 	return numErrors;
 }
