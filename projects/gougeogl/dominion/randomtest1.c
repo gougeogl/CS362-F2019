@@ -384,8 +384,18 @@ void randomBaronTest()
 			cardNumToName(G.discard[currentPlayer][G.discardCount[currentPlayer]], name);
 			printf("Top of discard contains: %s\n", name);
 			numErrors++;
+
+			/* check coins increased */
+			if (backup.coins + 4 == G.coins)
+			{
+				printf("Error: Chose to gain an estate, but coins +4 previous !\n");
+				printf("     : previous coins: %d\n", backup.coins);
+				printf("     : current  coins: %d\n", G.coins);
+				numErrors++;
+			}
+
 		}
 
-	} while( numErrors < 45 );
+	} while( numErrors < 1000 );
 }
 
