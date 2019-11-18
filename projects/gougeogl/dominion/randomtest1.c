@@ -46,6 +46,7 @@ void wipeDeck(struct gameState* state);
 void removeEstatesDiscard(struct gameState *st);
 void setEstateSupply(struct gameState *state, int qtyEstates);
 void resetHand(struct gameState* dState);
+void fillHandEstates(int player, struct gameState* state);
 void setHandCount(struct gameState* state, int newHandSize);
 void setHandPos(struct gameState* state, int card, int handPos);
 int getTopDiscard(struct gameState* state);
@@ -221,6 +222,19 @@ void resetHand(struct gameState* dState)
 	dState->handCount[currentPlayer] = 0;
 }
 
+/* Empties player's hand and fills with estates */
+void fillHandEstates(int player, struct gameState* state)
+{
+	state->handCount[player] = 0;
+
+	int i;
+	for(i = 0; i < state->handCount[player]; i++)
+	{
+		state->hand[player][i] = estate;
+		state->handCount[player]++;
+	}
+}
+
 void setHandCount(struct gameState* state, int newHandSize)
 {
 	int currentPlayer = whoseTurn(state);
@@ -343,9 +357,17 @@ void randomBaronTest()
 			whichKcard
 		);
 
-		/* SAVE NUMBER OF ESTATES IN HAND, AND IN SUPPLY */
-		int prevNumEstateHand = getNumEstateHand(G.whoseTurn, &G);
+		/* SAVE NUMBER OF ESTATES IN HAND */
 		int prevEstateSupply = getNumEstateSupply(&G);
+
+		/* SET TO CATCH BUG WHERE DISCARD MORE THAN 1 ESTATE */
+		if(prevEstateSupply >= G.handCount[G.whoseTurn])
+		{
+			fillHandEstates(G.whoseTurn, &G);
+		}
+
+		/* SAVE NUMBER OF ESTATES IN HAND */
+		int prevNumEstateHand = getNumEstateHand(G.whoseTurn, &G);
 
 		// make a backup for comparison
 		memset(&backup, '\0', sizeof(backup));
@@ -358,6 +380,9 @@ void randomBaronTest()
 		baronCard(zero_or_one, &G);
 		/* MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM */
 
+		/* GET NUM ESTATES IN HAND NOW */
+		int currentNumEstateHand = getNumEstateHand(G.whoseTurn, &G);
+
 		/* check num buys */
 		if ((backup.numBuys + 1) != G.numBuys)
 		{
@@ -368,8 +393,8 @@ void randomBaronTest()
 		}
 
 		if (	(zero_or_one == 1) &&		/* Chose 1: discard estate & gain +4 coin */
-				(prevNumEstateHand > 0) &&  /* assert an estate was in hand */
-				(prevEstateSupply > 0)	){  /* assert an estate was in supply */
+			(prevNumEstateHand > 0) &&  /* assert an estate was in hand */
+			(prevEstateSupply > 0)	){  /* assert an estate was in supply */
 
 			if (getTopDiscard(&G) != estate) /* ESTATE NOT FOUND */
 			{
@@ -401,11 +426,19 @@ void randomBaronTest()
 					printf("     : current  coins: %d\n", G.coins);
 					numErrors++;
 				}
+
+				if(prevNumEstateHand - 1 != currentNumEstateHand) 
+				{
+					printf("Error: You discarded more than 1 estate <======================================!\n"); 
+					printf("     : previous # estates in hand: %d\n", prevNumEstateHand);
+					printf("     : current # estates in hand: %d\n", currentNumEstateHand);
+					numErrors++;
+				} 
 			}
 
 		}
 		else if (	(zero_or_one == 0) && 
-					(prevEstateSupply > 0)	){
+				(prevEstateSupply > 0)	){
 
 			if (getTopDiscard(&G) == estate)	/* FOUND ESTATE */
 			{

@@ -1099,14 +1099,13 @@ int mineCard(int choice1, int choice2, struct gameState *state, int handPos)
 	//discard card from hand
 	discardCard(handPos, currentPlayer, state);
 
+	// BUG 10: Good = i < state->handCount[currentPlayer]; BAD = j < state->handCount[currentPlayer];
+	// if j happens to be an enum of a card larger than the handCount of the current player then
+	// the player ends up keeping the treasure that they were supposed to trash. Unfair advantage */
+	
 	//discard trashed card
-	for (i = 0; j < state->handCount[currentPlayer]; i++) /* <<<<<<<<<<<<< BUG 10: Good = i < state->handCount[currentPlayer];
-														                           BAD = j < state->handCount[currentPlayer];
-																				   if j happens to be an enum of a card larger
-																				   than the handCount of the current player then
-																				   the player ends up keeping the treasure that
-																				   they were supposed to trash. Unfair advantage */
-	{
+	for (i = 0; j < state->handCount[currentPlayer]; i++) 	{
+
 		if (state->hand[currentPlayer][i] == j)
 		{
 			trashCard(i, currentPlayer, state);
