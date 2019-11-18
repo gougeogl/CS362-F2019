@@ -431,7 +431,7 @@ void randomBaronTest()
 
 		if ((getTopDiscard(&G) == estate) && (prevEstateSupply < 1))
 		{
-			printf("Error: No estates in supply, but no estate found in discard !\n");
+			printf("Error: No estates in supply, but an estate found in discard !\n");
 
 			/* check coins increased */
 			if (backup.coins + 4 == G.coins)
@@ -444,6 +444,6 @@ void randomBaronTest()
 			}
 		}
 
-	} while( numErrors < 1000 );
+	} while( numErrors < 5 );
 }
 
