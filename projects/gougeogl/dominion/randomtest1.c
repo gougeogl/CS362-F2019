@@ -341,8 +341,9 @@ void randomBaronTest()
 			printf("     : current numBuys: %d\n", G.numBuys);
 			numErrors++;	
 		}
+
 		/* check top of discard */
-		if (getTopDiscard(&G) != estate)
+		if ((zero_or_one == 1) && (getTopDiscard(&G) != estate))
 		{
 			char name[MAX_STRING_LENGTH];
 			memset(name, '\0', sizeof(name));
@@ -352,17 +353,37 @@ void randomBaronTest()
 			cardNumToName(G.discard[currentPlayer][G.discardCount[currentPlayer]], name);
 			printf("Top of discard contains: %s\n", name);
 			numErrors++;	
+
+			/* check coins increased */
+			if (backup.coins + 4 == G.coins)
+			{
+				printf("Error: No estate in discard, but coins is +4 previous anyway !\n");
+				printf("     : previous coins: %d\n", backup.coins);
+				printf("     : current  coins: %d\n", G.coins);
+				numErrors++;
+			}
 		}
-		else if (getTopDiscard(&G) == estate)
+		else if ((zero_or_one == 1) && (getTopDiscard(&G) == estate))
 		{
 			/* check coins increased */
 			if (backup.coins + 4 != G.coins)
 			{
-				printf("Error: An estate in discard, but coins is not +4 previous.\n");
+				printf("Error: Estate in discard, but coins is not +4 previous !\n");
 				printf("     : previous coins: %d\n", backup.coins);
 				printf("     : current  coins: %d\n", G.coins);
-				numErrors++;	
+				numErrors++;
 			}
+		}
+		else if ((zero_or_one == 0) && (getTopDiscard(&G) != estate))
+		{
+			char name[MAX_STRING_LENGTH];
+			memset(name, '\0', sizeof(name));
+
+			printf("Error: Chose to gain an estate, but no estate found in discard !\n");
+			int currentPlayer = whoseTurn(&G);
+			cardNumToName(G.discard[currentPlayer][G.discardCount[currentPlayer]], name);
+			printf("Top of discard contains: %s\n", name);
+			numErrors++;
 		}
 
 	} while( numErrors < 45 );
