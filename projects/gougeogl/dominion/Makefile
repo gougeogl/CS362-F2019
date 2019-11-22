@@ -49,16 +49,21 @@ unittest2: unittest2.c dominion.o rngs.o interface.o
 
 unittest3: unittest3.c dominion.o rngs.o interface.o 
 	${CC} -o unittest3 unittest3.c -g dominion.o rngs.o interface.o $(CFLAGS)
+	
+unittest4: unittest4.c dominion.o rngs.o interface.o 
+	${CC} -o unittest4 unittest4.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
 #***********************************************************************
 
-unittestresults: unittest1 unittest2 unittest3 
+unittestresults: unittest1 unittest2 unittest3 unittest4
 	./unittest1 &> unittestresults.out 
 	./unittest2 >> unittestresults.out
 	./unittest3 >> unittestresults.out
+	./unittest4 >> unittestresults.out
 	${GCOV} dominion.c >> unittestresults.out
 	${GCOV} unittest1.c >> unittestresults.out
 	${GCOV} unittest2.c >> unittestresults.out
+	${GCOV} unittest3.c >> unittestresults.out
 	${GCOV} unittest3.c >> unittestresults.out
 	cat unittest1.c.gcov >> unittestresults.out
 	cat unittest2.c.gcov >> unittestresults.out
@@ -96,5 +101,6 @@ player: player.c interface.o
 all: playdom player unittest1 
 
 clean:
-	rm -f *.o playdom player unittest1 *.gcov *.gcda *.gcno *.so *.out *.exe
-	rm -f testDiscardCard testDrawCard testInitGame unittest1 unittest2 unittest3 
+	rm -f *.o  *.gcov *.gcda *.gcno *.so *.out *.exe
+	rm -f playdom player testDiscardCard testDrawCard testInitGame 
+	rm -f unittest1 unittest2 unittest3 unittest4
