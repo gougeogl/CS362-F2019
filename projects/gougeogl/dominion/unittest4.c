@@ -34,6 +34,10 @@
 #define DEBUG_TOP2_DISCARD 0
 #define FILL_DECK_DEBUG 0
 #define DEBUG_TRIBUTE_TEST_1 0
+#define DEBUG_TRIBUTE_TEST_2 0
+#define DEBUG_TRIBUTE_TEST_3 0
+#define DEBUG_TRIBUTE_TEST_4 0
+
 #define DEBUG_RANDOM 0
 
 enum TEST_FLAGS
@@ -89,7 +93,10 @@ int _rand_of_kingdomCards();
 int _genRandRange(int min, int max);
 
 /* RANDOM TEST */
-int unitTributeTest();
+int unitTributeTest1();
+int unitTributeTest2();
+int unitTributeTest3();
+int unitTributeTest4();
 
 int main()
 {
@@ -99,7 +106,11 @@ int main()
 	printf("ASSIGNMENT 3: UNIT TESTING: TRIBUTE CARD.\n");
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
-	qty_errors = unitTributeTest();
+	qty_errors = unitTributeTest1();
+	qty_errors += unitTributeTest2();
+	qty_errors += unitTributeTest3();
+	qty_errors += unitTributeTest4();
+
 		if (qty_errors == 0)
 		{
 			printf("ALL TRIBUTE TESTS PASSED !!\n\n");
@@ -727,7 +738,7 @@ int _rand_of_kingdomCards()
 }
 
 /*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM*/
-int unitTributeTest()
+int unitTributeTest1()
 {
 	int numErrors = 0;
 	int result = 0;
@@ -742,7 +753,7 @@ int unitTributeTest()
 	{
 		printf("unittest4.c\n");
 		printf("TRIBUTE TEST 1: Rules:\n");
-		printf("	      : Wipe every player's hand, deck, and discard piles.\n");
+		printf("	          : Wipe every player's hand, deck, and discard piles.\n");
 		printf("              : Use these kingdomCards:\n");
 		printf("              : 	adventurer\n");
 		printf("              : 	ambassador\n");
@@ -755,9 +766,11 @@ int unitTributeTest()
 		printf("              : 	remodel\n");
 		printf("              : 	smithy\n");
 		printf("              : 2 Players.\n");
-		printf("	      : Randomly assign 5 cards from kingdomCards to..\n"); 
+		printf("              : Current Player = 0 (means player 1).\n");
+		printf("			  : Randomly assign 5 cards from kingdomCards to..\n"); 
 		printf("              : each player's hand.\n"); 
 		printf("              : each player's deck.\n"); 
+		printf("              : Place a tribute card at a random position in hand.\n");
 		printf("OUTPUT:\n\n");
 	}
 
@@ -792,7 +805,7 @@ int unitTributeTest()
 		/* set deck for players according to size */
 
 		if (DEBUG_TRIBUTE_TEST_1) {
-			printf("FILL DECK PLAYER 1 <-----------------------------------------\n");
+			printf("FILL DECK NEXT PLAYER <-----------------------------------------\n");
 		}
 
 		int newFillSize = 5;
@@ -814,7 +827,7 @@ int unitTributeTest()
 
 		/* SAVE TOP 2 DECK */
 		if (DEBUG_TRIBUTE_TEST_1) {
-			printf("BEFORE: saveTop2Deck() PLAYER 1 <------------------------\n");
+			printf("BEFORE: saveTop2Deck() NEXT PLAYER <------------------------\n");
 		}
 
 		int topTwoDeck[2] = { 0 };
@@ -923,6 +936,599 @@ int unitTributeTest()
 
 	return numErrors;
 }
+
+/*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM*/
+int unitTributeTest2()
+{
+	int numErrors = 0;
+	int result = 0;
+	int kingdomCards[10] = { adventurer, ambassador, baron, estate, tribute, minion, mine,  gardens, remodel, smithy };
+
+	// Game States 
+	struct gameState G;
+	struct gameState backup;
+
+	/* TEST 2 */
+	if (RULES)
+	{
+		printf("TRIBUTE TEST 2: Rules:\n");
+		printf("			  : Wipe every player's hand, deck, and discard piles.\n");
+		printf("              : Use these kingdomCards:\n");
+		printf("              : 	adventurer\n");
+		printf("              : 	ambassador\n");
+		printf("              : 	baron\n");
+		printf("              : 	estate\n");
+		printf("              : 	tribute\n");
+		printf("              : 	minion\n");
+		printf("              : 	mine\n");
+		printf("              : 	gardens\n");
+		printf("              : 	remodel\n");
+		printf("              : 	smithy\n");
+		printf("              : 4 Players.\n");
+		printf("              : Current Player = 3 (means player 4).\n");
+		printf("	          : Randomly assign 3 cards from kingdomCards to..\n");
+		printf("              : each player's hand.\n");
+		printf("              : each player's deck.\n");
+		printf("              : Place a tribute card at a random position in hand.\n");
+		printf("OUTPUT:\n\n");
+	}
+
+	// number of players
+	int newNumPlayers = 4;
+
+	/* # players, cards to use, seed, gameState */
+	initTestGame(newNumPlayers, kingdomCards, 1, &G);
+
+	int currentPlayer = 3;
+	int nextPlayer = currentPlayer + 1;
+
+	// size of hand to use
+	int newHandSize = 3;
+
+	/* set up all players with 3 random cards in each hand */
+	prepPlayers(
+		currentPlayer,		// prep from this player
+		nextPlayer,		// prep to this player
+		&G,
+		newHandSize,
+		FILL_DIFF,
+		-1				// not used..only for filling with same card
+	);
+
+	// position to place a single kingdom card into hand
+	int newHandPos = _genRandRange(0, newHandSize);
+
+	/* set a tribute card in player zero's hand at position zero */
+	setAtHandPos(currentPlayer, &G, tribute, newHandPos);
+
+	/* set deck for players according to size */
+
+	if (DEBUG_TRIBUTE_TEST_2) {
+		printf("FILL DECK NEXT PLAYER <-----------------------------------------\n");
+	}
+
+	int newFillSize = 3;
+	fillDeck(nextPlayer, &G, newFillSize);
+
+	// NOTE* on SAVE COUNTS: idx 0 of ___Box[ ] is player 0, et cet.
+
+	/* SAVE HAND COUNTS  */
+	int handBox[MAX_PLAYERS];
+	savePreviousHandCounts(handBox, &G);
+
+	/* SAVE DECK COUNTS  */
+	int deckBox[MAX_PLAYERS];
+	savePreviousDeckCounts(deckBox, &G);
+
+	/* SAVE DISCARD COUNTS  */
+	int discardBox[MAX_PLAYERS];
+	savePreviousDiscardCounts(discardBox, &G);
+
+	/* SAVE TOP 2 DECK */
+	if (DEBUG_TRIBUTE_TEST_2) {
+		printf("BEFORE: saveTop2Deck() NEXT PLAYER <------------------------\n");
+	}
+
+	int topTwoDeck[2] = { 0 };
+	saveTop2Deck(nextPlayer, &G, topTwoDeck);
+
+	int coin_tally = 0;
+	int draw_card_tally = 0;
+	int num_actions_tally = 0;
+
+	/* TALLY TYPES FOUND BEFORE CALL TO KNOW WHAT TO TEST FOR COMPARISON */
+	setTypesFoundTribute(topTwoDeck, &coin_tally, &draw_card_tally, &num_actions_tally);
+
+	/* BACK UP STATE BEFORE CALL */
+	memset(&backup, '\0', sizeof(backup));
+	backup = G;
+
+	if (DEBUG_TRIBUTE_TEST_2) {
+		printf("TRACE: NEXT PLAYER Deck before call to tribute..\n");
+		printDeck(nextPlayer, &G);
+		printf("TRACE: NEXT PLAYER Discard before call to tribute..\n");
+		printDiscard(nextPlayer, &G);
+	}
+
+	/** ==> CALL <================================================= */
+	tributeCard(&G);
+
+	if (DEBUG_TRIBUTE_TEST_2) {
+		printf("AFTER: saveTop2Discard() NEXT PLAYER <------------------------\n");
+	}
+
+	/* SAVE TOP 2 DISCARD AFTER */
+	int afterTopTwoDiscard[2] = { 0 };
+	saveTop2Discard(nextPlayer, &G, afterTopTwoDiscard);
+
+	if (DEBUG_TRIBUTE_TEST_2) {
+		printf("TRACE: NEXT PLAYER Deck after call to tribute..\n");
+		printDeck(nextPlayer, &G);
+		printf("TRACE: NEXT PLAYER Discard after call to tribute..\n");
+		printDiscard(nextPlayer, &G);
+	}
+
+	//********************************************************************
+	if (coin_tally > 0 || draw_card_tally > 0 || num_actions_tally > 0)
+	{
+		// ASSERT previous deckCount of nextPlayer was >= 2
+		if (deckBox[1] < 2)
+		{
+			printf("WARNING: Next Player didn't have 2 cards in deck before call.\n");
+			numErrors++;
+		}
+		// ASSERT discardCount of nextPlayer is now >= 2
+		if (discardBox[1] < 2)
+		{
+			printf("Next Player doesnt have 2 cards in discard after call.\n");
+			numErrors++;
+		}
+	}
+
+	//********************************************************************
+	// CALL APPROPRIATE COMPARISONS
+	if (coin_tally > 0)
+	{
+		// checks if coins += 2 previous
+		result = compareCoins(currentPlayer, &backup, &G, PLUS_2_COINS);
+		if (result == -1) { numErrors++; }
+	}
+	if (draw_card_tally > 0)
+	{
+		if (handBox[currentPlayer] == G.handCount[currentPlayer])
+		{
+			printf("Next Player had a victory card within top 2 of deck,\n");
+			printf("\tbut Current Player handCount didn't change !\n");
+			numErrors++;
+		}
+
+		// checks if every card in hand is different
+		result = compareHand(currentPlayer, &backup, &G, DIFFERENT_HAND);
+		if (result == -1) { numErrors++; }
+
+	}
+	if (num_actions_tally > 0)
+	{
+		// checks if numActions += 2 of previous
+		result = compareNumActionsTribute(currentPlayer, &backup, &G);
+		if (result == -1) { numErrors++; }
+
+	}
+	//********************************************************************
+
+	if (DEBUG_TRIBUTE_TEST_2) {
+		printf("CURRENT PLAYER TOP 2 DECK MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
+		printf("topTwoDeck[0]: %d\n", topTwoDeck[0]);
+		printf("topTwoDeck[1]: %d\n", topTwoDeck[1]);
+
+		/* PRINT TOP TWO DISCARD AFTER */
+		printf("AFTER: afterTopTwoDiscard [ ] MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
+		printf("afterTopTwoDiscard[0]: %d\n", afterTopTwoDiscard[0]);
+		printf("afterTopTwoDiscard[1]: %d\n", afterTopTwoDiscard[1]);
+
+		printf("CALLING: compareTopsAfter <==========================================\n");
+	}
+
+	// assert if nextPlayer's previous top 2 deck cards are the top 2 in their discard
+	result = compareTopsAfter(nextPlayer, topTwoDeck, afterTopTwoDiscard);
+	if (result == -1) { numErrors++; }
+
+	return numErrors;
+}
+
+/*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM*/
+int unitTributeTest3()
+{
+	int numErrors = 0;
+	int result = 0;
+	int kingdomCards[10] = { adventurer, ambassador, baron, estate, tribute, minion, mine,  gardens, remodel, smithy };
+
+	// Game States 
+	struct gameState G;
+	struct gameState backup;
+
+	/* TEST 3 */
+	if (RULES)
+	{
+		printf("TRIBUTE TEST 3: Rules:\n");
+		printf("			  : Wipe every player's hand, deck, and discard piles.\n");
+		printf("              : Use these kingdomCards:\n");
+		printf("              : 	adventurer\n");
+		printf("              : 	ambassador\n");
+		printf("              : 	baron\n");
+		printf("              : 	estate\n");
+		printf("              : 	tribute\n");
+		printf("              : 	minion\n");
+		printf("              : 	mine\n");
+		printf("              : 	gardens\n");
+		printf("              : 	remodel\n");
+		printf("              : 	smithy\n");
+		printf("              : 3 Players.\n");
+		printf("              : Current Player = 1 (means player 2).\n");
+		printf("	          : Randomly assign 1 card from kingdomCards to..\n");
+		printf("              : each player's hand.\n");
+		printf("              : Place a tribute card at a random position.\n");
+		printf("              : Assign no cards to each player's deck.\n");
+		printf("OUTPUT:\n\n");
+	}
+
+	// number of players
+	int newNumPlayers = 3;
+
+	/* # players, cards to use, seed, gameState */
+	initTestGame(newNumPlayers, kingdomCards, 1, &G);
+
+	int currentPlayer = 1;
+	int nextPlayer = currentPlayer + 1;
+
+	// size of hand to use
+	int newHandSize = 1;
+
+	/* set up all players with 5 random cards in each hand */
+	prepPlayers(
+		currentPlayer,		// prep from this player
+		nextPlayer,		// prep to this player
+		&G,
+		newHandSize,
+		FILL_DIFF,
+		-1				// not used..only for filling with same card
+	);
+
+	// position to place a single kingdom card into hand
+	int newHandPos = _genRandRange(0, newHandSize);
+
+	/* set a tribute card in player zero's hand at position zero */
+	setAtHandPos(currentPlayer, &G, tribute, newHandPos);
+
+	/* set deck for players according to size */
+
+	if (DEBUG_TRIBUTE_TEST_1) {
+		printf("FILL DECK NEXT PLAYER <-----------------------------------------\n");
+	}
+
+	int newFillSize = 0;
+	fillDeck(nextPlayer, &G, newFillSize);
+
+	// NOTE* on SAVE COUNTS: idx 0 of ___Box[ ] is player 0, et cet.
+
+	/* SAVE HAND COUNTS  */
+	int handBox[MAX_PLAYERS];
+	savePreviousHandCounts(handBox, &G);
+
+	/* SAVE DECK COUNTS  */
+	int deckBox[MAX_PLAYERS];
+	savePreviousDeckCounts(deckBox, &G);
+
+	/* SAVE DISCARD COUNTS  */
+	int discardBox[MAX_PLAYERS];
+	savePreviousDiscardCounts(discardBox, &G);
+
+	/* SAVE TOP 2 DECK */
+	if (DEBUG_TRIBUTE_TEST_1) {
+		printf("BEFORE: saveTop2Deck() NEXT PLAYER <------------------------\n");
+	}
+
+	int topTwoDeck[2] = { 0 };
+	saveTop2Deck(nextPlayer, &G, topTwoDeck);
+
+	int coin_tally = 0;
+	int draw_card_tally = 0;
+	int num_actions_tally = 0;
+
+	/* TALLY TYPES FOUND BEFORE CALL TO KNOW WHAT TO TEST FOR COMPARISON */
+	setTypesFoundTribute(topTwoDeck, &coin_tally, &draw_card_tally, &num_actions_tally);
+
+	/* BACK UP STATE BEFORE CALL */
+	memset(&backup, '\0', sizeof(backup));
+	backup = G;
+
+	if (DEBUG_TRIBUTE_TEST_3) {
+		printf("TRACE: NEXT PLAYER Deck before call to tribute..\n");
+		printDeck(nextPlayer, &G);
+		printf("TRACE: NEXT PLAYER Discard before call to tribute..\n");
+		printDiscard(nextPlayer, &G);
+	}
+
+	/** ==> CALL <================================================= */
+	tributeCard(&G);
+
+	if (DEBUG_TRIBUTE_TEST_3) {
+		printf("AFTER: saveTop2Discard() NEXT PLAYER <------------------------\n");
+	}
+
+	/* SAVE TOP 2 DISCARD AFTER */
+	int afterTopTwoDiscard[2] = { 0 };
+	saveTop2Discard(nextPlayer, &G, afterTopTwoDiscard);
+
+	if (DEBUG_TRIBUTE_TEST_3) {
+		printf("TRACE: NEXT PLAYER Deck after call to tribute..\n");
+		printDeck(nextPlayer, &G);
+		printf("TRACE: NEXT PLAYER Discard after call to tribute..\n");
+		printDiscard(nextPlayer, &G);
+	}
+
+	//********************************************************************
+	if (coin_tally > 0 || draw_card_tally > 0 || num_actions_tally > 0)
+	{
+		// ASSERT previous deckCount of nextPlayer was >= 2
+		if (deckBox[1] < 2)
+		{
+			printf("WARNING: Next Player didn't have 2 cards in deck before call.\n");
+			numErrors++;
+		}
+		// ASSERT discardCount of nextPlayer is now >= 2
+		if (discardBox[1] < 2)
+		{
+			printf("Next Player doesnt have 2 cards in discard after call.\n");
+			numErrors++;
+		}
+	}
+
+	//********************************************************************
+	// CALL APPROPRIATE COMPARISONS
+	if (coin_tally > 0)
+	{
+		// checks if coins += 2 previous
+		result = compareCoins(currentPlayer, &backup, &G, PLUS_2_COINS);
+		if (result == -1) { numErrors++; }
+	}
+	if (draw_card_tally > 0)
+	{
+		if (handBox[currentPlayer] == G.handCount[currentPlayer])
+		{
+			printf("Next Player had a victory card within top 2 of deck,\n");
+			printf("\tbut Current Player handCount didn't change !\n");
+			numErrors++;
+		}
+
+		// checks if every card in hand is different
+		result = compareHand(currentPlayer, &backup, &G, DIFFERENT_HAND);
+		if (result == -1) { numErrors++; }
+
+	}
+	if (num_actions_tally > 0)
+	{
+		// checks if numActions += 2 of previous
+		result = compareNumActionsTribute(currentPlayer, &backup, &G);
+		if (result == -1) { numErrors++; }
+
+	}
+	//********************************************************************
+
+	if (DEBUG_TRIBUTE_TEST_2) {
+		printf("CURRENT PLAYER TOP 2 DECK MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
+		printf("topTwoDeck[0]: %d\n", topTwoDeck[0]);
+		printf("topTwoDeck[1]: %d\n", topTwoDeck[1]);
+
+		/* PRINT TOP TWO DISCARD AFTER */
+		printf("AFTER: afterTopTwoDiscard [ ] MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
+		printf("afterTopTwoDiscard[0]: %d\n", afterTopTwoDiscard[0]);
+		printf("afterTopTwoDiscard[1]: %d\n", afterTopTwoDiscard[1]);
+
+		printf("CALLING: compareTopsAfter <==========================================\n");
+	}
+
+	// assert if nextPlayer's previous top 2 deck cards are the top 2 in their discard
+	result = compareTopsAfter(nextPlayer, topTwoDeck, afterTopTwoDiscard);
+	if (result == -1) { numErrors++; }
+
+	return numErrors;
+}
+
+/*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM*/
+int unitTributeTest4()
+{
+	int numErrors = 0;
+	int result = 0;
+	int kingdomCards[10] = { adventurer, ambassador, baron, estate, tribute, minion, mine,  gardens, remodel, smithy };
+
+	// Game States 
+	struct gameState G;
+	struct gameState backup;
+
+	/* TEST 1 */
+	if (RULES)
+	{
+		printf("unittest4.c\n");
+		printf("TRIBUTE TEST 4: Rules:\n");
+		printf("	          : Wipe every player's hand, deck, and discard piles.\n");
+		printf("              : Use these kingdomCards:\n");
+		printf("              : 	adventurer\n");
+		printf("              : 	ambassador\n");
+		printf("              : 	baron\n");
+		printf("              : 	estate\n");
+		printf("              : 	tribute\n");
+		printf("              : 	minion\n");
+		printf("              : 	mine\n");
+		printf("              : 	gardens\n");
+		printf("              : 	remodel\n");
+		printf("              : 	smithy\n");
+		printf("              : 4 Players.\n");
+		printf("              : Current Player = 3 (means player 4).\n");
+		printf("			  : Randomly assign 7 cards from kingdomCards to..\n");
+		printf("              : each player's hand.\n");
+		printf("              : to each player's deck.\n");
+		printf("              : DO NOT place a tribute card at any position in hand.\n");
+			printf("OUTPUT:\n\n");
+	}
+
+	// number of players
+	int newNumPlayers = 4;
+
+	/* # players, cards to use, seed, gameState */
+	initTestGame(newNumPlayers, kingdomCards, 1, &G);
+
+	int currentPlayer = 3;
+	int nextPlayer = currentPlayer + 1;
+
+	// size of hand to use
+	int newHandSize = 7;
+
+	/* set up all players with 5 random cards in each hand */
+	prepPlayers(
+		currentPlayer,		// prep from this player
+		nextPlayer,		// prep to this player
+		&G,
+		newHandSize,
+		FILL_DIFF,
+		-1				// not used..only for filling with same card
+	);
+
+	/* set deck for players according to size */
+
+	if (DEBUG_TRIBUTE_TEST_4) {
+		printf("FILL DECK NEXT PLAYER <-----------------------------------------\n");
+	}
+
+	int newFillSize = 7;
+	fillDeck(nextPlayer, &G, newFillSize);
+
+	// NOTE* on SAVE COUNTS: idx 0 of ___Box[ ] is player 0, et cet.
+
+	/* SAVE HAND COUNTS  */
+	int handBox[MAX_PLAYERS];
+	savePreviousHandCounts(handBox, &G);
+
+	/* SAVE DECK COUNTS  */
+	int deckBox[MAX_PLAYERS];
+	savePreviousDeckCounts(deckBox, &G);
+
+	/* SAVE DISCARD COUNTS  */
+	int discardBox[MAX_PLAYERS];
+	savePreviousDiscardCounts(discardBox, &G);
+
+	/* SAVE TOP 2 DECK */
+	if (DEBUG_TRIBUTE_TEST_4) {
+		printf("BEFORE: saveTop2Deck() NEXT PLAYER <------------------------\n");
+	}
+
+	int topTwoDeck[2] = { 0 };
+	saveTop2Deck(nextPlayer, &G, topTwoDeck);
+
+	int coin_tally = 0;
+	int draw_card_tally = 0;
+	int num_actions_tally = 0;
+
+	/* TALLY TYPES FOUND BEFORE CALL TO KNOW WHAT TO TEST FOR COMPARISON */
+	setTypesFoundTribute(topTwoDeck, &coin_tally, &draw_card_tally, &num_actions_tally);
+
+	/* BACK UP STATE BEFORE CALL */
+	memset(&backup, '\0', sizeof(backup));
+	backup = G;
+
+	if (DEBUG_TRIBUTE_TEST_4) {
+		printf("TRACE: NEXT PLAYER Deck before call to tribute..\n");
+		printDeck(nextPlayer, &G);
+		printf("TRACE: NEXT PLAYER Discard before call to tribute..\n");
+		printDiscard(nextPlayer, &G);
+	}
+
+	/** ==> CALL <================================================= */
+	tributeCard(&G);
+
+	if (DEBUG_TRIBUTE_TEST_4) {
+		printf("AFTER: saveTop2Discard() NEXT PLAYER <------------------------\n");
+	}
+
+	/* SAVE TOP 2 DISCARD AFTER */
+	int afterTopTwoDiscard[2] = { 0 };
+	saveTop2Discard(nextPlayer, &G, afterTopTwoDiscard);
+
+	if (DEBUG_TRIBUTE_TEST_4) {
+		printf("TRACE: NEXT PLAYER Deck after call to tribute..\n");
+		printDeck(nextPlayer, &G);
+		printf("TRACE: NEXT PLAYER Discard after call to tribute..\n");
+		printDiscard(nextPlayer, &G);
+	}
+
+	//********************************************************************
+	if (coin_tally > 0 || draw_card_tally > 0 || num_actions_tally > 0)
+	{
+		// ASSERT previous deckCount of nextPlayer was >= 2
+		if (deckBox[1] < 2)
+		{
+			printf("WARNING: Next Player didn't have 2 cards in deck before call.\n");
+			numErrors++;
+		}
+		// ASSERT discardCount of nextPlayer is now >= 2
+		if (discardBox[1] < 2)
+		{
+			printf("Next Player doesnt have 2 cards in discard after call.\n");
+			numErrors++;
+		}
+	}
+
+	//********************************************************************
+	// CALL APPROPRIATE COMPARISONS
+	if (coin_tally > 0)
+	{
+		// checks if coins += 2 previous
+		result = compareCoins(currentPlayer, &backup, &G, PLUS_2_COINS);
+		if (result == -1) { numErrors++; }
+	}
+	if (draw_card_tally > 0)
+	{
+		if (handBox[currentPlayer] == G.handCount[currentPlayer])
+		{
+			printf("Next Player had a victory card within top 2 of deck,\n");
+			printf("\tbut Current Player handCount didn't change !\n");
+			numErrors++;
+		}
+
+		// checks if every card in hand is different
+		result = compareHand(currentPlayer, &backup, &G, DIFFERENT_HAND);
+		if (result == -1) { numErrors++; }
+
+	}
+	if (num_actions_tally > 0)
+	{
+		// checks if numActions += 2 of previous
+		result = compareNumActionsTribute(currentPlayer, &backup, &G);
+		if (result == -1) { numErrors++; }
+
+	}
+	//********************************************************************
+
+	if (DEBUG_TRIBUTE_TEST_4) {
+		printf("CURRENT PLAYER TOP 2 DECK MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
+		printf("topTwoDeck[0]: %d\n", topTwoDeck[0]);
+		printf("topTwoDeck[1]: %d\n", topTwoDeck[1]);
+
+		/* PRINT TOP TWO DISCARD AFTER */
+		printf("AFTER: afterTopTwoDiscard [ ] MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n");
+		printf("afterTopTwoDiscard[0]: %d\n", afterTopTwoDiscard[0]);
+		printf("afterTopTwoDiscard[1]: %d\n", afterTopTwoDiscard[1]);
+
+		printf("CALLING: compareTopsAfter <==========================================\n");
+	}
+
+	// assert if nextPlayer's previous top 2 deck cards are the top 2 in their discard
+	result = compareTopsAfter(nextPlayer, topTwoDeck, afterTopTwoDiscard);
+	if (result == -1) { numErrors++; }
+
+	return numErrors;
+}
+
 
 /* EOF */
 
