@@ -96,7 +96,7 @@ int main()
 	int qty_errors = 0;
 
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-	printf("ASSIGNMENT 4: RANDOM TESTING: TRIBUTE CARD.\n");
+	printf("ASSIGNMENT 3: UNIT TESTING: TRIBUTE CARD.\n");
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
 	qty_errors = unitTributeTest();
