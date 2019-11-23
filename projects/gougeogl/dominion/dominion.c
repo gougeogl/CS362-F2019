@@ -198,7 +198,12 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
     state->numBuys = 1;
     state->playedCardCount = 0;
     state->whoseTurn = 0;
-    //state->handCount[state->whoseTurn] = 0;
+
+	//initialize trash mat
+	state->trashCount = 0;
+	state->trashPile[trashCount] = -1;
+
+    //state->handCount[state->whoseTurn] = 0; <-- don't this we need this.. review later
 
     updateCoins(state->whoseTurn, state, 0);
 
@@ -1067,8 +1072,13 @@ int mineCard(int choice1, int choice2, struct gameState *state, int handPos)
 
 	if (choice2 > treasure_map || choice2 < curse)
 	{
-		return 1; /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 9: forgot the -1. Good = -1, Bad = 1. This means it will 
-				                                                      return true if the choice is "off the map" or not in the deck */
+		/* BUG 9: 
+			forgot the -1. Good = -1, Bad = 1. 
+			This means it will return true if the choice is "off the map" or not in the deck.
+			However..when you have to get the cost of this "off the map" card, getCost() will
+			return -1, and BUG 10 will not execute.
+		*/
+		return 1; 
 	}
 
 	if ((getCost(state->hand[currentPlayer][choice1]) + 3) >= getCost(choice2))
@@ -1078,16 +1088,17 @@ int mineCard(int choice1, int choice2, struct gameState *state, int handPos)
 
 	gainCard(choice2, state, 2, currentPlayer);
 
-	//discard card from hand
-	discardCard(handPos, currentPlayer, state);
+	//discard card from hand ..ah..BUG 9.5. Not mine, but will work instead of above 
+	discardCard(handPos, currentPlayer, state); 
 
 	//discard trashed card
-	for (i = 0; j < state->handCount[currentPlayer]; i++) /* <<<<<<<<<<<<< BUG 10: Good = i < state->handCount[currentPlayer];
-														                           BAD = j < state->handCount[currentPlayer];
-																				   if j happens to be an enum of a card larger
-																				   than the handCount of the current player then
-																				   the player ends up keeping the treasure that
-																				   they were supposed to trash. Unfair advantage */
+	for (i = 0; j < state->handCount[currentPlayer]; i++) 
+		/* BUG 10: 
+			Good = i < state->handCount[currentPlayer];
+			BAD = j < state->handCount[currentPlayer];
+			if j happens to be an enum of a card larger than the handCount of the current player 
+			then the player ends up keeping the treasure that they were supposed to trash. 
+			Unfair advantage */
 	{
 		if (state->hand[currentPlayer][i] == j)
 		{
@@ -1508,7 +1519,6 @@ int shiftCards(int handPos, int currentPlayer, struct gameState *state)
 *		2. currentPlayer: integer of player shifting cards
 *		3. state: struct gameState pointer object that stores specifics
 *				of game play for current player's turn
-*		4. trashFlag: 1 = TRASH, 0 = DISCARD (MACROS available)
 *
 * Description:
 *		1. Discards a SINGLE card to the currentPlayer's discard pile
@@ -1596,12 +1606,10 @@ int gainCard(int supplyPos, struct gameState *state, int toFlag, int player)
 
     //check if supply pile is empty (0) or card is not used in game (-1)
     
-    /*
     if ( supplyCount(supplyPos, state) < 1 )
     {
         return -1;
     }
-    */	
 
     //added card for [whoseTurn] current player:
     // toFlag = 0 : add to discard
