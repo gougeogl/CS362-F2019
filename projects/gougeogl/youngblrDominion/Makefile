@@ -45,8 +45,8 @@ runtests: testDrawCard
 unittest1: unittest1.c dominion.o rngs.o interface.o 
 	${CC} -o unittest1 unittest1.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
-#unittest2: unittest2.c dominion.o rngs.o interface.o 
-#	${CC} -o unittest2 unittest2.c -g dominion.o rngs.o interface.o $(CFLAGS)
+unittest2: unittest2.c dominion.o rngs.o interface.o 
+	${CC} -o unittest2 unittest2.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
 #unittest3: unittest3.c dominion.o rngs.o interface.o 
 #	${CC} -o unittest3 unittest3.c -g dominion.o rngs.o interface.o $(CFLAGS)
@@ -61,10 +61,19 @@ unittest1: unittest1.c dominion.o rngs.o interface.o
 
 unittest1results: unittest1 
 	./unittest1 &> unittestresults.out 
-	${GCOV} dominion.c >> unittestresults.out
-	${GCOV} unittest1.c >> unittestresults.out
-	cat unittest1.c.gcov >> unittestresults.out
-	cat dominion.c.gcov >> unittestresults.out
+	${GCOV} dominion.c >> unittest1results.out
+	${GCOV} unittest1.c >> unittest1results.out
+	cat unittest1.c.gcov >> unittest1results.out
+	cat dominion.c.gcov >> unittest1results.out
+
+#***********************************************************************
+
+unittest2results: unittest2 
+	./unittest2 &> unittest2results.out 
+	${GCOV} dominion.c >> unittest2results.out
+	${GCOV} unittest2.c >> unittest2results.out
+	cat unittest2.c.gcov >> unittest2results.out
+	cat dominion.c.gcov >> unittest2results.out
 
 #***********************************************************************
 
@@ -94,6 +103,9 @@ randomtestresults: randomtest1 randomtest2 randomtest3
 
 #***********************************************************************
 
+allunittestresults: unittest1results unittest2results
+
+#***********************************************************************
 player: player.c interface.o
 	${CC} -o player player.c -g  dominion.o rngs.o interface.o $(CFLAGS)
 
