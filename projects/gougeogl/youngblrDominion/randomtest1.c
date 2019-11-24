@@ -3,18 +3,18 @@
 ** Author: Glen Gougeon
 ** Class : CS362 Software Engineering II
 ** Date : 11 - 14 - 2019
-** Last Mod : 11 - 17 - 2019
+** Last Mod : 11 - 24 - 2019
 *
-** Description : Assignment 4 : Random Testing :
-*		Refactored code for Baron, has 2 bugs I introduced.
+** Description : Assignment 5 : Random Testing :
+*		Refactored code for Baron by Rueben Youngblom.
 *		The following test code should generate random value
 *		inputs to send to baronCard() acheiving at least
 *		90% branch coverage.
 *
 ** To Compile:	Use included 'Makefile'
-*		compile command : make unittest1
-*		generate output file: make randomtestresults
-*		output: randomtestresults.out
+*		compile command : make randomtest1
+*		generate output file: make randomtest1results
+*		output: randomtest1results.out
 *
 ****************************************************************/
 
@@ -369,6 +369,9 @@ void randomBaronTest()
 		/* SAVE NUMBER OF ESTATES IN HAND */
 		int prevNumEstateHand = getNumEstateHand(G.whoseTurn, &G);
 
+		/* GET CURRENT PLAYER */
+		int currentPlayer = G.whoseTurn;
+
 		// make a backup for comparison
 		memset(&backup, '\0', sizeof(backup));
 		backup = G;
@@ -377,7 +380,7 @@ void randomBaronTest()
 
 		/* MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM */
 		/* ** CALLING BARON CARD !! **															*/
-		baronCard(zero_or_one, &G);
+		refactoredBaron(zero_or_one, currentPlayer, &G);
 		/* MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM */
 
 		/* GET NUM ESTATES IN HAND NOW */
