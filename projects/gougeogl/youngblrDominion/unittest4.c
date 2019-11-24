@@ -3,18 +3,18 @@
 ** Author: Glen Gougeon
 ** Class : CS362 Software Engineering II
 ** Date : 11 - 16 - 2019
-** Last Mod : 11 - 21 - 2019
+** Last Mod : 11 - 23 - 2019
 *
-** Description : Assignment 4 : Unit Testing :
-*		Refactored code for Tribute, has 2 bugs I introduced.
+** Description : Assignment 5 : Unit Testing :
+*		Refactored code by Reuben Youngblom.
 *		The following test code should catch the errors while
 *		executing 80 % branch and function coverage according
 *		to gcov coverage tool.
 *
 ** To Compile:	Use included 'Makefile'
 *		compile command : make unittest4
-*		generate output file: make unittestresults
-*		output: unittestresults.out
+*		generate output file: make unittest4results
+*		output: unittest4results.out
 *
 ****************************************************************/
 
@@ -852,7 +852,9 @@ int unitTributeTest1()
 		}
 
 		/** ==> CALL <================================================= */
-		tributeCard(&G);
+		int tributeRevealedCards[2] = { -1, -1 }; // pulled from dominion.c req'd. for Reuben's version
+		int alpha = 0; // same as i from playCard()
+		refactoredTribute(alpha, tributeRevealedCards, currentPlayer, nextPlayer, &G);
 
 		if (DEBUG_TRIBUTE_TEST_1) {
 			printf("AFTER: saveTop2Discard() NEXT PLAYER <------------------------\n");
@@ -1051,7 +1053,9 @@ int unitTributeTest2()
 	}
 
 	/** ==> CALL <================================================= */
-	tributeCard(&G);
+	int tributeRevealedCards[2] = { -1, -1 }; // pulled from dominion.c req'd. for Reuben's version
+	int alpha = 0; // same as i from playCard()
+	refactoredTribute(alpha, tributeRevealedCards, currentPlayer, nextPlayer, &G);
 
 	if (DEBUG_TRIBUTE_TEST_2) {
 		printf("AFTER: saveTop2Discard() NEXT PLAYER <------------------------\n");
@@ -1250,7 +1254,10 @@ int unitTributeTest3()
 	}
 
 	/** ==> CALL <================================================= */
-	tributeCard(&G);
+	int tributeRevealedCards[2] = { -1, -1 }; // pulled from dominion.c req'd. for Reuben's version
+	int alpha = 0; // same as i from playCard()
+	refactoredTribute(alpha, tributeRevealedCards, currentPlayer, nextPlayer, &G);
+
 
 	if (DEBUG_TRIBUTE_TEST_3) {
 		printf("AFTER: saveTop2Discard() NEXT PLAYER <------------------------\n");
@@ -1444,7 +1451,9 @@ int unitTributeTest4()
 	}
 
 	/** ==> CALL <================================================= */
-	tributeCard(&G);
+	int tributeRevealedCards[2] = { -1, -1 }; // pulled from dominion.c req'd. for Reuben's version
+	int alpha = 0; // same as i from playCard()
+	refactoredTribute(alpha, tributeRevealedCards, currentPlayer, nextPlayer, &G);
 
 	if (DEBUG_TRIBUTE_TEST_4) {
 		printf("AFTER: saveTop2Discard() NEXT PLAYER <------------------------\n");

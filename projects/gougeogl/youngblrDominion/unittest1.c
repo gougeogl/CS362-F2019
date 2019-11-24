@@ -3,18 +3,18 @@
 ** Author: Glen Gougeon
 ** Class : CS362 Software Engineering II
 ** Date : 10 - 25 - 2019
-** Last Mod : 11 - 8 - 2019
+** Last Mod : 11 - 23 - 2019
 *
-** Description : Assignment 3 : Unit Testing :
-*		Refactored code for Baron, has 2 bugs I introduced.
+** Description : Assignment 5 : Unit Testing :
+*		Refactored code for Baron by Reuben Youngblom.
 *		The following test code should catch the errors while
 *		executing 80 % branch and function coverage according
 *		to gcov coverage tool.
 *
 ** To Compile:	Use included 'Makefile'
 *		compile command : make unittest1
-*		generate output file: make unittestresults
-*		output: unittestresults.out
+*		generate output file: make unittest1results
+*		output: unittest1results.out
 *
 ****************************************************************/
 
