@@ -3,18 +3,18 @@
 ** Author: Glen Gougeon
 ** Class : CS362 Software Engineering II
 ** Date : 11 - 16 - 2019
-** Last Mod : 11 - 21 - 2019
+** Last Mod : 11 - 23 - 2019
 *
-** Description : Assignment 3 : Unit Testing :
-*		Refactored code for Mine, has 2 bugs I introduced.
+** Description : Assignment 5 : Unit Testing :
+*		Refactored code for Mine by Reuben Youngblom.
 *		The following test code should catch the errors while
 *		executing 80 % branch and function coverage according
 *		to gcov coverage tool.
 *
 ** To Compile:	Use included 'Makefile'
 *		compile command : make unittest5
-*		generate output file: make unittestresults
-*		output: unittestresults.out
+*		generate output file: make unittest5results
+*		output: unittest5results.out
 *
 ****************************************************************/
 
@@ -521,9 +521,15 @@ int unitMineTestDeluxe(
 	int discardCardFromThisHandLocation = handPos; // a.k.a. handPos of mineCard() call
 
 	/** ==> CALL <================================================= */
+	int alpha = 0; // <-- for Reuben's version
+	int beta = 0; // <-- for Reuben's version
+
 	mineCard(
+		alpha, // <-- for Reuben's version
+		beta, // <-- for Reuben's version
 		moneyToTrashHandLocation, 
 		moneyToGain, 
+		currentPlayer, // <-- added here for Reuben's version
 		state, 
 		discardCardFromThisHandLocation
 	);
@@ -696,9 +702,15 @@ int unitMineTest1()
 	int discardCardFromThisHandLocation = -1; // a.k.a. handPos of mineCard() call
 
 	/** ==> CALL <================================================= */
+	int alpha = 0; // <-- for Reuben's version
+	int beta = 0; // <-- for Reuben's version
+
 	result = mineCard(
+		alpha, // <-- for Reuben's version
+		beta, // <-- for Reuben's version
 		moneyToTrashHandLocation,
 		moneyToGain,
+		currentPlayer,
 		&G,
 		discardCardFromThisHandLocation
 	);
@@ -751,9 +763,15 @@ int unitMineTest2()
 	int discardCardFromThisHandLocation = -1; // a.k.a. handPos of mineCard() call
 
 	/** ==> CALL <================================================= */
+	int alpha = 0; // <-- for Reuben's version
+	int beta = 0; // <-- for Reuben's version
+
 	result = mineCard(
+		alpha, // <-- for Reuben's version
+		beta, // <-- for Reuben's version
 		moneyToTrashHandLocation,
 		moneyToGain,
+		currentPlayer,
 		&G,
 		discardCardFromThisHandLocation
 	);
@@ -806,9 +824,15 @@ int unitMineTest3()
 	int discardCardFromThisHandLocation = -1; // a.k.a. handPos of mineCard() call
 
 	/** ==> CALL <================================================= */
+	int alpha = 0; // <-- for Reuben's version
+	int beta = 0; // <-- for Reuben's version
+
 	result = mineCard(
+		alpha, // <-- for Reuben's version
+		beta, // <-- for Reuben's version
 		moneyToTrashHandLocation,
 		moneyToGain,
+		currentPlayer,
 		&G,
 		discardCardFromThisHandLocation
 	);
@@ -861,9 +885,15 @@ int unitMineTest4()
 	int discardCardFromThisHandLocation = -1; // a.k.a. handPos of mineCard() call
 
 	/** ==> CALL <================================================= */
+	int alpha = 0; // <-- for Reuben's version
+	int beta = 0; // <-- for Reuben's version
+
 	result = mineCard(
+		alpha, // <-- for Reuben's version
+		beta, // <-- for Reuben's version
 		moneyToTrashHandLocation,
 		moneyToGain,
+		currentPlayer,
 		&G,
 		discardCardFromThisHandLocation
 	);
