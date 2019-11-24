@@ -43,8 +43,8 @@ enum TEST_FLAGS
 	DIFFERENT_HAND,
 	SAME_DISCARD,
 	DIFFERENT_DISCARD,
-	PLUS_2_COINS,
-	SAME_COINS,
+	EXPECT_ZERO,
+	EXPECT_NEG_ONE,
 	/* used by prep functions */
 	FILL_DIFF,
 	FILL_SAME
@@ -81,7 +81,7 @@ void expectedReturn(
 	int moneyToTrashHandLocation,
 	int moneyToGain,
 	int discardCardFromThisHandLocation
-)
+);
 
 /* OTHER UNIT TESTS */
 int unitMineTest1();
@@ -100,7 +100,7 @@ int unitMineTestDeluxe(
 	struct gameState* previousState,
 	struct gameState* state, // state
 	int* kingdomToUse,
-	int handPos, // handPos
+	int handPos // handPos
 	/* end params */
 );
 
@@ -108,7 +108,8 @@ int main()
 {
 	int qty_errors = 0;
 	int kingdomCards[10] = { adventurer, ambassador, baron, estate, tribute, minion, mine,  gardens, province, smithy };
-
+	struct gameState backup;
+	struct gameState G;
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 	printf("ASSIGNMENT 3: UNIT TESTING: MINE CARD.\n");
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
@@ -437,8 +438,8 @@ void expectedReturn(
 	int discardCardFromThisHandLocation
 )
 {
-	if (expect_flag == EXPECT_ZERO && actual != 0 ||
-		expect_flag == EXPECT_NEG_ONE && actual != -1){
+	if ((expect_flag == EXPECT_ZERO && actual != 0) ||
+	    (expect_flag == EXPECT_NEG_ONE && actual != -1)){
 
 		printf("ERROR: mineCard returned %d but expected ", actual);
 		if (expect_flag == EXPECT_ZERO) {
@@ -447,7 +448,6 @@ void expectedReturn(
 		else if (expect_flag == EXPECT_NEG_ONE) {
 			printf(" -1\n");
 		}
-		else
 
 		char choice1Buffer[MAX_STRING_LENGTH];
 		char choice2Buffer[MAX_STRING_LENGTH];
@@ -462,9 +462,9 @@ void expectedReturn(
 		memset(handPosBuffer, '\0', sizeof(handPosBuffer));
 		cardNumToName(discardCardFromThisHandLocation, handPosBuffer);
 
-		printf("choice1 was: %d\n", choice1Buffer);
-		printf("choice2 was: %d\n", choice2Buffer);
-		printf("handPos was: %d\n", handPosBuffer);
+		printf("choice1 was: %s\n", choice1Buffer);
+		printf("choice2 was: %s\n", choice2Buffer);
+		printf("handPos was: %s\n", handPosBuffer);
 
 	}
 }
@@ -488,13 +488,11 @@ int unitMineTestDeluxe(
 	struct gameState* previousState,
 	struct gameState* state, // state
 	int* kingdomToUse,
-	int handPos, // handPos
-	int* numErrors
+	int handPos // handPos
 	/* end params */
 ){ 
 
 	int numErrors = 0;
-	int result = 0;
 
 	/* # players, cards to use, seed, gameState */
 	initTestGame(2, kingdomToUse, 1, state);
@@ -508,12 +506,12 @@ int unitMineTestDeluxe(
 		newHandSize,	// 5
 		FILL_SAME,			// fill hand with the same 
 		-1					// use -1 to fill a.k.a. unused
-	)
+	);
 
 	setAtHandPos(currentPlayer, state, choice1card, choice1pos);
 
 	/* BACK UP STATE BEFORE CALL */
-	memset(previousState, '\0', sizeof(previousState));
+	memset(previousState, '\0', sizeof(*previousState));
 	previousState = state;
 
 		
@@ -523,19 +521,18 @@ int unitMineTestDeluxe(
 	int discardCardFromThisHandLocation = handPos; // a.k.a. handPos of mineCard() call
 
 	/** ==> CALL <================================================= */
-	int result = mineCard(
+	mineCard(
 		moneyToTrashHandLocation, 
 		moneyToGain, 
-		&G, 
+		state, 
 		discardCardFromThisHandLocation
 	);
 	/** ==> END CALL <================================================= */
 
-	printf("MINE: RUNNING SUB-TEST %d OUTPUT =====>\n", test_no);
+	printf("MINE: RUNNING SUB-TEST %d OUTPUT ==> **************************************************************\n", test_no);
 
 	char choice1Buffer[MAX_STRING_LENGTH];
 	char choice2Buffer[MAX_STRING_LENGTH];
-	char handPosBuffer[MAX_STRING_LENGTH];
 
 	/* COMPARE TRASH PILE COUNT & CONTENTS */
 	if( previousState->trashCount + 1 != state->trashCount)
@@ -547,7 +544,7 @@ int unitMineTestDeluxe(
 		if (previousState->trashPile[previousState->trashCount] == state->trashPile[state->trashCount - 1])
 		{
 			memset(choice1Buffer, '\0', sizeof(choice1Buffer));
-			cardNumToName(choice1, choice1Buffer);
+			cardNumToName(choice1card, choice1Buffer);
 			printf("      expected: %s\n", choice1Buffer);
 
 			memset(choice2Buffer, '\0', sizeof(choice2Buffer));
@@ -604,7 +601,7 @@ int unitMineTestDeluxe(
 			{
 				memset(choice2Buffer, '\0', sizeof(choice2Buffer));
 				cardNumToName(choice2, choice2Buffer);
-				printf("MINE: choice2 %s not found in hand.\n", choice2);
+				printf("MINE: choice2 %s not found in hand.\n", choice2Buffer);
 				numErrors++;
 			}
 			else if (foundInHand > 0)
@@ -626,7 +623,7 @@ int unitMineTestDeluxe(
 					memset(choice2Buffer, '\0', sizeof(choice2Buffer));
 					cardNumToName(choice2, choice2Buffer);
 
-					printf("MINE: found %s in hand, but the quantity is wrong.\n", choice2Buffer)
+					printf("MINE: found %s in hand, but the quantity is wrong.\n", choice2Buffer);
 					printf("      You had %d before\n", wasAlreadyThere);
 					printf("      now you have %d\n", foundInHand);
 
@@ -658,7 +655,7 @@ int unitMineTestDeluxe(
 		}
 
 	}
-
+	printf("\n\n");
 	return numErrors;
 }
 // *****************************************************************************************
@@ -670,7 +667,6 @@ int unitMineTest1()
 
 	// Game States 
 	struct gameState G;
-	struct gameState backup;
 
 	// number of players
 	int newNumPlayers = 2;
@@ -686,10 +682,10 @@ int unitMineTest1()
 	_prepOnePlayer(
 		currentPlayer,
 		&G,
-		int newHandSize,	// 5
+		newHandSize,	// 5
 		FILL_SAME,			// fill hand with the same 
 		-1					// use -1 to fill a.k.a. unused
-	)
+	);
 
 	/* set an estate card at handPos 0 as choice1 .. to fail */
 	setAtHandPos(currentPlayer, &G, province, 0);
@@ -700,7 +696,7 @@ int unitMineTest1()
 	int discardCardFromThisHandLocation = -1; // a.k.a. handPos of mineCard() call
 
 	/** ==> CALL <================================================= */
-	int result = mineCard(
+	result = mineCard(
 		moneyToTrashHandLocation,
 		moneyToGain,
 		&G,
@@ -726,7 +722,6 @@ int unitMineTest2()
 
 	// Game States 
 	struct gameState G;
-	struct gameState backup;
 
 	// number of players
 	int newNumPlayers = 2;
@@ -742,13 +737,13 @@ int unitMineTest2()
 	_prepOnePlayer(
 		currentPlayer,
 		&G,
-		int newHandSize,	// 5
+		newHandSize,	// 5
 		FILL_SAME,			// fill hand with the same 
 		-1					// use -1 to fill a.k.a. unused
-	)
+	);
 
-		/* set an estate card at handPos 0 as choice1 .. to fail */
-		setAtHandPos(currentPlayer, &G, copper, 0);
+	/* set an estate card at handPos 0 as choice1 .. to fail */
+	setAtHandPos(currentPlayer, &G, copper, 0);
 
 	/* INPUTS FOR MINE CARD */
 	int moneyToTrashHandLocation = 0; // choice1
@@ -756,7 +751,7 @@ int unitMineTest2()
 	int discardCardFromThisHandLocation = -1; // a.k.a. handPos of mineCard() call
 
 	/** ==> CALL <================================================= */
-	int result = mineCard(
+	result = mineCard(
 		moneyToTrashHandLocation,
 		moneyToGain,
 		&G,
@@ -782,7 +777,6 @@ int unitMineTest3()
 
 	// Game States 
 	struct gameState G;
-	struct gameState backup;
 
 	// number of players
 	int newNumPlayers = 2;
@@ -798,13 +792,13 @@ int unitMineTest3()
 	_prepOnePlayer(
 		currentPlayer,
 		&G,
-		int newHandSize,	// 5
+		newHandSize,	// 5
 		FILL_SAME,			// fill hand with the same 
 		-1					// use -1 to fill a.k.a. unused
-	)
+	);
 
-		/* set an estate card at handPos 0 as choice1 .. to fail */
-		setAtHandPos(currentPlayer, &G, copper, 0);
+	/* set an estate card at handPos 0 as choice1 .. to fail */
+	setAtHandPos(currentPlayer, &G, copper, 0);
 
 	/* INPUTS FOR MINE CARD */
 	int moneyToTrashHandLocation = 0; // choice1
@@ -812,7 +806,7 @@ int unitMineTest3()
 	int discardCardFromThisHandLocation = -1; // a.k.a. handPos of mineCard() call
 
 	/** ==> CALL <================================================= */
-	int result = mineCard(
+	result = mineCard(
 		moneyToTrashHandLocation,
 		moneyToGain,
 		&G,
@@ -838,7 +832,6 @@ int unitMineTest4()
 
 	// Game States 
 	struct gameState G;
-	struct gameState backup;
 
 	// number of players
 	int newNumPlayers = 2;
@@ -854,13 +847,13 @@ int unitMineTest4()
 	_prepOnePlayer(
 		currentPlayer,
 		&G,
-		int newHandSize,	// 5
+		newHandSize,	// 5
 		FILL_SAME,			// fill hand with the same 
 		-1					// use -1 to fill a.k.a. unused
-	)
+	);
 
-		/* set an estate card at handPos 0 as choice1 .. to fail */
-		setAtHandPos(currentPlayer, &G, copper, 0);
+	/* set an estate card at handPos 0 as choice1 .. to fail */
+	setAtHandPos(currentPlayer, &G, copper, 0);
 
 	/* INPUTS FOR MINE CARD */
 	int moneyToTrashHandLocation = 0; // choice1
@@ -868,7 +861,7 @@ int unitMineTest4()
 	int discardCardFromThisHandLocation = -1; // a.k.a. handPos of mineCard() call
 
 	/** ==> CALL <================================================= */
-	int result = mineCard(
+	result = mineCard(
 		moneyToTrashHandLocation,
 		moneyToGain,
 		&G,
@@ -885,7 +878,5 @@ int unitMineTest4()
 
 	return numErrors;
 }
-
-
 /* EOF */
 

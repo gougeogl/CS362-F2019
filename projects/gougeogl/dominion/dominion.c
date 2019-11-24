@@ -201,7 +201,7 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
 
 	//initialize trash mat
 	state->trashCount = 0;
-	state->trashPile[trashCount] = -1;
+	state->trashPile[state->trashCount] = -1;
 
     //state->handCount[state->whoseTurn] = 0; <-- don't this we need this.. review later
 
