@@ -1,9 +1,10 @@
 # ********************************************************
 # FileName: 	Makefile
 # Edited by: 	Glen Gougeon
-# Date: 	10-26-2019
+# Date: 	1-23-2019
 #
-# Description: 	Makefile for Assignment 3 unit testing
+# Description: 	Makefile for Assignment 5 
+#				testing our tests
 # 		compilation of refactored functions
 #
 # ********************************************************
@@ -104,30 +105,6 @@ randomtestresults: randomtest1 randomtest2 randomtest3
 	cat dominion.c.gcov >> randomtestresults.out
 
 #***********************************************************************
-
-testDiscardCard: testDiscardCard.c dominion.o rngs.o interface.o 
-	${CC} -o testDiscardCard testDiscardCard.c -g dominion.o rngs.o interface.o $(CFLAGS)
-
-discardresults: testDiscardCard 
-	./testDiscardCard &> discardresults.out 
-	${GCOV} testDiscardCard.c >> discardresults.out 
-	cat testDiscardCard.c.gcov >> discardresults.out 
-	${GCOV} dominion.c >> discardresults.out 
-	cat dominion.c.gcov >> discardresults.out 
-
-#***********************************************************************
-
-testInitGame: testInitGame.c dominion.o rngs.o interface.o
-	${CC} -o testInitGame testInitGame.c -g dominion.o rngs.o interface.o ${CFLAGS}
-
-testInitGameResults: testInitGame
-	./testInitGame &> testinitgameresults.out
-	${GCOV} dominion.c >> testinitgameresults.out
-	${GCOV} testInitGame.c >> testinitgameresults.out
-	cat dominion.c.gcov >> testinitgameresults.out
-	cat testInitGame.c.gcov >> testinitgameresults.out
-
-#***************************************************************************
 
 player: player.c interface.o
 	${CC} -o player player.c -g  dominion.o rngs.o interface.o $(CFLAGS)
