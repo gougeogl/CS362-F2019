@@ -6,7 +6,6 @@
 * documentation: SEE separate .pdf for  explanation
 
 ****************************************************/
-
 #include "dominion.h"
 #include "dominion_helpers.h"
 #include "interface.h"
@@ -48,7 +47,7 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
                    struct gameState *state) {
     int i;
     int j;
-    int it;
+    /*int it;*/
 
     //set up random number generator
     SelectStream(1);
@@ -152,13 +151,15 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
         state->deckCount[i] = 0;
         for (j = 0; j < 3; j++)
         {
-            state->deck[i][j] = estate;
-            state->deckCount[i]++;
+            //state->deck[i][j] = estate;
+		gainCard(estate, state, 1, i);
+            /*state->deckCount[i]++;*/
         }
         for (j = 3; j < 10; j++)
         {
-            state->deck[i][j] = copper;
-            state->deckCount[i]++;
+            //state->deck[i][j] = copper;
+		gainCard(copper, state, 1, i); // supplyPos, gameState, to Deck, player is 'i'
+            /*state->deckCount[i]++;*/
         }
     }
 
@@ -178,10 +179,10 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
         state->handCount[i] = 0;
         state->discardCount[i] = 0;
         //draw 5 cards
-        // for (j = 0; j < 5; j++)
-        //	{
-        //	  drawCard(i, state);
-        //	}
+        for (j = 0; j < 5; j++)
+        {
+       		drawCard(i, state);
+	}
     }
 
     //set embargo tokens to 0 for all supply piles
@@ -197,13 +198,12 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
     state->numBuys = 1;
     state->playedCardCount = 0;
     state->whoseTurn = 0;
-    state->handCount[state->whoseTurn] = 0;
-    //int it; move to top
 
-    //Moved draw cards to here, only drawing at the start of a turn
-    for (it = 0; it < 5; it++) {
-        drawCard(state->whoseTurn, state);
-    }
+	//initialize trash mat
+	state->trashCount = 0;
+	state->trashPile[state->trashCount] = -1;
+
+    //state->handCount[state->whoseTurn] = 0; <-- don't this we need this.. review later
 
     updateCoins(state->whoseTurn, state, 0);
 
@@ -235,7 +235,6 @@ int shuffle(int player, struct gameState *state) {
         state->deck[player][i] = newDeck[i];
         state->deckCount[player]++;
     }
-
     return 0;
 }
 
@@ -280,14 +279,13 @@ int playCard(int handPos, int choice1, int choice2, int choice3, struct gameStat
     return 0;
 }
 
+// doesn't check phase first..who is responsible for checking that??
 int buyCard(int supplyPos, struct gameState *state) {
     int who;
     if (DEBUG) {
         printf("Entering buyCard...\n");
     }
-
-    // I don't know what to do about the phase thing.
-
+		
     who = state->whoseTurn;
 
     if (state->numBuys < 1) {
@@ -304,8 +302,8 @@ int buyCard(int supplyPos, struct gameState *state) {
         return -1;
     } else {
         state->phase=1;
-        //state->supplyCount[supplyPos]--;
-        gainCard(supplyPos, state, 0, who); //card goes in discard, this might be wrong.. (2 means goes into hand, 0 goes into discard)
+        //state->supplyCount[supplyPos]--; <-- don't need this gainCard() handles tally of supplyPos (the card #) in Supply
+        gainCard(supplyPos, state, 0, who); //card goes in discard, this was wrong.. (2 means goes into hand, 0 goes into discard)
 
         state->coins = (state->coins) - (getCost(supplyPos));
         state->numBuys--;
@@ -585,59 +583,123 @@ int getWinners(int players[MAX_PLAYERS], struct gameState *state) {
 int drawCard(int player, struct gameState *state)
 {   int count;
     int deckCounter;
+
     if (state->deckCount[player] <= 0) { //Deck is empty
 
+	/*
+	if(DEBUG){
+		printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+		printf("Deck Count before %d\n", state->deckCount[player] );
+		printDeck(player, state);
+		printf("Discard Count before %d\n", state->discardCount[player] );
+		printDiscard(player, state);
+	}
+	*/
         //Step 1 Shuffle the discard pile back into a deck
         int i;
         //Move discard to deck
         for (i = 0; i < state->discardCount[player]; i++) {
             state->deck[player][i] = state->discard[player][i];
+		//printf("deck[%d]: %d\n", i, state->deck[player][i] );
+		//printDeck(player, state);
             state->discard[player][i] = -1;
         }
 
         state->deckCount[player] = state->discardCount[player];
         state->discardCount[player] = 0;//Reset discard
 
+	/*	
+	if(DEBUG){
+		printf("Deck Count after %d\n", state->deckCount[player] );
+		printDeck(player, state);
+		printf("Discard Count after %d\n", state->discardCount[player] );
+		printDiscard(player, state);
+		printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	}
+	*/
+
         //Shufffle the deck
         shuffle(player, state);//Shuffle the deck up and make it so that we can draw
 
         if (DEBUG) { //Debug statements
+		//printf("++++++++++++++++++ after shuffle *****************\n");
             printf("Deck count now: %d\n", state->deckCount[player]);
         }
 
-        state->discardCount[player] = 0;
+        //state->discardCount[player] = 0; <--- BUG ! if you use this..you'll only have coppers !!
 
-        //Step 2 Draw Card
-        count = state->handCount[player];//Get current player's hand count
+	//Step 2 Draw Card
+	count = state->handCount[player];//Get current player's hand count
 
-        if (DEBUG) { //Debug statements
-            printf("Current hand count: %d\n", count);
-        }
+	if (DEBUG) { //Debug statements
+		printf("Current hand count: %d\n", count);
+	}
 
-        deckCounter = state->deckCount[player];//Create a holder for the deck count
+	deckCounter = state->deckCount[player];//Create a holder for the deck count
 
-        if (deckCounter == 0)
-            return -1;
+	if (deckCounter == 0)
+		return -1;
 
-        state->hand[player][count] = state->deck[player][deckCounter - 1];//Add card to hand
-        state->deckCount[player]--;
-        state->handCount[player]++;//Increment hand count
-    }
+	state->hand[player][count] = state->deck[player][deckCounter -1 ];//Add card to hand
+	state->deckCount[player]--;
+	state->handCount[player]++;//Increment hand count
+	/*
+	if(DEBUG){
+		printf("Hand Count MID %d\n", state->handCount[player] );
+		printHand(player, state);
 
-    else {
-        int count = state->handCount[player];//Get current hand count for player
-        int deckCounter;
-        if (DEBUG) { //Debug statements
-            printf("Current hand count: %d\n", count);
-        }
+		printf("Deck Count MID %d\n", state->deckCount[player] );
+		printDeck(player, state);
+		
+		printf("Discard Count MID %d\n", state->discardCount[player] );
+		printDiscard(player, state);
+		printf("END DRAW CARD --\n");
+	}
+	*/
+   }
+   else {
+   	count = state->handCount[player];//Get current hand count for player
+	if (DEBUG) { //Debug statements
+		printf("Current hand count: %d\n", count);
+	}
 
-        deckCounter = state->deckCount[player];//Create holder for the deck count
-        state->hand[player][count] = state->deck[player][deckCounter - 1];//Add card to the hand
-        state->deckCount[player]--;
-        state->handCount[player]++;//Increment hand count
-    }
+	deckCounter = state->deckCount[player];//Create holder for the deck count
+	state->hand[player][count] = state->deck[player][deckCounter -1 ];//Add card to the hand
+	state->deckCount[player]--;
+	state->handCount[player]++;//Increment hand count
 
-    return 0;
+	/*
+	if(DEBUG){
+		printf("Hand Count ELSE %d\n", state->handCount[player] );
+		printHand(player, state);
+
+		printf("Deck Count ELSE %d\n", state->deckCount[player] );
+		printDeck(player, state);
+		
+		printf("Discard Count ELSE %d\n", state->discardCount[player] );
+		printDiscard(player, state);
+		printf("END DRAW CARD --\n");
+	}
+	*/
+
+   }
+	/*
+	if(DEBUG){
+		printf("==================================================================\n");
+		printf("Hand Count END %d\n", state->handCount[player] );
+		printHand(player, state);
+
+		printf("Deck Count END %d\n", state->deckCount[player] );
+		printDeck(player, state);
+		
+		printf("Discard Count END %d\n", state->discardCount[player] );
+		printDiscard(player, state);
+		printf("END DRAW CARD --\n");
+		printf("==================================================================\n");
+	}
+	*/
+
+    	return 0;
 }
 
 int getCost(int cardNumber)
@@ -703,60 +765,33 @@ int getCost(int cardNumber)
     return -1;
 }
 
-/* BARON */ /* <------------------------------------------------------------------------------------- NEW MINE FUNCTION HERE */
+/* BARON */ 
 int baronCard(int choice1, struct gameState *state)
 {
 	int currentPlayer = whoseTurn(state);
 
 	state->numBuys++;//Increase buys by 1!
 	if (choice1 > 0) { //Boolean true or going to discard an estate
-		int p = 0;//Iterator for hand!
-		int estate_not_found = TRUE;//Flag for discard set!
-		while (estate_not_found) {
+
+		int p;//Iterator for hand!
+		for (p = 0; p < state->handCount[currentPlayer]; p++)
+		{
 			if (state->hand[currentPlayer][p] == estate) { //Found an estate card!
 				state->coins += 4;//Add 4 coins to the amount of coins
+				discardCard(p, currentPlayer, state);
+				//break; <== NEW BUG # 1 !
 
-				/* new method to specifically discard - MUST pass DISCARD flag */
-				int checkDiscard = discardCard(p, currentPlayer, state, DISCARD);
-				{
-					if (checkDiscard == FAILURE && DEBUG)
-					{
-						printf("TRACE: DISCARD FAILED -- Baron! No Exit Given\n");
-					}
-				}
-
-				/* Exit the loop */
-				estate_not_found = TRUE; /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 1 Infinite Loop */
-			}
-			else if (p > state->handCount[currentPlayer]) {
-				if (DEBUG) {
-					printf("No estate cards in your hand, invalid choice\n");
-					printf("Must gain an estate if there are any\n");
-				}
-				if (supplyCount(estate, state) > 0) {
-					gainCard(estate, state, 0, currentPlayer);
-
-					state->supplyCount[estate]--; /* Decrement estates */
-					if (supplyCount(estate, state) == 0) {
-						isGameOver(state);
-					}
-				}
-				estate_not_found = FALSE; /* Exit the loop */
-			}
-
-			else {
-				p++; /* Next card */
+				/* Since I had to refactor code so much, I am adding a new bug that DOES NOT stop
+					after finding the first estate..subsequent estates will be discarded as well
+					and +4 coins added. Super-cheating */
 			}
 		}
 	}
 
 	else {
-		if (supplyCount(estate, state) >= 0) { /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 2: >= wrong, > correct
-											                                          this will try to gain a card 
-																					  from an empty supply */
+		if (supplyCount(estate, state) >= 0) { /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 2: >= wrong, > correct */
 			gainCard(estate, state, 0, currentPlayer);//Gain an estate
 
-			state->supplyCount[estate]--;//Decrement Estates
 			if (supplyCount(estate, state) == 0) {
 				isGameOver(state);
 			}
@@ -778,7 +813,7 @@ int minionCard(int choice1, int choice2, struct gameState *state, int handPos)
 	state->numActions++;
 
 	//discard card from hand
-	discardCard(handPos, currentPlayer, state, DISCARD);
+	//discardCard(handPos, currentPlayer, state);
 
 	if (choice1)
 	{
@@ -793,7 +828,7 @@ int minionCard(int choice1, int choice2, struct gameState *state, int handPos)
 		//discard hand
 		while (numHandCards(state) > 0)
 		{
-			discardCard(handPos, currentPlayer, state, DISCARD);
+			discardCard(0, currentPlayer, state); /* CHANGED: since shiftCards() goes left..this will work to remove all  */
 		}
 
 		//draw 4
@@ -813,13 +848,32 @@ int minionCard(int choice1, int choice2, struct gameState *state, int handPos)
 					//discard hand
 					while (state->handCount[i] > 0)
 					{
-						discardCard(handPos, i, state, DISCARD);
+						discardCard(0, i, state); /* CHANGED: b/c of shiftCards() can start at 0..all others will SHIFT left  */
 					}
 
 					//draw 4
 					for (j = 0; j < 4; j++)
 					{
+						if(DEBUG){
+							printf("MC <== before drawCard() called\n");
+							printf("player %d Discard Count: %d\n", i, state->discardCount[i] );
+							printDiscard(i, state);
+							printf("Player %d Hand Count: %d\n", i, state->handCount[i] );
+							printHand(i, state);
+							printf("MC\n");
+						}	
+
 						drawCard(i, state);
+
+						if(DEBUG){
+							printf("MC <== after drawCard() called\n");
+							printf("player %d Discard Count: %d\n", i, state->discardCount[i] );
+							printDiscard(i, state);
+							printf("Player %d Hand Count: %d\n", i, state->handCount[i] );
+							printHand(i, state);
+							printf("MC\n");
+						}	
+
 					}
 				}
 			}
@@ -840,26 +894,44 @@ int ambassadorCard(int choice1, int choice2, struct gameState *state, int handPo
 
 	if (choice2 > 2 || choice2 < 0)
 	{
+		printf("ERROR: if (choice2 > 2 || choice2 < 0)\n");
 		return -1;
 	}
 
-	if (choice1 == handPos) /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 5: Assignment vs. equality choice1 == handPos correct */
+	if (choice1 == handPos) 
 	{
+		printf("ERROR: if (choice1 == handPos)\n");
 		return -1;
 	}
-
+	if(DEBUG){
+		printf("CONDITION IS: if (i != handPos && i == state->hand[currentPlayer][choice1] && i != choice1)\n");  
+	}
 	for (i = 0; i < state->handCount[currentPlayer]; i++)
 	{
-		if (i == handPos && i == state->hand[currentPlayer][choice1] && i != choice1) /* <<<<<<<<<<<<<<<<<< BUG 5: GOOD = i != handPos, BAD = i == handPos
-														    This bug allows for the player to discard the
-														    card in hand at handPos. You get rid of more
-														    more of your "junk" cards this way. */
+		if(DEBUG){
+		printf("i = %d\n", i);
+		printf("handPos = %d\n", handPos);
+		printf("state->hand[currentPlayer %d][choice1 %d]: %d\n", currentPlayer, choice1, state->hand[currentPlayer][choice1] );
+		}
+		if (	(i != handPos) && 
+			(state->hand[currentPlayer][i] == state->hand[currentPlayer][choice1]))// && 
+			//(i != choice1)	) 
+			/* <<<<<<<<<<<<<<<<<< BUG 5: GOOD = i != handPos, BAD = i == handPos
+			This bug allows for the player to discard the
+			card in hand at handPos. You get rid of more
+			more of your "junk" cards this way. */
 		{
 			j++;
+			if(DEBUG){
+				printf("j = %d\n", j);
+			}
 		}
 	}
 	if (j < choice2)
 	{
+		if(DEBUG){
+			printf("ERROR: if (j < choice2)\n");
+		}
 		return -1;
 	}
 
@@ -877,12 +949,15 @@ int ambassadorCard(int choice1, int choice2, struct gameState *state, int handPo
 		if (i != currentPlayer)
 		{
 			gainCard(state->hand[currentPlayer][choice1], state, 0, i);
+			if(DEBUG){
+				printf("OTHER PLAYER GAINED A CARD: %d\n", state->hand[currentPlayer][choice1] );
+			}
 		}
 	}
 
 	//discard played card from hand
-	discardCard(handPos, currentPlayer, state, TRASH); /* <<<<<<<<<<<<<<<<<<<<<<< BUG 6: Incorrect flag given. fail to execute function */
-
+	discardCard(handPos, currentPlayer, state ); /* <<<<<<<<<<<<<<<<<<<<<<< BUG 6: Incorrect function called..should be trashCard not discardCard */
+	//printf("CARD TRASHED\n");
 	//trash copies of cards returned to supply
 	for (j = 0; j < choice2; j++)
 	{
@@ -890,7 +965,8 @@ int ambassadorCard(int choice1, int choice2, struct gameState *state, int handPo
 		{
 			if (state->hand[currentPlayer][i] == state->hand[currentPlayer][choice1])
 			{
-				trashCard(i, currentPlayer, state, TRASH);
+				trashCard(i, currentPlayer, state);
+				//printf("Identical card trashed !\n");
 				break;
 			}
 		}
@@ -996,8 +1072,13 @@ int mineCard(int choice1, int choice2, struct gameState *state, int handPos)
 
 	if (choice2 > treasure_map || choice2 < curse)
 	{
-		return 1; /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< BUG 9: forgot the -1. Good = -1, Bad = 1. This means it will 
-				                                                      return true if the choice is "off the map" or not in the deck */
+		/* BUG 9: 
+			forgot the -1. Good = -1, Bad = 1. 
+			This means it will return true if the choice is "off the map" or not in the deck.
+			However..when you have to get the cost of this "off the map" card, getCost() will
+			return -1, and BUG 10 will not execute.
+		*/
+		return 1; 
 	}
 
 	if ((getCost(state->hand[currentPlayer][choice1]) + 3) >= getCost(choice2))
@@ -1007,20 +1088,21 @@ int mineCard(int choice1, int choice2, struct gameState *state, int handPos)
 
 	gainCard(choice2, state, 2, currentPlayer);
 
-	//discard card from hand
-	discardCard(handPos, currentPlayer, state, DISCARD);
+	//discard card from hand ..ah..BUG 9.5. Not mine, but will work instead of above 
+	discardCard(handPos, currentPlayer, state); 
 
 	//discard trashed card
-	for (i = 0; j < state->handCount[currentPlayer]; i++) /* <<<<<<<<<<<<< BUG 10: Good = i < state->handCount[currentPlayer];
-														                           BAD = j < state->handCount[currentPlayer];
-																				   if j happens to be an enum of a card larger
-																				   than the handCount of the current player then
-																				   the player ends up keeping the treasure that
-																				   they were supposed to trash. Unfair advantage */
+	for (i = 0; j < state->handCount[currentPlayer]; i++) 
+		/* BUG 10: 
+			Good = i < state->handCount[currentPlayer];
+			BAD = j < state->handCount[currentPlayer];
+			if j happens to be an enum of a card larger than the handCount of the current player 
+			then the player ends up keeping the treasure that they were supposed to trash. 
+			Unfair advantage */
 	{
 		if (state->hand[currentPlayer][i] == j)
 		{
-			trashCard(i, currentPlayer, state, TRASH);
+			trashCard(i, currentPlayer, state);
 			break;
 		}
 	}
@@ -1090,7 +1172,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
         }
 
         //put played card in played card pile
-        discardCard(handPos, currentPlayer, state, DISCARD);
+        discardCard(handPos, currentPlayer, state);
 
         return 0;
 
@@ -1169,14 +1251,14 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
         gainCard(choice2, state, 0, currentPlayer);
 
         //discard card from hand
-        discardCard(handPos, currentPlayer, state, 0);
+        discardCard(handPos, currentPlayer, state);
 
         //discard trashed card
         for (i = 0; i < state->handCount[currentPlayer]; i++)
         {
             if (state->hand[currentPlayer][i] == j)
             {
-                trashCard(i, currentPlayer, state, TRASH);
+                trashCard(i, currentPlayer, state);
                 break;
             }
         }
@@ -1192,7 +1274,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
         }
 
         //discard card from hand
-        discardCard(handPos, currentPlayer, state, DISCARD);
+        discardCard(handPos, currentPlayer, state);
         return 0;
 
     case village:
@@ -1203,7 +1285,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
         state->numActions = state->numActions + 2;
 
         //discard played card from hand
-        discardCard(handPos, currentPlayer, state, DISCARD);
+        discardCard(handPos, currentPlayer, state);
         return 0;
 
     case baron:
@@ -1222,7 +1304,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
         state->numActions++;
 
         //discard card from hand
-        discardCard(handPos, currentPlayer, state, DISCARD);
+        discardCard(handPos, currentPlayer, state);
         return 0;
 
     case minion: /*<----------------------------------------------  CHANGE to FUNCTION "minionCard()" FUNCTION */
@@ -1248,12 +1330,12 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
         else
         {
             //trash 2 cards in hand
-            trashCard(choice2, currentPlayer, state, TRASH);
-            trashCard(choice3, currentPlayer, state, TRASH);
+            trashCard(choice2, currentPlayer, state);
+            trashCard(choice3, currentPlayer, state);
         }
 
         //discard card from hand
-        discardCard(handPos, currentPlayer, state, DISCARD);
+        discardCard(handPos, currentPlayer, state);
         return 0;
 
     case tribute: /*<----------------------------------------------  CHANGE to FUNCTION "tributeCard()" FUNCTION */
@@ -1283,7 +1365,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
                 {
                     if (state->hand[i][j] == copper)
                     {
-                        discardCard(j, i, state, DISCARD);
+                        discardCard(j, i, state);
                         break;
                     }
                     if (j == state->handCount[i])
@@ -1302,7 +1384,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
         }
 
         //discard played card from hand
-        discardCard(handPos, currentPlayer, state, DISCARD);
+        discardCard(handPos, currentPlayer, state);
 
         return 0;
 
@@ -1321,7 +1403,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
         state->embargoTokens[choice1]++;
 
         //trash card
-        trashCard(handPos, currentPlayer, state, TRASH);
+        trashCard(handPos, currentPlayer, state);
         return 0;
 
     case outpost:
@@ -1329,7 +1411,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
         state->outpostPlayed++;
 
         //discard card
-        discardCard(handPos, currentPlayer, state, DISCARD);
+        discardCard(handPos, currentPlayer, state);
         return 0;
 
     case salvager:
@@ -1341,11 +1423,11 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
             //gain coins equal to trashed card
             state->coins = state->coins + getCost( handCard(choice1, state) );
             //trash card
-            trashCard(choice1, currentPlayer, state, TRASH);
+            trashCard(choice1, currentPlayer, state);
         }
 
         //discard card
-        discardCard(handPos, currentPlayer, state, DISCARD);
+        discardCard(handPos, currentPlayer, state);
         return 0;
 
     case sea_hag:
@@ -1373,8 +1455,8 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
         if (index > -1)
         {
             //trash both treasure cards
-            trashCard(handPos, currentPlayer, state, TRASH);
-            trashCard(index, currentPlayer, state, TRASH);
+            trashCard(handPos, currentPlayer, state);
+            trashCard(index, currentPlayer, state);
 
             //gain 4 Gold cards
             for (i = 0; i < 4; i++)
@@ -1411,20 +1493,20 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 int shiftCards(int handPos, int currentPlayer, struct gameState *state)
 {
 	int result = FAILURE;
-	
+
 	/* check if at least 1 card in hand */
 	if (state->handCount[currentPlayer] > 1)
 	{
 		int i;
-		for (i = handPos; i < state->handCount[currentPlayer]; i++) {
+		for (i = handPos; i <= state->handCount[currentPlayer]; i++) {
+
 			state->hand[currentPlayer][i] = state->hand[currentPlayer][i + 1];
 		}
+
 		/* last place in hand is garbage. Mark unused (= -1 ) */
 		state->hand[currentPlayer][i] = UNUSED;
-
 		result = SUCCESS;
 	}
-
 	return result;
 }
 
@@ -1435,9 +1517,8 @@ int shiftCards(int handPos, int currentPlayer, struct gameState *state)
 * Params:
 *		1. handPos: integer corresponds to position in gameState hand array
 *		2. currentPlayer: integer of player shifting cards
-*		2. state: struct gameState pointer object that stores specifics
+*		3. state: struct gameState pointer object that stores specifics
 *				of game play for current player's turn
-*		4. trashFlag: 1 = TRASH, 0 = DISCARD (MACROS available)
 *
 * Description:
 *		1. Discards a SINGLE card to the currentPlayer's discard pile
@@ -1453,33 +1534,28 @@ int shiftCards(int handPos, int currentPlayer, struct gameState *state)
 *
 **************************************************************************/
 
-int discardCard(int handPos, int currentPlayer, struct gameState *state, int trashFlag)
+int discardCard(int handPos, int currentPlayer, struct gameState *state)
 {
 	int action_success = FAILURE;
 
-	//if card is not trashed, added to currentPlayer's discard pile
-	if (trashFlag == DISCARD)
-	{
-		state->discard[currentPlayer][(state->discardCount[currentPlayer])] = state->hand[currentPlayer][handPos];
-		state->discardCount[currentPlayer]++;
+	state->discard[currentPlayer][(state->discardCount[currentPlayer])] = state->hand[currentPlayer][handPos];
+	state->discardCount[currentPlayer]++;
 
-		/* adjust what's in hand */
-		state->hand[currentPlayer][handPos] = UNUSED;
-		state->handCount[currentPlayer]--;
+	state->hand[currentPlayer][handPos] = UNUSED;
 
-		/* if there is more than 1 card in hand, and shiftCards fails, then discard fails */
-		if (shiftCards(handPos, currentPlayer, state) == FAILURE && state->handCount[currentPlayer] > 1)
-		{
-			action_success = FAILURE;
-		}
-		else
-			action_success = SUCCESS;
-	}
+	/* adjust what's in hand */
+	action_success = shiftCards(handPos, currentPlayer, state); 
+
+	/* NOTE: important to increment AFTER call to shiftCards() or handCount will be off ! */
+	state->handCount[currentPlayer]--;
+
+	if( (state->handCount[currentPlayer] > 1) && (action_success != FAILURE) )
+	{ action_success = SUCCESS; }
 
     return action_success;
 }
 
-/************************************************************************* <---------------------------------------------------------------- NEW  FUNCTION 
+/************************************************************************* 
 *
 * Function: trashCard()
 * Params:
@@ -1502,28 +1578,24 @@ int discardCard(int handPos, int currentPlayer, struct gameState *state, int tra
 *		FAILURE returned by trashCard()
 *
 **************************************************************************/
-int trashCard(int handPos, int currentPlayer, struct gameState *state, int trashFlag)
+int trashCard(int handPos, int currentPlayer, struct gameState* state )
 {
 	int action_success = FAILURE;
 
 	//if card is not trashed, added to currentPlayer's discard pile
-	if (trashFlag == TRASH)
-	{
-		state->trashPile[state->trashCount] = state->hand[currentPlayer][handPos];
-		state->trashCount++;
 
-		/* adjust what's in hand */
-		state->hand[currentPlayer][handPos] = UNUSED;
-		state->handCount[currentPlayer]--;
+	state->trashPile[state->trashCount] = state->hand[currentPlayer][handPos];
+	state->trashCount++;
 
-		/* if there is more than 1 card in hand, and shiftCards fails, then discard fails */
-		if (shiftCards(handPos, currentPlayer, state) == FAILURE && state->handCount[currentPlayer] > 1)
-		{
-			action_success = FAILURE;
-		}
-		else
-			action_success = SUCCESS;
-	}
+	state->hand[currentPlayer][handPos] = UNUSED;
+
+	/* adjust what's in hand */
+	action_success = shiftCards(handPos, currentPlayer, state);
+		
+	state->handCount[currentPlayer]--;
+
+	if ((state->handCount[currentPlayer] > 1) && (action_success != FAILURE))
+	{ action_success = SUCCESS;}
 
 	return action_success;
 }
@@ -1533,6 +1605,7 @@ int gainCard(int supplyPos, struct gameState *state, int toFlag, int player)
     //Note: supplyPos is enum of choosen card
 
     //check if supply pile is empty (0) or card is not used in game (-1)
+    
     if ( supplyCount(supplyPos, state) < 1 )
     {
         return -1;
