@@ -48,8 +48,8 @@ unittest1: unittest1.c dominion.o rngs.o interface.o
 unittest2: unittest2.c dominion.o rngs.o interface.o 
 	${CC} -o unittest2 unittest2.c -g dominion.o rngs.o interface.o $(CFLAGS)
 
-#unittest3: unittest3.c dominion.o rngs.o interface.o 
-#	${CC} -o unittest3 unittest3.c -g dominion.o rngs.o interface.o $(CFLAGS)
+unittest3: unittest3.c dominion.o rngs.o interface.o 
+	${CC} -o unittest3 unittest3.c -g dominion.o rngs.o interface.o $(CFLAGS)
 	
 #unittest4: unittest4.c dominion.o rngs.o interface.o 
 #	${CC} -o unittest4 unittest4.c -g dominion.o rngs.o interface.o $(CFLAGS)
@@ -74,6 +74,15 @@ unittest2results: unittest2
 	${GCOV} unittest2.c >> unittest2results.out
 	cat unittest2.c.gcov >> unittest2results.out
 	cat dominion.c.gcov >> unittest2results.out
+
+#***********************************************************************
+
+unittest3results: unittest3 
+	./unittest3 &> unittest3results.out 
+	${GCOV} dominion.c >> unittest3results.out
+	${GCOV} unittest3.c >> unittest3results.out
+	cat unittest3.c.gcov >> unittest3results.out
+	cat dominion.c.gcov >> unittest3results.out
 
 #***********************************************************************
 
@@ -103,8 +112,8 @@ randomtestresults: randomtest1 randomtest2 randomtest3
 
 #***********************************************************************
 
-allunittestresults: unittest1results unittest2results
-	unittest1results unittest2results
+allunittestresults: unittest1results unittest2results unittest3results
+	unittest1results unittest2results unittest3results
 
 #***********************************************************************
 player: player.c interface.o

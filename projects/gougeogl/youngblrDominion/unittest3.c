@@ -351,7 +351,10 @@ int ambassadorTest1()
 	int amount_to_remove = 2; 
 
 	/** ==> CALL <================================================= */
-	ambassadorCard(1, amount_to_remove, &G, 0);
+	int beta = 0; // same as j from playCard()
+	int alpha = 0; // same as i from playCard()
+	int currentPlayer = G.whoseTurn; // same as zero..but documentable
+	refactoredAmbassador(beta, alpha, 1, amount_to_remove, currentPlayer, &G, 0);
 
 	/* NOW tally that same repeated card AFTERWARD */
 	int redundant_count_after = 0;
