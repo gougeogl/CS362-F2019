@@ -3,18 +3,18 @@
 ** Author: Glen Gougeon
 ** Class : CS362 Software Engineering II
 ** Date : 11 - 16 - 2019
-** Last Mod : 11 - 17 - 2019
+** Last Mod : 11 - 24 - 2019
 *
 ** Description : Assignment 4 : Random Testing :
-*		Refactored code for Tribute, has 2 bugs I introduced.
+*		Refactored code for Tribute by Reuben Youngblom.
 *		The following test code should catch the errors while
 *		executing 70 % branch and function coverage according
 *		to gcov coverage tool.
 *
 ** To Compile:	Use included 'Makefile'
 *		compile command : make randomtest3
-*		generate output file: make randomtestresults
-*		output: unittestresults.out
+*		generate output file: make randomtest3results
+*		output: unittest3results.out
 *
 ****************************************************************/
 
@@ -755,7 +755,7 @@ int randomTributeTest()
 		printf("              : 	remodel\n");
 		printf("              : 	smithy\n");
 		printf("              : 2 Players.\n");
-		printf("	      : Randomly assign 5 cards from kingdomCards to..\n"); 
+		printf("			  : Randomly assign 5 cards from kingdomCards to..\n"); 
 		printf("              : each player's hand.\n"); 
 		printf("              : each player's deck.\n"); 
 		printf("OUTPUT:\n\n");
@@ -845,7 +845,9 @@ int randomTributeTest()
 		}
 
 		/** ==> CALL <================================================= */
-		tributeCard(&G);
+		int tributeRevealedCards[2] = { -1, -1 }; // pulled from dominion.c req'd. for Reuben's version
+		int alpha = 0; // same as i from playCard()
+		refactoredTribute(alpha, tributeRevealedCards, currentPlayer, nextPlayer, &G);
 
 		if (DEBUG_TRIBUTE_TEST_1) {
 			printf("AFTER: saveTop2Discard() NEXT PLAYER <------------------------\n");

@@ -133,20 +133,20 @@ randomtest2results: randomtest2
 
 #***********************************************************************
 
-#randomtest3results: randomtest3 
-#	./randomtest3 &> randomtest3results.out 
-#	${GCOV} dominion.c >> randomtest3results.out
-#	${GCOV} randomtest3.c >> randomtest3results.out
-#	cat randomtest3.c.gcov >> randomtest3results.out
-#	cat dominion.c.gcov >> randomtest3results.out
+randomtest3results: randomtest3 
+	./randomtest3 &> randomtest3results.out 
+	${GCOV} dominion.c >> randomtest3results.out
+	${GCOV} randomtest3.c >> randomtest3results.out
+	cat randomtest3.c.gcov >> randomtest3results.out
+	cat dominion.c.gcov >> randomtest3results.out
 
 #***********************************************************************
 
 allunittestresults: unittest1results unittest2results unittest3results unittest4results unittest5results
 	unittest1results unittest2results unittest3results unittest4results unittest5results
 
-allrandomtestresults: randomtest1results randomtest2results
-	randomtest1results randomtest2results
+allrandomtestresults: randomtest1results randomtest2results randomtest3results
+	randomtest1results randomtest2results randomtest3results
 	
 allresults: allunittestresults allrandomtestresults
 	allunittestresults allrandomtestresults
