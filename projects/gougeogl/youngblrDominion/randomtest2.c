@@ -3,16 +3,16 @@
 ** Author: Glen Gougeon
 ** Class : CS362 Software Engineering II
 ** Date : 11 - 14 - 2019
-** Last Mod : 11 - 17 - 2019
+** Last Mod : 11 - 24 - 2019
 *
-** Description : Assignment 4 : Random Testing :
-*		Refactored code for Minion, has 2 bugs I introduced.
+** Description : Assignment 5 : Random Testing :
+*		Refactored code for Minion by Reuben Youngblom.
 *		The following test code should attain 70% branch coverage
 *
 ** To Compile:	Use included 'Makefile'
 *		compile command : make randomtest2
-*		generate output file: make randomtestresults
-*		output: randomtestresults.out
+*		generate output file: make randomtest2results
+*		output: randomtest2results.out
 *
 ******************************************************************/
 
@@ -539,18 +539,22 @@ void randomMinionTest()
 		int handBox[MAX_PLAYERS];
 		savePreviousHandCounts(handBox, &G);
 
+		/* GET CURRENT PLAYER */
+		int currentPlayer = G.whoseTurn; // added for Reuben's version
+
 		/* MAKE COPY OF STATE AFTER SETUP */
 		memset(&backup, '\0', sizeof(backup));
-		backup = G;
-
-		
+		backup = G;		
 
 		/* MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM */
 		/* ** CALLING MINION CARD !! **															*/
+
+		int alpha = 0; // same as i .. changed for Reuben's version
+		int beta = 0;  // same as j .. changed for Reuben's version
 		int choice1 = _genRandRange(0, 1); /* 1 = gain +4 coin */
 		int choice2 = _genRandRange(0, 1); /* 1 = redraw */
-
-		minionCard(choice1, choice2, &G, someIdx); /* <== someIdx is where you placed minion !!*/
+		
+		refactoredMinion(alpha, beta, choice1, choice2, currentPlayer, &G, someIdx);
 
 		/* MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM */
 
