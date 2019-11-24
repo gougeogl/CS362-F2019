@@ -115,29 +115,44 @@ randomtest3: randomtest3.c dominion.o rngs.o interface.o
 
 #***********************************************************************
 
-randomtestresults: randomtest1 randomtest2 randomtest3
-	./randomtest1 &> randomtestresults.out 
-	./randomtest2 >> randomtestresults.out 
-	./randomtest3 >> randomtestresults.out 
-	${GCOV} dominion.c >> randomtestresults.out
-	${GCOV} randomtest1.c >> randomtestresults.out
-	${GCOV} randomtest2.c >> randomtestresults.out
-	${GCOV} randomtest3.c >> randomtestresults.out
-	cat randomtest1.c.gcov >> randomtestresults.out
-	cat randomtest2.c.gcov >> randomtestresults.out
-	cat randomtest3.c.gcov >> randomtestresults.out
-	cat dominion.c.gcov >> randomtestresults.out
+randomtest1results: randomtest1 
+	./randomtest1 &> randomtest1results.out 
+	${GCOV} dominion.c >> randomtest1results.out
+	${GCOV} randomtest1.c >> randomtest1results.out
+	cat randomtest1.c.gcov >> randomtest1results.out
+	cat dominion.c.gcov >> randomtest1results.out
+
+#***********************************************************************
+
+#randomtest2results: randomtest2 
+#	./randomtest2 &> randomtest2results.out 
+#	${GCOV} dominion.c >> randomtest2results.out
+#	${GCOV} randomtest2.c >> randomtest2results.out
+#	cat randomtest2.c.gcov >> randomtest2results.out
+#	cat dominion.c.gcov >> randomtest2results.out
+
+#***********************************************************************
+
+#randomtest3results: randomtest3 
+#	./randomtest3 &> randomtest3results.out 
+#	${GCOV} dominion.c >> randomtest3results.out
+#	${GCOV} randomtest3.c >> randomtest3results.out
+#	cat randomtest3.c.gcov >> randomtest3results.out
+#	cat dominion.c.gcov >> randomtest3results.out
 
 #***********************************************************************
 
 allunittestresults: unittest1results unittest2results unittest3results unittest4results unittest5results
 	unittest1results unittest2results unittest3results unittest4results unittest5results
 
+allrandomtestresults: randomtest1results
+	randomtest1results
+	
+allresults: allunittestresults allrandomtestresults
+	allunittestresults allrandomtestresults
+	
 #***********************************************************************
 
-allresults: allunittestresults
-	allunittestresults
-	
 player: player.c interface.o
 	${CC} -o player player.c -g  dominion.o rngs.o interface.o $(CFLAGS)
 
@@ -147,3 +162,4 @@ clean:
 	rm -f *.o  *.gcov *.gcda *.gcno *.so *.out *.exe
 	rm -f playdom player testDiscardCard testDrawCard testInitGame 
 	rm -f unittest1 unittest2 unittest3 unittest4 unittest5
+	rm -f randomtest1 randomtest2 randomtest3
