@@ -683,8 +683,8 @@ int getCost(int cardNumber)
 
 int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState *state, int handPos, int *bonus)
 {
-    int i;
-    int j;
+    int i = 0;
+    int j = 0;
     int k;
     int x;
     int index;
@@ -878,7 +878,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 
 //Refactor Minion
     case minion:
-        refactoredMinion(i, choice1, choice2, currentPlayer, state, handPos);
+        refactoredMinion(i, j, choice1, choice2, currentPlayer, state, handPos);
 
 
     case steward:
@@ -1202,7 +1202,7 @@ int refactoredBaron (int choice1, int currentPlayer, struct gameState *state) {
 }
 
 
-int refactoredMinion(int i, int choice1, int choice2, int currentPlayer, struct gameState *state, int handPos) {
+int refactoredMinion(int i, int j, int choice1, int choice2, int currentPlayer, struct gameState *state, int handPos) {
   //+1 action
   state->numActions++;
 
@@ -1321,7 +1321,7 @@ int refactoredAmbassador(int j, int i, int choice1, int choice2, int currentPlay
 
 
 
-int refactoredTribute(int i, int tributeRevealedCards, int currentPlayer, int nextPlayer, struct gameState *state) {
+int refactoredTribute(int i, int* tributeRevealedCards, int currentPlayer, int nextPlayer, struct gameState *state) {
   if ((state->discardCount[nextPlayer] + state->deckCount[nextPlayer]) <= 1) {
       if (state->deckCount[nextPlayer] > 0) {
           tributeRevealedCards[0] = state->deck[nextPlayer][state->deckCount[nextPlayer]-1];

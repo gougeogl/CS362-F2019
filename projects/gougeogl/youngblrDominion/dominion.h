@@ -97,6 +97,14 @@ int playCard(int handPos, int choice1, int choice2, int choice3,
              struct gameState *state);
 /* Play card with index handPos from current player's hand */
 
+/** REUBEN YOUNGBLOM'S REFACTORED FUNCTIONS BELOW **~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+int refactoredBaron (int choice1, int currentPlayer, struct gameState *state); 
+int refactoredMinion(int i, int j, int choice1, int choice2, int currentPlayer, struct gameState *state, int handPos); 
+int refactoredAmbassador(int j, int i, int choice1, int choice2, int currentPlayer, struct gameState *state, int handPos); 
+int refactoredTribute(int i, int* tributeRevealedCards, int currentPlayer, int nextPlayer, struct gameState *state); 
+int refactoredMine(int j, int i, int choice1, int choice2, int currentPlayer, struct gameState *state, int handPos); 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 int buyCard(int supplyPos, struct gameState *state);
 /* Buy card with supply index supplyPos */
 
