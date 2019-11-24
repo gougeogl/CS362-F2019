@@ -222,10 +222,11 @@ int baronTest1()
 	for (i = 0; i < 5; i++)
 	{
 		prep(2, seed, kingdomCards, &G, 0, 5, i, estate);
+		int currentPlayer = whoseTurn(&G); // <------------ added this for Reuben's version
 		memset(&backup, '\0', sizeof(backup));
 		backup = G;
 
-		baronCard(1, &G);
+		refactoredBaron(1, currentPlayer, &G);
 
 		/* check num buys */
 		if ((backup.numBuys + 1) != G.numBuys)
@@ -242,7 +243,7 @@ int baronTest1()
 			memset(name, '\0', sizeof(name));
 
 			printf("Error: Chose to discard an estate, but no estate found in discard !\n");
-			int currentPlayer = whoseTurn(&G);
+			currentPlayer = whoseTurn(&G); // <------------ declared earlier for Reuben's version
 			cardNumToName(G.discard[currentPlayer][G.discardCount[currentPlayer]], name);
 			printf("Top of discard contains: %s\n", name);
 			result = -1;
@@ -299,7 +300,7 @@ int baronTest2()
 
 	memset(&backup, '\0', sizeof(backup));
 	backup = G;
-	baronCard(1, &G);
+	refactoredBaron(1, currentPlayer, &G);
 
 	/* check num buys */
 	if ((backup.numBuys + 1) != G.numBuys)
@@ -361,8 +362,9 @@ int baronTest3()
 	{
 		prep(2, seed, kingdomCards, &G, 0, 5, i, estate);
 		memset(&backup, '\0', sizeof(backup));
+		int currentPlayer = whoseTurn(&G); // <------------ added this for Reuben's version
 		backup = G;
-		baronCard(0, &G);
+		refactoredBaron(0, currentPlayer, &G);
 
 		/*
 		printf("BEFORE\n");
