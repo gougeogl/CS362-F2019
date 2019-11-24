@@ -190,6 +190,10 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
     state->handCount[state->whoseTurn] = 0;
     //int it; move to top
 
+    // initialize trash mat
+    state->trashCount = 0;
+    state->trashPile[state->trashCount] = -1;
+
     //Moved draw cards to here, only drawing at the start of a turn
     for (it = 0; it < 5; it++) {
         drawCard(state->whoseTurn, state);

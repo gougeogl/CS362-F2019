@@ -524,7 +524,7 @@ int unitMineTestDeluxe(
 	int alpha = 0; // <-- for Reuben's version
 	int beta = 0; // <-- for Reuben's version
 
-	mineCard(
+	refactoredMine(
 		alpha, // <-- for Reuben's version
 		beta, // <-- for Reuben's version
 		moneyToTrashHandLocation, 
@@ -705,7 +705,7 @@ int unitMineTest1()
 	int alpha = 0; // <-- for Reuben's version
 	int beta = 0; // <-- for Reuben's version
 
-	result = mineCard(
+	result = refactoredMine(
 		alpha, // <-- for Reuben's version
 		beta, // <-- for Reuben's version
 		moneyToTrashHandLocation,
@@ -766,7 +766,7 @@ int unitMineTest2()
 	int alpha = 0; // <-- for Reuben's version
 	int beta = 0; // <-- for Reuben's version
 
-	result = mineCard(
+	result = refactoredMine(
 		alpha, // <-- for Reuben's version
 		beta, // <-- for Reuben's version
 		moneyToTrashHandLocation,
@@ -827,7 +827,7 @@ int unitMineTest3()
 	int alpha = 0; // <-- for Reuben's version
 	int beta = 0; // <-- for Reuben's version
 
-	result = mineCard(
+	result = refactoredMine(
 		alpha, // <-- for Reuben's version
 		beta, // <-- for Reuben's version
 		moneyToTrashHandLocation,
@@ -888,7 +888,7 @@ int unitMineTest4()
 	int alpha = 0; // <-- for Reuben's version
 	int beta = 0; // <-- for Reuben's version
 
-	result = mineCard(
+	result = refactoredMine(
 		alpha, // <-- for Reuben's version
 		beta, // <-- for Reuben's version
 		moneyToTrashHandLocation,
