@@ -498,8 +498,9 @@ int minionTest1()
 
 	/** ==> CALL <================================================= */
 	int alpha = 0; // same as i .. changed for Reuben's version
+	int beta = 0;  // same as j .. changed for Reuben's version
 	int currentPlayer = G.whoseTurn; // added for Reuben's version
-	refactoredMinion(alpha, 1, 1, currentPlayer, &G, otherNumber);
+	refactoredMinion(alpha, beta, 1, 1, currentPlayer, &G, otherNumber);
 
 	/* assert numActions increased properly to +1 previous */
 	compareNumActions(G.whoseTurn, &backup, &G);
@@ -582,8 +583,9 @@ int minionTest2()
 	backup = G;
 
 	/** ==> CALL <================================================= */
+	int alpha = 0; // same as i .. changed for Reuben's version
 	int beta = 0; // same as i .. changed for Reuben's version
-	refactoredMinion(beta, 1, 1, G.whoseTurn, &G, otherNumber);
+	refactoredMinion(alpha, beta, 1, 1, G.whoseTurn, &G, otherNumber);
 
 	/* assert numActions increased properly to +1 previous */
 	compareNumActions(G.whoseTurn, &backup, &G);

@@ -60,7 +60,7 @@ unittest2: unittest2.c dominion.o rngs.o interface.o
 #***********************************************************************
 
 unittest1results: unittest1 
-	./unittest1 &> unittestresults.out 
+	./unittest1 &> unittest1results.out 
 	${GCOV} dominion.c >> unittest1results.out
 	${GCOV} unittest1.c >> unittest1results.out
 	cat unittest1.c.gcov >> unittest1results.out
@@ -104,12 +104,13 @@ randomtestresults: randomtest1 randomtest2 randomtest3
 #***********************************************************************
 
 allunittestresults: unittest1results unittest2results
+	unittest1results unittest2results
 
 #***********************************************************************
 player: player.c interface.o
 	${CC} -o player player.c -g  dominion.o rngs.o interface.o $(CFLAGS)
 
-all: playdom player unittest1 
+all: playdom player 
 
 clean:
 	rm -f *.o  *.gcov *.gcda *.gcno *.so *.out *.exe
