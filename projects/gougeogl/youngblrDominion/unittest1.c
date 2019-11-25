@@ -79,7 +79,6 @@ void initTestGame(int players, int* kDeck, int mySeed, struct gameState* game)
 void prep(int player, int seed, int* kingdom, struct gameState* state, int numEstates, int handSize, int handPos, int card)
 {
 	initTestGame(player, kingdom, seed, state);
-	//removeEstatesDeck(state);
 	wipeDeck(state);
 	updateCoins(player, state, 0); /* <== added this */
 	removeEstatesDiscard(state);

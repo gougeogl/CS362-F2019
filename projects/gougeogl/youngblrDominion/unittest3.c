@@ -334,7 +334,7 @@ int ambassadorTest1()
 	setHandPos(0, &G, ambassador, 0); /* <== need an ambassador in hand to use it right ? */
 
 	/* SAVE PLAYER OF AMBASSADORS HAND */
-	int primePlayersHand[G.handCount[0]];
+	int primePlayersHand[MAX_HAND];
 	saveZerosHand(0, &G, primePlayersHand);
 
 	/* set up an index of some repeated card to remove.. silver */
