@@ -954,7 +954,7 @@ int unitTributeTest2()
 	if (RULES)
 	{
 		printf("TRIBUTE TEST 2: Rules:\n");
-		printf("			  : Wipe every player's hand, deck, and discard piles.\n");
+		printf("	      : Wipe every player's hand, deck, and discard piles.\n");
 		printf("              : Use these kingdomCards:\n");
 		printf("              : 	adventurer\n");
 		printf("              : 	ambassador\n");
@@ -968,7 +968,7 @@ int unitTributeTest2()
 		printf("              : 	smithy\n");
 		printf("              : 4 Players.\n");
 		printf("              : Current Player = 3 (means player 4).\n");
-		printf("	          : Randomly assign 3 cards from kingdomCards to..\n");
+		printf("	      : Randomly assign 3 cards from kingdomCards to..\n");
 		printf("              : each player's hand.\n");
 		printf("              : each player's deck.\n");
 		printf("              : Place a tribute card at a random position in hand.\n");

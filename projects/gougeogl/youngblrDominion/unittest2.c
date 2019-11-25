@@ -70,6 +70,10 @@ int minionTest2();
 
 int main()
 {
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printf(" UNIT TEST MINION: OUTPUT\n");
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+
 	minionTest1();
 	minionTest2();
 	printf("\n\n");
@@ -585,7 +589,7 @@ int minionTest2()
 	/** ==> CALL <================================================= */
 	int alpha = 0; // same as i .. changed for Reuben's version
 	int beta = 0; // same as i .. changed for Reuben's version
-	refactoredMinion(alpha, beta, 1, 1, G.whoseTurn, &G, otherNumber);
+	refactoredMinion(alpha, beta, 0, 1, G.whoseTurn, &G, otherNumber);
 
 	/* assert numActions increased properly to +1 previous */
 	compareNumActions(G.whoseTurn, &backup, &G);
