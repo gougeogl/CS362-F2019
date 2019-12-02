@@ -182,7 +182,7 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
         for (j = 0; j < 5; j++)
         {
        		drawCard(i, state);
-	}
+		}
     }
 
     //set embargo tokens to 0 for all supply piles
@@ -202,8 +202,6 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
 	//initialize trash mat
 	state->trashCount = 0;
 	state->trashPile[state->trashCount] = -1;
-
-    //state->handCount[state->whoseTurn] = 0; <-- don't this we need this.. review later
 
     updateCoins(state->whoseTurn, state, 0);
 
